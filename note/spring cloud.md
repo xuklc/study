@@ -1,0 +1,284 @@
+##spring cloud
+
+###  写在前头
+
+学习一个新的东西，首先是要看官网的介绍，认真的看，看不懂也没关系，百度一下，例如spring cloud gateway,gateway有三个概念routes、predicates和filter，可以这样先百度spring cloud gateway,spring cloud gateway routes,spring cloud gateway predicates,spring cloud gateway filter,gateway  predicates,gateway filter
+
+**还有一个重点，例子可以去github和码云搜索别人的例子入门**
+
+### 1spring cloud dependencies
+
+spring cloud 依赖版本管理器，spring cloud 版本管理器需要集成spring-boot-starter-parent父模块之外，还需要在<dependencyManagement>标签显式声明版本管理器
+
+
+
+### 2 spring cloud 日志
+
+  spring cloud 依赖包直接使用 spring cloud dependencies 和 <parent> 来管理就不会出现jar 版本冲突问题
+
+
+
+```xml
+<!-- 管理spring boot的jar 版本,依赖这个父项目，在该父项目定义的jar都不需要写jar包的版本 -->
+<parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.0.1.RELEASE</version>
+</parent>
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-dependencies</artifactId>
+            <version>Finchley.SR2</version>
+            <type>pom</type>
+           <!-- 通过<parent>标签只能继承一个 spring-boot-start-parent，import可以多继承 -->
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+```
+
+###3  eureka
+
+  eureka server 依赖
+
+```xml
+<!-- starter -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter</artifactId>
+</dependency>
+
+<!-- eureka -->
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+</dependency>
+```
+
+~~~yaml
+eureka:
+  instance:
+    hostname:  eurekaServer8089.com  #主机域名或主机ip
+  client:
+    register-with-eureka: false # 表示不向服务注册本身
+    fetch-registry: false # 表示eureka本身就是服务端，职责就是维护服务实例，不需要检索服务
+~~~
+
+### 4 spring cloud jar冲突
+
+**注意:<dependencyManagement>标签管理的依赖要注意版本，要和parent标签的版本对应，否则版本冲突，导致jar无法下载**
+
+**另外不同spring cloud版本的依赖的<artifactId>不是一成不变的，而是有可能随版本而改变**
+
+下面这个是eureka server2.0.0.1版本依赖，spring boot 2.0版本一下的可能又不一样
+
+```xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+</dependency>
+```
+
+### 5 spring cloud  学习资料
+
+  码云
+
+idea  spring initalizr插件可以生成依赖，找不到依赖可以使用demo来完成
+
+
+
+### 6 gateway
+
+​	**注意：Spring Cloud Gateway requires the Netty runtime provided by Spring Boot and Spring Webflux. It does not work in a traditional Servlet Container or built as a WAR.**
+
+**注意: <!--spring cloud gateway 不兼容 spring-boot-starter-web-->**
+
+**说明:gateway和eureka没有什么必然的关系，gateway负责服务过滤和服务转发，本身也是一个服务，可以注册到eureka中，不注册到eureka也不影响gateway**
+
+  #### 1 概念
+
+- **Route**: Route the basic building block of the gateway. It is defined by an ID, a destination URI, a collection of predicates and a collection of filters. A route is matched if aggregate predicate is true.
+- **Predicate**: This is a [Java 8 Function Predicate](https://docs.oracle.com/javase/8/docs/api/java/util/function/Predicate.html). The input type is a [Spring Framework `ServerWebExchange`](https://docs.spring.io/spring/docs/5.0.x/javadoc-api/org/springframework/web/server/ServerWebExchange.html). This allows developers to match on anything from the HTTP request, such as headers or parameters.
+- **Filter**: These are instances [Spring Framework `GatewayFilter`](https://docs.spring.io/spring/docs/5.0.x/javadoc-api/org/springframework/web/server/GatewayFilter.html) constructed in with a specific factory. Here, requests and responses can be modified before or after sending the downstream request.
+
+####2 工作流程
+
+![gateway](D:\software\resources\note\images\gateway.png)
+
+#### 3 URI定义注意点
+
+**URIs defined in routes without a port will get a default port set to 80 and 443 for HTTP and HTTPS URIs respectively**
+
+#### 4 配置的方式
+
+  1 yml配置文件配置
+
+ 2 用java代码配置
+
+#### 5 配置 routes
+
+配置id，uri和端口
+
+#### 6 配置predicates路由规则
+
+predicates：请求匹配规则，为一个数组，每个规则为并且的关系。包含： 
+
+1. name：规则名称，目前有10个，有Path，Query，Method，Header，After，Before，Between，Cookie，Host，RemoteAddr 
+2. args：参数key-value键值对,例：
+
+#### 7  配置过滤filter
+
+**内置的过滤器工厂一共有22个，位于 `org.springframework.cloud.gateway.filter.factory`及`org.springframework.cloud.gateway.filter.factory.rewrite`包中**
+
+filters：请求过滤filter，为一个数组，每个filter都会顺序执行。包含： 
+1. name：过滤filter名称，**常用的有Hystrix断路由**，**RequestRateLimiter限流**，**StripPrefix截取请求url **
+2. args：参数key-value键值对,例：
+
+#####Hystrix
+
+Hystrix是一个断路器，是一个独立的组件，这里只是集成到gateway当中
+
+~~~yml
+filters:
+- name: Hystrix
+  args:
+    name: fallbackcmd
+    fallbackUri: forward:/incaseoffailureusethis
+```
+
+如果args不写key的，会自动生成一个id，如下会生成一个xxx0的key，值为1
+
+```
+filters:
+- StripPrefix= 1
+###spring cloud gateway官方例子
+spring:
+  cloud:
+    gateway:
+      routes:
+      - id: hystrix_route
+        uri: lb://backing-service:8088
+        predicates:
+        - Path=/consumingserviceendpoint
+        filters:
+        - name: Hystrix
+          args:
+            name: fallbackcmd
+            fallbackUri: forward:/incaseoffailureusethis
+        - RewritePath=/consumingserviceendpoint, /backingserviceendpoint
+~~~
+
+##### StripPrefix
+
+```yml
+spring:
+  cloud:
+    gateway:
+      routes:
+      - id: nameRoot
+        uri: http://nameservice
+        predicates:
+        - Path=/name/**
+        filters:
+        - StripPrefix=2
+```
+
+当 请求网关的路径是http://nameservice/name/bar/foo时，通过网关转发请求的路径将变成http://nameservice/foo
+
+When a request is made through the gateway to `/name/bar/foo` the request made to `nameservice` will look like `http://nameservice/foo`.
+
+**配置的格式要严格遵守官方的例子,严格对照格式**
+
+**LoadBalancerClient Filter的使用比较简单，只需在url前加上lb,以下是这三部分综合使用的一个demo，lb://**
+
+    spring:
+      cloud:
+        gateway:
+          discovery:
+            locator:
+              enabled: true
+          routes:
+          - id: Hystrix
+            uri: lb://user
+            predicates:
+            - Path=/test/**
+            filters:
+            - name: Hystrix
+              args:
+                name: fallbackcmd
+                fallbackUri: forward:/fallback
+**总结**
+
+LoadBalancerClientFilter会作用在url以**lb开头**的路由，然后利用loadBalancer来获取服务实例，构造目标requestUrl，设置到**GATEWAY_REQUEST_URL_ATTR**属性中，供NettyRoutingFilter使用
+
+### 7 spring cloud 启动器
+
+```xml
+<groupId>org.springframework.boot</groupId>
+<artifactId>spring-boot-starter</artifactId>
+```
+
+### 8 eureka
+
+####1eureka.instance.appname  VS  spring.application.name
+
+```java
+@ConfigurationProperties("eureka.instance")
+public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, EnvironmentAware {
+    /**
+	 * Default prefix for actuator endpoints
+	 */
+	private String actuatorPrefix = "/actuator";
+
+	/**
+	 * Get the name of the application to be registered with eureka.
+	 */
+	private String appname = UNKNOWN;
+
+    
+    @Override
+	public void setEnvironment(Environment environment) {
+		this.environment = environment;
+		// set some defaults from the environment, but allow the defaults to use relaxed binding
+	String springAppName = this.environment.getProperty("spring.application.name", "");
+		if(StringUtils.hasText(springAppName)) {
+			setAppname(springAppName);
+			setVirtualHostName(springAppName);
+			setSecureVirtualHostName(springAppName);
+		}
+	}
+```
+
+从以上可以看到，spring.application.name 的优先级比 eureka.instance.appname 高
+
+~~~yml
+spring:
+  application:
+    name: jack
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    appname: client
+~~~
+
+两者都配置的时候，注册到Eureka Server上的 appname 是 jack
+
+####2 @EnableEurekaClient VS @EnableDiscoveryClient
+
+当客户端注册Eureka时，它提供关于自身的元数据，例如主机和端口，健康指示符URL，主页等。Eureka从属于服务的每个实例接收心跳消息。如果心跳失败超过可配置的时间表，则通常将该实例从注册表中删除
+
+我们明确地使用`@EnableEurekaClient`，但只有Eureka可用，你也可以使用`@EnableDiscoveryClient`。需要配置才能找到Eureka服务器。
+
+例子:
+
+```yml
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+```
+
