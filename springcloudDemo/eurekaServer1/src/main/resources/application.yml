@@ -1,0 +1,12 @@
+server:
+  port: 8089
+
+eureka:
+  instance:
+    hostname:  eurekaServer8089.com
+    prefer-ip-address: true  #在某些情况下，Eureka优先发布服务的IP地址而不是主机名。将eureka.instance.preferIpAddress设置为true，并且当应用程序向eureka注册时，它将使用其IP地址而不是其主机名
+  client:
+    register-with-eureka: false #
+    fetch-registry: false #
+    service-url:
+        defaultZone:  http://127.0.0.1:8090/eureka,http://127.0.0.1:8091/eureka

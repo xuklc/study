@@ -1,0 +1,14 @@
+server:
+  port: 8090
+
+
+eureka:
+  instance:
+    hostname:  eurekaServer8090.com
+    prefer-ip-address: true
+
+  client:
+    service-url:
+        defaultZone: http://127.0.0.1:8089/eureka,http://127.0.0.1:8091/eureka
+    fetch-registry: false
+    register-with-eureka: false

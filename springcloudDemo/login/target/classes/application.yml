@@ -1,0 +1,15 @@
+server:
+  port: 8082
+
+
+eureka:
+  client:
+    service-url:
+      #配置eureka服务器地址
+         defaultZone:  http://127.0.0.1:8090/eureka,http://127.0.0.1:8089/eureka,http://127.0.0.1:8091/eureka
+  instance:
+    prefer-ip-address: true
+
+spring:
+  application:
+    name: login
