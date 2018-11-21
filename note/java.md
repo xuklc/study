@@ -182,6 +182,12 @@ javaProgrammers.stream()
           .forEach((p) -> System.out.printf("%s %s; ", p.getFirstName(), p.getLastName()));
 ```
 
+#### 5注意事项
+
+遍历循环和if结合使用不能抛出异常，只能捕获
+
+![lambda_foreach](D:\software\resources\springcloud\gateway\spring-cloud-gateway-demo-Predicate\note\images\lambda_foreach.png)
+
 ##2 stream
 
 代码示例
