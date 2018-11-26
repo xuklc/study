@@ -349,3 +349,13 @@ java NIO管道用于在两个线程之间建立单向数据连接。它有一个
 
 ![nioPackage](D:\software\resources\note\images\nioPackage.png)
 
+### 5 IO在系统的运行过程
+
+#### 5.1内核态和用户态
+
+为了保证用户进程不能直接操作内核(kernel)，保证内核安全，操作系统把虚拟空间划分为两部分
+
+![nio_内核态和用户态](D:\software\resources\springcloud\gateway\spring-cloud-gateway-demo-Predicate\note\images\nio_内核态和用户态.jpg)
+
+
+

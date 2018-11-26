@@ -11,7 +11,7 @@
 		<module>spring-cloud-gateway</module>
 		<module>spring-cloud-eureka</module>
 		<module>spring-cloud-producer</module>
-
+        <module>spring-cloud-producer-2</module>
 	</modules>
 
 	<packaging>pom</packaging>
