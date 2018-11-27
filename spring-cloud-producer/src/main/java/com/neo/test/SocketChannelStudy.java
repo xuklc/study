@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  * @author xukl
@@ -34,8 +35,10 @@ public class SocketChannelStudy {
         Selector selector = Selector.open();
 
         // 1.3将通道注册到选择器中，获取服务端返回的数据
-        socketChannel.register(selector, SelectionKey.OP_READ);
-        FileInputStream fis = new FileInputStream(new File("D:\\software\\work\\人员简历模板.docx"));
+        SelectionKey selectionKey = socketChannel.register(selector, SelectionKey.OP_READ);
+        File file = new File("D:\\software\\work\\人员简历模板.docx");
+        FileInputStream fis = new FileInputStream(file);
+
         FileChannel fileChannel=fis.getChannel();
 
         // 2. 发送一张图片给服务端吧
@@ -43,24 +46,28 @@ public class SocketChannelStudy {
 
         // 3.要使用NIO，有了Channel，就必然要有Buffer，Buffer是与数据打交道的呢
         ByteBuffer buffer = ByteBuffer.allocate(1024);
-
+        String fileName=file.getName();
+        selectionKey.attach(fileName);
         // 4.读取本地文件(图片)，发送到服务器
         while (fileChannel.read(buffer) != -1) {
 
             // 在读之前都要切换成读模式
             buffer.flip();
-
             socketChannel.write(buffer);
 
+//            socketChannel.setOption(SocketOption)
             // 读完切换成写模式，能让管道继续读取文件的数据
             buffer.clear();
         }
 
+        socketChannel.finishConnect();
         socketChannel.close();
 
 
         System.out.println(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSS")) +"---accept");
-
+//        while(selector.select()>0){
+//
+//        }
         // 5. 轮训地获取选择器上已“就绪”的事件--->只要select()>0，说明已就绪
 //        while (selector.select() > 0) {
 //            // 6. 获取当前选择器所有注册的“选择键”(已就绪的监听事件)
