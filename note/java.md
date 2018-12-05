@@ -357,5 +357,13 @@ java NIO管道用于在两个线程之间建立单向数据连接。它有一个
 
 ![nio_内核态和用户态](D:\software\resources\springcloud\gateway\spring-cloud-gateway-demo-Predicate\note\images\nio_内核态和用户态.jpg)
 
+### 6正则表达式 
 
+| 元字符 | 描述                                      |
+| ------ | ----------------------------------------- |
+| .      | 表示任意字符                              |
+| *      | 表示匹配任意次，包括0次                   |
+| \|     | 表示或                                    |
+| (abc)  | 表示匹配括号里的abc，不是匹配a,b,c,ab等到 |
+| [abc]  | 表示匹配中括号里的abc任意组合             |
 

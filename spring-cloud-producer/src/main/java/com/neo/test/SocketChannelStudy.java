@@ -26,7 +26,7 @@ public class SocketChannelStudy {
 
     public static void main(String[] args) throws IOException {
         // 1. 获取通道
-        SocketChannel socketChannel = SocketChannel.open(new InetSocketAddress("127.0.0.1", 6666));
+        SocketChannel socketChannel = SocketChannel.open(new InetSocketAddress("192.168.100.60",8081));
 
         // 1.1切换成非阻塞模式
         socketChannel.configureBlocking(false);
@@ -35,8 +35,8 @@ public class SocketChannelStudy {
         Selector selector = Selector.open();
 
         // 1.3将通道注册到选择器中，获取服务端返回的数据
-        SelectionKey selectionKey = socketChannel.register(selector, SelectionKey.OP_READ);
         File file = new File("D:\\software\\work\\人员简历模板.docx");
+        SelectionKey selectionKey = socketChannel.register(selector, SelectionKey.OP_READ,file.getName());
         FileInputStream fis = new FileInputStream(file);
 
         FileChannel fileChannel=fis.getChannel();
@@ -59,9 +59,10 @@ public class SocketChannelStudy {
             // 读完切换成写模式，能让管道继续读取文件的数据
             buffer.clear();
         }
-
+        fileChannel.close();
         socketChannel.finishConnect();
         socketChannel.close();
+
 
 
         System.out.println(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSS")) +"---accept");
