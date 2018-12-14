@@ -1,2 +1,4 @@
 /.idea/workspace.xml
+/spring-cloud-producer/target
 
+/spring-cloud-producer/src/test/java/com/neo/ProducerApplicationTests.java
