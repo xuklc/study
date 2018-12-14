@@ -37,3 +37,50 @@ SELECT a.* FROM 表 1 a, (select id from 表 1 where 条件 LIMIT 100000,20 ) b 
 | {n,}   | 不少于指定数目的匹配       |
 | {n,m}  | 匹配数目的范围             |
 
+##And 和OR执行顺序
+
+例子1
+
+~~~mysql
+SELECT 
+  n.id,
+  n.name,
+  subordinate_unit_ids,
+  n.compilation_date,
+  n.info_status,
+  n.document,
+  n.user_account,
+  n.dept_id,
+  n.proc_inst_id,
+  n.proc_startor,
+  n.proc_state,
+  n.proc_task_handler,
+  n.release_time,
+  n.range,
+  n.isfinalized,
+  n.corp_id,
+  n.tenant_info_id,
+  n.dept_name,
+  CASE
+    WHEN b.is_browser = 1 
+    THEN b.is_browser 
+    ELSE 0 
+  END is_browser
+FROM
+  submit_notification n 
+  LEFT JOIN submit_browser b 
+    ON b.table_name = 'submit_notification' 
+    AND n.id = b.record_id 
+    AND b.user_account = 'yuanling@gz.csg.cn'
+WHERE (n.info_status = 'notify' AND n.range REGEXP '^.*(公司领导|所属单位负责人).*$'-- 1) 
+       OR n.proc_task_handler ='yuanling@gz.csg.cn' 
+       -- 2
+      OR (FIND_IN_SET('yuanling@gz.csg.cn', subordinate_unit_ids) > 0 
+          AND n.info_status ='notify') 
+       -- 3
+     AND tenant_info_id = 6 -- 4 调整这个顺序结果不一样，位置1和2、3、4的结果不一样
+~~~
+
+
+
+## find_in_set
