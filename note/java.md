@@ -225,6 +225,8 @@ TreeSet<String> javaDevLastName = javaProgrammers
 
 给JVM设置-XX:+HeapDumpOnOutOfMemoryError参数，让JVM碰到OOM场景时输出 dump信息
 
+**jvm可能是只对class加载到jvm中，部分文件应该是动态加载解析，例如md文件**，后续再研究
+
 ##4 Function 接口
 
       ### 1 apply(),andThen()和compose
@@ -370,3 +372,4 @@ java NIO管道用于在两个线程之间建立单向数据连接。它有一个
 ###7 字符串
 
 java 字符串截取含头不含尾，字符的下标从0开始
+

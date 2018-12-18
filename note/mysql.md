@@ -22,7 +22,9 @@ SELECT a.* FROM 表 1 a, (select id from 表 1 where 条件 LIMIT 100000,20 ) b 
 
 ##instr
 
+INSTR(STR,SUBSTR) 
 
+在一个**字符串(STR)**中搜索**指定的字符(SUBSTR)**,返回发现指定的字符的**位置(INDEX)**,**如果没有找到就直接返回0**
 
 ##正则表达式
 
@@ -38,6 +40,10 @@ SELECT a.* FROM 表 1 a, (select id from 表 1 where 条件 LIMIT 100000,20 ) b 
 | {n,m}  | 匹配数目的范围             |
 
 ##And 和OR执行顺序
+
+**SQL语句碰到OR时，就会自动把条件分成2部分，等于两部分都加了括号！**
+
+**如果where 后面有OR条件的话，则OR自动会把左右的查询条件分开**
 
 例子1
 
@@ -83,4 +89,46 @@ WHERE (n.info_status = 'notify' AND n.range REGEXP '^.*(公司领导|所属单�
 
 
 
-## find_in_set
+find_in_set
+
+**注意 find_in_set 是全表扫描的**
+
+####**语法：**FIND_IN_SET(str,strlist)
+
+1. 假如**字符串**str*在由*N子链组成的**字符串列表**strlist*中，则返回值的范围在1到*N*之间
+
+2. 一个字符串列表就是一个由一些被‘,’符号分开的自链组成的字符串
+3. 如果第一个参数是一个常数字符串，而第二个是typeSET列，则FIND_IN_SET()函数被优化，使用**比特**计算
+4. 如果*str*不在*strlist*或*strlist*为空字符串，则返回值为0
+5. 如任意一个参数为NULL，则返回值为NULL。这个函数在第一个参数包含一个逗号(‘,’)时将无法正常运行
+
+示例：**SELECT FIND_IN_SET('b','a,b,c,d');** //返回值为2，即第2个值
+
+例子2:下面查询**btype字段中**包含**”15″这个参数的值**
+
+```sql
+SELECT * from test where FIND_IN_SET('15',btype)
+```
+
+##sql执行顺序
+
+(1)from 
+
+(2) on 
+
+(3) join
+
+(4) where 
+
+(5)group by(开始使用select中的别名，后面的语句中都可以使用)
+
+(6) avg,sum.... 
+
+(7)having 
+
+(8) select 
+
+(9) distinct 
+
+(10) order by 
+
