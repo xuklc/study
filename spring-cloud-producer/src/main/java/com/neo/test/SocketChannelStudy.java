@@ -26,7 +26,7 @@ public class SocketChannelStudy {
 
     public static void main(String[] args) throws IOException {
         // 1. 获取通道
-        SocketChannel socketChannel = SocketChannel.open(new InetSocketAddress("192.168.100.60",8081));
+        SocketChannel socketChannel = SocketChannel.open(new InetSocketAddress("192.168.100.193",8081));
 
         // 1.1切换成非阻塞模式
         socketChannel.configureBlocking(false);

@@ -318,5 +318,19 @@ lease-expiration-duration-in-seconds  告诉服务端，如果我2s之内没有�
 
 ![eureka_Delete_url](D:\resources\study\note\images\eureka_Delete_url.png)
 
+####8 属性配置
+
+![eureka](D:\resources\study\note\images\eureka.png)
+
+###9 profile
+
+除application.properties外，还可以根据**命名约定**（ 命名格式：**application-{profile}.properties**）来配置
+
+如果active赋予的参数没有与使用该命名约定格式文件相匹配的话，app则会**默认**从名为**application-default.properties **的配置文件加载配置。
+
+如：spring.profiles.active=hello-world,sender,dev 有三个参数，其中 **dev** 正好匹配下面配置中的**application-dev.properties **配置文件，所以app启动时，项目会**先从**application-dev.properties加载配置，再从application.properties配置文件加载配置，如果有**重复的配置**，则会**以application.properties的配置为准**。
+
+
+
 
 
