@@ -191,6 +191,8 @@ When a request is made through the gateway to `/name/bar/foo` the request made t
 
 **配置的格式要严格遵守官方的例子,严格对照格式**
 
+#####LoadBalancerClient Filter
+
 **LoadBalancerClient Filter的使用比较简单，只需在url前加上lb,以下是这三部分综合使用的一个demo，lb://**
 
     spring:
