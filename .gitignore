@@ -1,8 +1,8 @@
 /.idea/workspace.xml
-/spring-cloud-producer/target
-/spring-cloud-gateway/target
-/spring-cloud-eureka/target
-/spring-cloud-producer-2/target
+/spring-cloud-producer/target/
+/spring-cloud-gateway/target/
+/spring-cloud-eureka/target/
+/spring-cloud-producer-2/target/
 
 
 /spring-cloud-producer/src/test/java/com/neo/ProducerApplicationTests.java
