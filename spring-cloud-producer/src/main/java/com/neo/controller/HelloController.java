@@ -9,14 +9,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Slf4j
 public class HelloController {
-	
+
     @RequestMapping("/hello")
     public String index(@RequestParam String name) {
-        return "hello "+name+"，this is first messge";
+        return "hello " + name + "，this is first messge";
     }
 
     @GetMapping("/consumer")
-    public String  consumer(){
+    public String consumer() {
         log.info("consumer1");
         return "consumer1";
     }

@@ -3,8 +3,10 @@
 /spring-cloud-gateway/target/
 /spring-cloud-eureka/target/
 /spring-cloud-producer-2/target/
-
+/.idea/
+*.iml
 
 /spring-cloud-producer/src/test/java/com/neo/ProducerApplicationTests.java
 /spring-cloud-gateway/src/main/resources/application-dev.yml
 /spring-cloud-gateway/src/main/resources/application-xkl.yml
+/common/common.iml

@@ -1,5 +1,7 @@
 ##maven
 
+**关于spring cloud的依赖直接使用现有demo的不要去纠结**
+
 ### 1 引入jar
 
 有些jar没有在pom.xml显式声明引入依赖是因为在pom.xml文件中声明的依赖已经在本身的pom.xml文件中声明，所以不再需要显式声明依赖，当多个jar依赖共同的jar版本不一样就会导致版本冲突，会出现例如找不到某个类，或者空指针等错误
@@ -85,8 +87,9 @@ maven的profile和spring boot一样，都可以定义多个配置，maven可以�
 
 ```xml
 <activeProfiles>
-    <activeProfile>alwaysActiveProfile</activeProfile>
-    <activeProfile>anotherAlwaysActiveProfile</activeProfile>
+    <!-- alwaysActiveProfile 指profile的id -->
+    <activeProfile>profileTest1</activeProfile>
+    <activeProfile>profileTest2</activeProfile>
 </activeProfiles>
 ```
 
@@ -133,3 +136,22 @@ mvn help :active-profiles
 </plugin>
 ```
 
+### 8 仓库
+
+仓库可以在项目的pom.xml文件中配置或者在setting.xml文件中配置
+
+例子:
+
+```xml
+<repositories>
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+            <!--  <snapshots><enabled>false</enabled></snapshots>告诉Maven不要从这个仓库下载snapshot版本的构件 -->
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+```

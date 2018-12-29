@@ -26,7 +26,7 @@ public class SocketChannelStudy {
 
     public static void main(String[] args) throws IOException {
         // 1. 获取通道
-        SocketChannel socketChannel = SocketChannel.open(new InetSocketAddress("192.168.100.193",8081));
+        SocketChannel socketChannel = SocketChannel.open(new InetSocketAddress("192.168.100.193", 8081));
 
         // 1.1切换成非阻塞模式
         socketChannel.configureBlocking(false);
@@ -36,17 +36,17 @@ public class SocketChannelStudy {
 
         // 1.3将通道注册到选择器中，获取服务端返回的数据
         File file = new File("D:\\software\\work\\人员简历模板.docx");
-        SelectionKey selectionKey = socketChannel.register(selector, SelectionKey.OP_READ,file.getName());
+        SelectionKey selectionKey = socketChannel.register(selector, SelectionKey.OP_READ, file.getName());
         FileInputStream fis = new FileInputStream(file);
 
-        FileChannel fileChannel=fis.getChannel();
+        FileChannel fileChannel = fis.getChannel();
 
         // 2. 发送一张图片给服务端吧
 //        FileChannel fileChannel = FileChannel.open(Paths.get("D:\\software\\work\\人员简历模板.docx"), StandardOpenOption.READ);
 
         // 3.要使用NIO，有了Channel，就必然要有Buffer，Buffer是与数据打交道的呢
         ByteBuffer buffer = ByteBuffer.allocate(1024);
-        String fileName=file.getName();
+        String fileName = file.getName();
         selectionKey.attach(fileName);
         // 4.读取本地文件(图片)，发送到服务器
         while (fileChannel.read(buffer) != -1) {
@@ -64,8 +64,7 @@ public class SocketChannelStudy {
         socketChannel.close();
 
 
-
-        System.out.println(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSS")) +"---accept");
+        System.out.println(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSS")) + "---accept");
 //        while(selector.select()>0){
 //
 //        }

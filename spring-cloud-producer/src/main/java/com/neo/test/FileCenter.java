@@ -21,18 +21,18 @@ import java.util.Iterator;
 public class FileCenter {
     private static Selector selector; // 选择器
     private static final int SERVER_PORT = 8082; // 服务器端口
-    private static final String HOSTNAME="127.0.0.1";
+    private static final String HOSTNAME = "127.0.0.1";
     private static CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder(); // 字节转字符
     private static CharsetEncoder encoder = Charset.forName("UTF-8").newEncoder(); // 字符转字节
     private static ByteBuffer buffer = ByteBuffer.allocate(1024);
-    private static final String server_path = "D:"+File.separator+"resources"+File.separator+"file"+File.separator; // 服务器文件路径
+    private static final String server_path = "D:" + File.separator + "resources" + File.separator + "file" + File.separator; // 服务器文件路径
 
     public static void main(String[] args) {
         try {
             selector = Selector.open();// 打开选择器
             ServerSocketChannel serverChannel = ServerSocketChannel.open();
             ServerSocket server = serverChannel.socket();
-            server.bind(new InetSocketAddress(HOSTNAME,SERVER_PORT));
+            server.bind(new InetSocketAddress(HOSTNAME, SERVER_PORT));
             serverChannel.configureBlocking(false);
             serverChannel.register(selector, SelectionKey.OP_ACCEPT);
             System.out.println("等待客户端连接……");
@@ -73,7 +73,7 @@ public class FileCenter {
                     CharBuffer charBuffer = decoder.decode(buffer);
                     cmd = charBuffer.toString();
 
-                    SelectionKey sKey = channel.register(selector,SelectionKey.OP_WRITE);
+                    SelectionKey sKey = channel.register(selector, SelectionKey.OP_WRITE);
                     System.out.println("cmd:" + cmd);
                     if (cmd.trim().equals("list")) {
                         sKey.attach("[list_file]");

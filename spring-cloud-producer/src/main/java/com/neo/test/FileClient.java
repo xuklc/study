@@ -83,15 +83,12 @@ public class FileClient {
                     dis.close();
                     dos.close();
                     socket.close();
-                }
-                else if(tempString.equals("list files"))
-                {
-                    len=dis.read(buf);
-                    String temp=new String(buf,0,len);
-                    String[] strs=temp.split(";");
+                } else if (tempString.equals("list files")) {
+                    len = dis.read(buf);
+                    String temp = new String(buf, 0, len);
+                    String[] strs = temp.split(";");
                     System.out.println("文件列表");
-                    for(String str:strs)
-                    {
+                    for (String str : strs) {
                         System.out.println(str);
                     }
                     dis.close();
@@ -136,9 +133,7 @@ public class FileClient {
             CMD = "get";
             local_file = tempStrings[tempStrings.length - 1];
             server_file = tempStrings[tempStrings.length - 2];
-        }
-        else
-        {
+        } else {
             CMD = "list";
         }
 

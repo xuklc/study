@@ -332,7 +332,9 @@ lease-expiration-duration-in-seconds  告诉服务端，如果我2s之内没有�
 
 如：spring.profiles.active=hello-world,sender,dev 有三个参数，其中 **dev** 正好匹配下面配置中的**application-dev.properties **配置文件，所以app启动时，项目会**先从**application-dev.properties加载配置，再从application.properties配置文件加载配置，如果有**重复的配置**，则会**以application.properties的配置为准**。
 
+###10 feign
 
+**Spring Cloud integrates Ribbon and Eureka to provide a load balanced http client when using Feign**
 
 
 
