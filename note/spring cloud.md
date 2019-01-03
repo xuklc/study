@@ -336,5 +336,52 @@ lease-expiration-duration-in-seconds  告诉服务端，如果我2s之内没有�
 
 **Spring Cloud integrates Ribbon and Eureka to provide a load balanced http client when using Feign**
 
+####feign使用Hystix和LoadBalancer步骤
 
+#### 1添加依赖
+
+```xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-openfeign</artifactId>
+</dependency>
+```
+
+#### 2 启动类增加注解@EnableFeignClients
+
+```java
+@SpringBootApplication
+@EnableDiscoveryClient
+@EnableFeignClients
+public class ProducerApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(ProducerApplication.class, args);
+    }
+}
+```
+
+#### 3  定义接口
+
+**FirstFallback要是实现FeignInterface接口，并且多个参数要使用@RequestParam指定参数名称**
+
+```java
+@FeignClient(name ="spring-cloud-producer-2",fallback = FirstFallback.class)
+public interface FeignInterface {
+
+    @RequestMapping("feign/feign1")
+    public String firstFeign(@RequestParam("feignParam1")String feignParam1,@RequestParam("feignParam2") String feignParam2 );
+
+
+}
+```
+
+#### 4 在yml文件中配置
+
+```yaml
+#开启hystrix
+feign:
+  hystrix:
+    enabled: true
+```
 
