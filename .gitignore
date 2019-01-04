@@ -3,6 +3,7 @@
 /spring-cloud-gateway/target/
 /spring-cloud-eureka/target/
 /spring-cloud-producer-2/target/
+/common/target/
 /.idea/
 *.iml
 
