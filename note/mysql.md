@@ -89,7 +89,7 @@ WHERE (n.info_status = 'notify' AND n.range REGEXP '^.*(公司领导|所属单�
 
 
 
-find_in_set
+##find_in_set
 
 **注意 find_in_set 是全表扫描的**
 
@@ -132,3 +132,34 @@ SELECT * from test where FIND_IN_SET('15',btype)
 
 (10) order by 
 
+##left join
+
+**如果连接方式是inner join，在没有其他过滤条件的情况下MySQL会自动选择小表作为驱动表，但是left join在驱动表的选择上遵循的是左边驱动右边的原则，即left join左边的表名为驱动表**
+
+##STRAIGHT_JOIN
+
+**在STRAIGHT_JOIN左边的表名就是驱动表**
+
+**驱动表的概念，mysql中指定了连接条件时，满足查询条件的记录行数少的表为驱动表；如未指定查询条件，则扫描行数少的为驱动表。mysql优化器就是这么粗暴以小表驱动大表的方式来决定执行顺序的**
+
+##慢查询
+
+###慢查询日志开启
+
+在配置文件my.cnf或my.ini中在[mysqld]一行下面加入两个配置参数
+
+log-slow-queries=/data/mysqldata/slow-query.log           
+
+long_query_time=5
+
+log-slow-queries参数为慢查询日志存放的位置，一般这个目录要有mysql的运行帐号的可写权限，一般都将这个目录设置为mysql的数据存放目录；
+
+long_query_time=5中的**5表示查询超过五秒才记录**
+
+还可以在my.cnf或者my.ini中添加log-queries-not-using-indexes参数，表示记录下没有使用索引的查询
+
+##order by
+
+要尽可能的保证排序字段在驱动表中
+
+排序要避免Using filesort，Using temporary

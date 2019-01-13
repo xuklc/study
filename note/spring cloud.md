@@ -385,3 +385,42 @@ feign:
     enabled: true
 ```
 
+#### 5 超时时间
+
+使用Feign调用接口分两层，ribbon的调用和hystrix的调用，所以ribbon的超时时间和Hystrix的超时时间的结合就是Feign的超时时间
+
+在HystrixCommandProperties类中配置,HystrixCommandProperties的**初始化**是在**feign调用服务的时候进行初始化**
+
+```yaml
+hystrix:
+  command:
+    default:
+      execution:
+        timeout:
+          enabled:  true  ##这个的默认值是true,看下面的源码
+        isolation:
+           thread:
+             timeoutInMilliseconds: 9000  #默认值是1000
+```
+
+```java
+private static final Boolean default_executionTimeoutEnabled = true; //默认是true
+this.executionTimeoutEnabled = getProperty(propertyPrefix, key, "execution.timeout.enabled", builder.getExecutionTimeoutEnabled(), default_executionTimeoutEnabled);
+/**
+* builder.getExecutionTimeoutEnabled()的是为null,则取default_executionTimeoutEnabled 
+*/
+```
+
+设置**HystrixCommand.run()**的隔离策略，默认是ExecutionIsolationStrategy.THREAD;
+
+```java
+private static final ExecutionIsolationStrategy default_executionIsolationStrategy = ExecutionIsolationStrategy.THREAD;
+this.executionIsolationStrategy = getProperty(propertyPrefix, key, "execution.isolation.strategy", builder.getExecutionIsolationStrategy(), default_executionIsolationStrategy);
+```
+
+#### 6 @EnableFeignClients
+
+@EnableFeignClients默认只扫描@SpringBootApplication标注的包及子包，但是可以通过basePackages属性指定扫描的包名
+
+#### 7 ribbon
+
