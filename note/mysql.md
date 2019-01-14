@@ -26,6 +26,10 @@ INSTR(STR,SUBSTR)
 
 在一个**字符串(STR)**中搜索**指定的字符(SUBSTR)**,返回发现指定的字符的**位置(INDEX)**,**如果没有找到就直接返回0**
 
+例子:
+
+SELECT  * FROM oba_act_info  WHERE  INSTR( oba_leaders,"wujing_01@csg.cn" )>0
+
 ##正则表达式
 
 | 元字符 | 描述                       |

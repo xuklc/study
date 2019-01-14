@@ -74,6 +74,24 @@ spring mvc 接收json数组和一个json对象
 }
 ```
 
+####map参数
+
+java
+
+```java
+public InvokeResult<ObaPlanDTO>  ActivityImpl(@RequestParam Map<String,Object> params){
+        log.info(params.get("confirmFlag").toString());
+//        List<ObaPlanDTO> obaPlanDTOS = obaPlanBiz.ActivityImpl(ConfirmFlag, viewFlag,leaders);
+        return InvokeResult.success();
+    }
+```
+
+url:
+
+http://localhost:6068/oba/plan/activityImpl?confirmFlag=confirm&viewFlag=week&leaders=["wenlimin_01@csg.cn","hexiqiang_01@csg.cn"]
+
+**注意:leaders参数是字符串,并且要@RequestParam标记才能入参**
+
 ### HttpServletRequestWrapper
 
 ### beetlSql
