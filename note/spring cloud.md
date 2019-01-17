@@ -224,6 +224,16 @@ LoadBalancerClientFilter会作用在url以**lb开头**的路由，然后利用lo
 
 ### 8 eureka
 
+**spring.factories**
+
+```java
+DiscoveryClient
+```
+
+```java
+InstanceResource
+```
+
 ####1eureka.instance.appname  VS  spring.application.name
 
 ```java
@@ -323,6 +333,8 @@ lease-expiration-duration-in-seconds  告诉服务端，如果我2s之内没有�
 ####8 属性配置
 
 ![eureka](D:\resources\study\note\images\eureka.png)
+
+
 
 ###9 profile
 

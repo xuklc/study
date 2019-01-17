@@ -77,5 +77,104 @@ gateway
 
 
 
+~~~java
+java.net.SocketTimeoutException: Read timed out
+	at java.net.SocketInputStream.socketRead0(Native Method) ~[na:1.8.0_181]
+	at java.net.SocketInputStream.socketRead(SocketInputStream.java:116) ~[na:1.8.0_181]
+	at java.net.SocketInputStream.read(SocketInputStream.java:171) ~[na:1.8.0_181]
+	at java.net.SocketInputStream.read(SocketInputStream.java:141) ~[na:1.8.0_181]
+	at java.io.BufferedInputStream.fill(BufferedInputStream.java:246) ~[na:1.8.0_181]
+	at java.io.BufferedInputStream.read1(BufferedInputStream.java:286) ~[na:1.8.0_181]
+	at java.io.BufferedInputStream.read(BufferedInputStream.java:345) ~[na:1.8.0_181]
+	at sun.net.www.http.HttpClient.parseHTTPHeader(HttpClient.java:735) ~[na:1.8.0_181]
+	at sun.net.www.http.HttpClient.parseHTTP(HttpClient.java:678) ~[na:1.8.0_181]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1587) ~[na:1.8.0_181]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1492) ~[na:1.8.0_181]
+	at java.net.HttpURLConnection.getResponseCode(HttpURLConnection.java:480) ~[na:1.8.0_181]
+	at feign.ClientDefault.convertResponse(Client.java:150) ~[feign-core-9.7.0.jar:na]
+	at feign.ClientDefault.execute(Client.java:72) ~[feign-core-9.7.0.jar:na]
+	at org.springframework.cloud.openfeign.ribbon.FeignLoadBalancer.execute(FeignLoadBalancer.java:89) ~[spring-cloud-openfeign-core-2.0.2.RELEASE.jar:2.0.2.RELEASE]
+	at org.springframework.cloud.openfeign.ribbon.FeignLoadBalancer.execute(FeignLoadBalancer.java:55) ~[spring-cloud-openfeign-core-2.0.2.RELEASE.jar:2.0.2.RELEASE]
+	at com.netflix.client.AbstractLoadBalancerAwareClient1.call(AbstractLoadBalancerAwareClient.java:104) ~[ribbon-loadbalancer-2.2.5.jar:2.2.5]
+	at com.netflix.loadbalancer.reactive.LoadBalancerCommand31.call(LoadBalancerCommand.java:303) ~[ribbon-loadbalancer-2.2.5.jar:2.2.5]
+	at com.netflix.loadbalancer.reactive.LoadBalancerCommand31.call(LoadBalancerCommand.java:287) ~[ribbon-loadbalancer-2.2.5.jar:2.2.5]
+	at rx.internal.util.ScalarSynchronousObservable3.call(ScalarSynchronousObservable.java:231) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.util.ScalarSynchronousObservable3.call(ScalarSynchronousObservable.java:228) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.Observable.unsafeSubscribe(Observable.java:10327) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.operators.OnSubscribeConcatMapConcatMapSubscriber.drain(OnSubscribeConcatMap.java:286) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.operators.OnSubscribeConcatMapConcatMapSubscriber.onNext(OnSubscribeConcatMap.java:144) ~[rxjava-1.3.8.jar:1.3.8]
+	at com.netflix.loadbalancer.reactive.LoadBalancerCommand1.call(LoadBalancerCommand.java:185) ~[ribbon-loadbalancer-2.2.5.jar:2.2.5]
+	at com.netflix.loadbalancer.reactive.LoadBalancerCommand1.call(LoadBalancerCommand.java:180) ~[ribbon-loadbalancer-2.2.5.jar:2.2.5]
+	at rx.Observable.unsafeSubscribe(Observable.java:10327) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.operators.OnSubscribeConcatMap.call(OnSubscribeConcatMap.java:94) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.operators.OnSubscribeConcatMap.call(OnSubscribeConcatMap.java:42) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.Observable.unsafeSubscribe(Observable.java:10327) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.operators.OperatorRetryWithPredicateSourceSubscriber1.call(OperatorRetryWithPredicate.java:127) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.schedulers.TrampolineSchedulerInnerCurrentThreadScheduler.enqueue(TrampolineScheduler.java:73) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.schedulers.TrampolineSchedulerInnerCurrentThreadScheduler.schedule(TrampolineScheduler.java:52) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.operators.OperatorRetryWithPredicateSourceSubscriber.onNext(OperatorRetryWithPredicate.java:79) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.operators.OperatorRetryWithPredicateSourceSubscriber.onNext(OperatorRetryWithPredicate.java:45) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.util.ScalarSynchronousObservableWeakSingleProducer.request(ScalarSynchronousObservable.java:276) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.Subscriber.setProducer(Subscriber.java:209) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.util.ScalarSynchronousObservableJustOnSubscribe.call(ScalarSynchronousObservable.java:138) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.util.ScalarSynchronousObservableJustOnSubscribe.call(ScalarSynchronousObservable.java:129) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.operators.OnSubscribeLift.call(OnSubscribeLift.java:48) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.operators.OnSubscribeLift.call(OnSubscribeLift.java:30) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.operators.OnSubscribeLift.call(OnSubscribeLift.java:48) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.operators.OnSubscribeLift.call(OnSubscribeLift.java:30) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.operators.OnSubscribeLift.call(OnSubscribeLift.java:48) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.operators.OnSubscribeLift.call(OnSubscribeLift.java:30) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.Observable.subscribe(Observable.java:10423) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.Observable.subscribe(Observable.java:10390) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.observables.BlockingObservable.blockForSingle(BlockingObservable.java:443) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.observables.BlockingObservable.single(BlockingObservable.java:340) ~[rxjava-1.3.8.jar:1.3.8]
+	at com.netflix.client.AbstractLoadBalancerAwareClient.executeWithLoadBalancer(AbstractLoadBalancerAwareClient.java:112) ~[ribbon-loadbalancer-2.2.5.jar:2.2.5]
+	at org.springframework.cloud.openfeign.ribbon.LoadBalancerFeignClient.execute(LoadBalancerFeignClient.java:63) ~[spring-cloud-openfeign-core-2.0.2.RELEASE.jar:2.0.2.RELEASE]
+	at feign.SynchronousMethodHandler.executeAndDecode(SynchronousMethodHandler.java:98) ~[feign-core-9.7.0.jar:na]
+	at feign.SynchronousMethodHandler.invoke(SynchronousMethodHandler.java:77) ~[feign-core-9.7.0.jar:na]
+	at feign.hystrix.HystrixInvocationHandler1.run(HystrixInvocationHandler.java:107) ~[feign-hystrix-9.7.0.jar:na]
+	at com.netflix.hystrix.HystrixCommand2.call(HystrixCommand.java:302) ~[hystrix-core-1.5.12.jar:1.5.12]
+	at com.netflix.hystrix.HystrixCommand2.call(HystrixCommand.java:298) ~[hystrix-core-1.5.12.jar:1.5.12]
+	at rx.internal.operators.OnSubscribeDefer.call(OnSubscribeDefer.java:46) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.operators.OnSubscribeDefer.call(OnSubscribeDefer.java:35) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.operators.OnSubscribeLift.call(OnSubscribeLift.java:48) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.operators.OnSubscribeLift.call(OnSubscribeLift.java:30) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.operators.OnSubscribeLift.call(OnSubscribeLift.java:48) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.operators.OnSubscribeLift.call(OnSubscribeLift.java:30) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.operators.OnSubscribeLift.call(OnSubscribeLift.java:48) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.operators.OnSubscribeLift.call(OnSubscribeLift.java:30) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.Observable.unsafeSubscribe(Observable.java:10327) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.operators.OnSubscribeDefer.call(OnSubscribeDefer.java:51) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.operators.OnSubscribeDefer.call(OnSubscribeDefer.java:35) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.Observable.unsafeSubscribe(Observable.java:10327) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.operators.OnSubscribeDoOnEach.call(OnSubscribeDoOnEach.java:41) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.operators.OnSubscribeDoOnEach.call(OnSubscribeDoOnEach.java:30) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.operators.OnSubscribeLift.call(OnSubscribeLift.java:48) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.operators.OnSubscribeLift.call(OnSubscribeLift.java:30) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.Observable.unsafeSubscribe(Observable.java:10327) ~[rxjava-1.3.8.jar:1.3.8]
+	at rx.internal.operators.OperatorSubscribeOnSubscribeOnSubscriber.call(OperatorSubscribeOn.java:100) ~[rxjava-1.3.8.jar:1.3.8]
+	at com.netflix.hystrix.strategy.concurrency.HystrixContexSchedulerAction1.call(HystrixContexSchedulerAction.java:56) ~[hystrix-core-1.5.12.jar:1.5.12]
+	at com.netflix.hystrix.strategy.concurrency.HystrixContexSchedulerAction1.call(HystrixContexSchedulerAction.java:47) ~[hystrix-core-1.5.12.jar:1.5.12]
+	at com.netflix.hystrix.strategy.concurrency.HystrixContexSchedulerAction.call(HystrixContexSchedulerAction.java:69) ~[hystrix-core-1.5.12.jar:1.5.12]
+	at rx.internal.schedulers.ScheduledAction.run(ScheduledAction.java:55) ~[rxjava-1.3.8.jar:1.3.8]
+	at java.util.concurrent.ExecutorsRunnableAdapter.call(Executors.java:511) ~[na:1.8.0_181]
+	at java.util.concurrent.FutureTask.run$$capture(FutureTask.java:266) ~[na:1.8.0_181]
+	at java.util.concurrent.FutureTask.run(FutureTask.java) ~[na:1.8.0_181]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149) ~[na:1.8.0_181]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624) ~[na:1.8.0_181]
+	at java.lang.Thread.run(Thread.java:748) [na:1.8.0_181]
+
+
+
+~~~
+
+
+
+
+
+nested exception is com.netflix.hystrix.exception.HystrixRuntimeException
+
+
+
 
 

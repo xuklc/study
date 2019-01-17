@@ -6,10 +6,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
+ * ,fallback = FirstFallback.class
  * @author xukl
  * @date 2019/1/2
  */
-@FeignClient(name ="spring-cloud-producer-2",fallback = FirstFallback.class)
+@FeignClient(name ="spring-cloud-producer-2")
 public interface FeignInterface {
 
     @RequestMapping("feign/feign1")
