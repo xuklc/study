@@ -33,3 +33,7 @@ ribbon:
   ConnectTimeout: 3000
   ReadTimeout: 3000
 
+
+spring-cloud-producer:
+     ribbon:
+        NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RoundRobinRule

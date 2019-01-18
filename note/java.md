@@ -229,7 +229,9 @@ TreeSet<String> javaDevLastName = javaProgrammers
 
 ##4 Function 接口
 
-      ### 1 apply(),andThen()和compose
+```java
+  ### 1 apply(),andThen()和compose
+```
 
 ```java
 public static void main(String[] args) {
@@ -372,4 +374,14 @@ java NIO管道用于在两个线程之间建立单向数据连接。它有一个
 ###7 字符串
 
 java 字符串截取含头不含尾，字符的下标从0开始
+
+
+
+##6线程
+
+Thread.yield( )方法
+
+让出cpu执行时间
+
+使当前线程从**执行状态（运行状态）**变为**可执行态（就绪状态）**。cpu会**从众多的可执行态里选择**，也就是说，**当前也就是刚刚的那个线程还是有可能会被再次执行到的**，并不是说一定会执行其他线程而该线程在下一次中不会执行到了
 

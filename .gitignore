@@ -5,7 +5,6 @@
 /spring-cloud-producer-2/target/
 /common/target/
 /.idea/
-*.iml
 
 /spring-cloud-producer/src/test/java/com/neo/ProducerApplicationTests.java
 /spring-cloud-gateway/src/main/resources/application-dev.yml
