@@ -14,3 +14,18 @@
 14 排序和算法
 15 nio和java8
 
+关键是保持心态
+1 explain--3、4
+2 线程池--3
+3 java8 HashMap、ConcurrentHashMap(数据结构)--2、3
+4 redis--14
+5 ribbon、hystrix、eureka--12
+6 JVM--7
+7 排序、去重、交集、并集--14
+8 nio--使用场景--2、3
+9 AOP和IOC,MVC--7
+10 mybatis原理--2、3
+
+
+
+

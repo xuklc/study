@@ -167,3 +167,144 @@ long_query_time=5中的**5表示查询超过五秒才记录**
 要尽可能的保证排序字段在驱动表中
 
 排序要避免Using filesort，Using temporary
+
+##explain
+
+### rows
+
+rows：MYSQL认为必须检查的用来返回请求数据的行数
+
+### key
+
+实际使用的索引，如果为空表示没有使用索引
+
+### key_len
+
+使用索引的长度，在不损失精确度的情况下，长度越短越好
+
+###type
+
+这是重要的列，显示连接的类型，从最好到最差是const、eq_req、ref、range、index和All
+
+#### eq_ref
+
+唯一性索引扫描，对于每个索引建，表中只有一条记录与之匹配，常见于主键或者唯一性扫描
+
+####ref
+
+非唯一性索引扫描，返回匹配某个单独值的所有行，本质上也是一种索引访问，它返回所有匹配某个单独值的行，然而它可能会找到多个符合条件的行
+
+#### range
+
+只检索给定范围的行，使用一个索引来选择行，key列显示使用了哪个索引
+
+#### index
+
+Full Index Scan ,index和All区别为index类型只遍历索引树
+
+#### All
+
+Full Table Scan，全表扫描
+
+### select_type
+
+1 simple 2 primary 3 subquery 4 derived  5 union 6 union result
+
+#### 1 simple
+
+简单select 查询，不包含子查询或union
+
+#### 2 primary
+
+查询包含任何复杂的子部分，最外层被标记为primary
+
+#### 3 subquery
+
+在select或where中包含子查询
+
+#### 4 derived
+
+在from列表中包含子查询被标记为derived(衍生)，mysql会递归执行子查询，把结果放在临时表
+
+#### 5 union
+
+若第二个select出现在union之后，则被标记为union,若union包含在from子句的子查询中，外层select将被标记为derived
+
+### 索引
+
+索引文件具有**B-tree**的最左前缀匹配特性，如果左边的值未确定，那么无法使用此索引
+
+
+
+##命令
+
+```shell
+- 查看执行时间
+       set profiling = 1;
+       SQL...
+       show profiles;
+```
+
+
+
+~~~sql
+explain 
+select 
+  id,
+  name,
+  oba_leaders,
+  start_time,
+  end_time,
+  address,
+  case
+    oba_type 
+    when 'Meeting' 
+    then '会议' 
+    when 'BusinessReception' 
+    then '业务接待' 
+    when 'Research' 
+    then '调查研究' 
+    when 'StudtyCommunication' 
+    then '学习交流' 
+    when 'InspectionGuidance' 
+    then '检查指导' 
+    when 'ForeignAffairs' 
+    then '外事往来' 
+    when 'ReportToHost' 
+    then '下级单位到总部请示汇报' 
+    when 'ReportToGov' 
+    then '到有关部委、五省区党委政府联系汇报' 
+  end as type,
+  case
+    status 
+    when 'Writing' 
+    then '策划中' 
+    when 'Auditing' 
+    then '审核中' 
+    when 'Examining' 
+    then '审定中' 
+    when 'Implementing' 
+    then '执行中' 
+    when 'OverallPlanning' 
+    then '备案中' 
+    when 'ApplyClose' 
+    then '资料核查中' 
+    when 'Closed' 
+    then '已关闭' 
+  end as oba_status,
+  is_conflict,
+  is_urgent,
+  charge_dept,
+  reported_member 
+from
+  oba_act_info 
+where status in ('Auditing', 'Examining') 
+  and hour(start_time) > 0 
+  and minute(start_time) > 0 
+  --  and instr(next_user, 'guochuntao_01@csg.cn') > 0 
+  -- and date_format(start_time, '%Y-%m-%d') = '2018-08-15 14:02:26'
+  -- and instr(oba_leaders, 'mengzhenping_01@csg.cn,caozhian_01@csg.cn') > 0 
+  and tenant_info_id = '11'
+  -- and date_format(start_time, '%Y-%m-%d') = '2018-08-15 14:02:26'
+~~~
+
