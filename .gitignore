@@ -9,4 +9,4 @@
 /spring-cloud-producer/src/test/java/com/neo/ProducerApplicationTests.java
 /spring-cloud-gateway/src/main/resources/application-dev.yml
 /spring-cloud-gateway/src/main/resources/application-xkl.yml
-/common/common.iml
+
