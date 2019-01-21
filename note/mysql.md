@@ -306,5 +306,10 @@ where status in ('Auditing', 'Examining')
   -- and instr(oba_leaders, 'mengzhenping_01@csg.cn,caozhian_01@csg.cn') > 0 
   and tenant_info_id = '11'
   -- and date_format(start_time, '%Y-%m-%d') = '2018-08-15 14:02:26'
+  
+  EXPLAIN SELECT * FROM oba_act_info WHERE    HOUR(start_time) > 0 
+  AND MINUTE(start_time) > 0 
+  AND INSTR(next_user, 'guochuntao_01@csg.cn') > 0 
+  AND id IN ( SELECT id FROM oba_act_info WHERE STATUS IN ('Auditing', 'Examining')  )
 ~~~
 
