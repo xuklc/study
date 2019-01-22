@@ -170,6 +170,10 @@ long_query_time=5中的**5表示查询超过五秒才记录**
 
 ##explain
 
+###id
+
+id相同，从上往下执行，id不同，如果是子查询，则序号会递增，id值越大优先级越高，越先被执行
+
 ### rows
 
 rows：MYSQL认为必须检查的用来返回请求数据的行数
@@ -226,6 +230,10 @@ Full Table Scan，全表扫描
 
 在from列表中包含子查询被标记为derived(衍生)，mysql会递归执行子查询，把结果放在临时表
 
+explain select * from (select * from oba_act_info where STATUS='Auditing') a
+
+![derived](D:\resources\study\note\images\derived.png)
+
 #### 5 union
 
 若第二个select出现在union之后，则被标记为union,若union包含在from子句的子查询中，外层select将被标记为derived
@@ -234,7 +242,9 @@ Full Table Scan，全表扫描
 
 索引文件具有**B-tree**的最左前缀匹配特性，如果左边的值未确定，那么无法使用此索引
 
+### ref
 
+上述表的连接匹配条件，即哪些列或常量被用于查找索引列的值
 
 ##命令
 
