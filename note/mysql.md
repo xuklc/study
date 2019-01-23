@@ -168,6 +168,10 @@ long_query_time=5中的**5表示查询超过五秒才记录**
 
 排序要避免Using filesort，Using temporary
 
+如果排序查询的数据两大于这个默认值的话，还是会使用Using filesort，order by 出现using filesort的常规解决办法是建索引，或者组合索引
+
+![filesort](D:\resources\study\note\images\filesort.png)
+
 ##explain
 
 ###id
@@ -242,9 +246,104 @@ explain select * from (select * from oba_act_info where STATUS='Auditing') a
 
 索引文件具有**B-tree**的最左前缀匹配特性，如果左边的值未确定，那么无法使用此索引
 
+复合索引生效遵循最左匹配原则，index(a,b,c)，
+
+1 a
+
+ 2 a,b,c
+
+3 a,b
+
+4 a,c  **这四种情况都生效**
+
+
+
+5 b,c
+
+6 c
+
+7 b  **都不生效**
+
 ### ref
 
 上述表的连接匹配条件，即哪些列或常量被用于查找索引列的值
+
+### using temporary
+
+~~~mysql
+explain 
+select DISTINCT 
+  m.id,
+  m.title,
+  m.category_id,
+  m.type,
+  m.create_time,
+  m.manuscript_status,
+  m.submission_unit,
+  m.contribution_date,
+  m.contributor as contributor,
+  m.proc_inst_id,
+  c.name as categoryName,
+  IF(
+    browser.browser_id IS NULL,
+    '0',
+    '1'
+  ) as is_browser 
+from
+  submit_category c,
+  submit_manuscript m 
+  left join submit_browser browser 
+    on browser.table_name = 'submit_manuscript' 
+    and browser.user_account = 'xuqp@gz.csg.cn' 
+    and browser.is_browser = '1' 
+    and m.id = browser.record_id 
+where 1 = 1 
+  and m.next_users like 'xuqp@gz.csg.cn%'
+  and m.category_id = c.id
+  
+order by create_time desc 
+limit 0, 6
+~~~
+
+第一种(子查询,适合子查询部分不作为查询条件)
+
+~~~sql
+EXPLAIN
+SELECT DISTINCT 
+    m.id,
+    m.title,
+    m.category_id,
+    m.type,
+    m.create_time,
+    m.manuscript_status,
+    m.submission_unit,
+    m.contribution_date,
+    m.contributor AS contributor,
+    m.proc_inst_id,
+    (SELECT c.name FROM submit_category  c WHERE m.category_id = c.id) categoryName
+    ,
+    IF(
+      browser.browser_id IS NULL,
+      '0',
+      '1'
+    ) AS is_browser 
+  FROM
+    -- submit_category c,
+    submit_manuscript m 
+    LEFT JOIN submit_browser browser 
+      ON browser.table_name = 'submit_manuscript' 
+      AND browser.user_account = 'xuqp@gz.csg.cn'
+      AND browser.is_browser = '1' 
+      AND m.id = browser.record_id 
+  WHERE 1 = 1 
+      AND m.next_users LIKE 'xuqp@gz.csg.cn%'
+~~~
+
+
+
+
+
+
 
 ##命令
 
