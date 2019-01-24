@@ -339,6 +339,10 @@ SELECT DISTINCT
       AND m.next_users LIKE 'xuqp@gz.csg.cn%'
 ~~~
 
+第二种 非直接关联变直接关联，慎用left join
+
+
+
 
 
 
