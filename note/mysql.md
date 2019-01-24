@@ -307,6 +307,10 @@ limit 0, 6
 
 第一种(子查询,适合子查询部分不作为查询条件)
 
+子查询暂时有两种 1 在from子句中使用子查询 2 where子句中用exists子查询
+
+暂时不知left join 是否导致using temporary
+
 ~~~sql
 EXPLAIN
 SELECT DISTINCT 
