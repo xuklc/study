@@ -498,7 +498,13 @@ select timestampdiff(day,'2011-09-30','2015-05-04');
 有没有办法解决--谈恋爱，经历过
 ```
 
+##FROM_UNIXTIME
 
+语法:FROM_UNIXTIME(unix_timestamp,format)
+
+例子
+
+FROM_UNIXTIME(create_time/1000,'%Y-%m-%d %H:%i:%S')
 
 sql
 
