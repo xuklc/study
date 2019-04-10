@@ -12,3 +12,8 @@
 ssh-keygen -t -rsa
 ~~~
 
+### rz和sz
+
+yum install -y lrzsz
+
+不存在sz，rz命令的话，通过这个安装下yum install -y lrzsz
