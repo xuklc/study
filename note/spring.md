@@ -50,7 +50,19 @@ public Object intercept(Object proxy, Method method, Object[] args, MethodProxy 
 }
 ```
 
+#####指定每个 aspect 的执行顺序
+方法有两种：
 
+- 实现**org.springframework.core.Ordered**接口，实现它的**getOrder()**方法
+- 给aspect添加**@Order**注解，该注解全称为：org.springframework.core.annotation.Order
+
+不管采用上面的哪种方法，都是值越小的 aspect 越先执行。 
+
+![aopeg1](D:\resources\study\note\images\aopeg1.png)
+
+![aopeg2](D:\resources\study\note\images\aopeg2.png)
+
+**@Around注解**
 
 ### spring mvc
 
