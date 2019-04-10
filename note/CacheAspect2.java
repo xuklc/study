@@ -45,7 +45,7 @@ public class CacheAspect2 {
     public void aspect() {
     }
 
-	// &&@annotation(anno) 表示增加一个参数，参数类型是注解，参数名称是anno
+	// &&@annotation(anno) 表示增加一个参数，参数类型是注解，参数名称是anno,这里的值是和方法的参数名一致
     @Around("aspect()&&@annotation(anno)")
     public Object interceptor(ProceedingJoinPoint invocation, Cache anno) throws Throwable {
         MethodSignature signature = (MethodSignature)invocation.getSignature();
