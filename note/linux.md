@@ -17,3 +17,10 @@ ssh-keygen -t -rsa
 yum install -y lrzsz
 
 不存在sz，rz命令的话，通过这个安装下yum install -y lrzsz
+
+
+
+### sudo
+
+sudo是一个程序，普通用户可以使用它以超级用户或其他用户的身份执行命令，sudo用户的访问权限是由 /etc/sudoers文件控制
+
