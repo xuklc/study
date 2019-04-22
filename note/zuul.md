@@ -1,6 +1,6 @@
 ## zuul 作用
 
-​		把请求转发到具体的微服务上，zuul将自身注册到eureka上，同时从eureka获取其他微服务的信息，然后访问微服务的url都是**http://zuul.com:8081**/*oa-submit-kl*/regualtion/uplaod
+​		把请求转发到具体的微服务上，zuul将自身注册到eureka上，同时从eureka获取其他微服务的信息，然后访问微服务的url都是**
 
 
 
