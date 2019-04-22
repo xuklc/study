@@ -71,36 +71,14 @@ spring mvc 接收json数组和一个json对象
 **想查看json如何解析，传入的json和目标对象数据类型不一样就可以报错了，然后就可以知道json如何解析的**
 
 ```json
-[	
-	{"regulationsName":"安全生产制度13","fileId":"64659abad173495c96da716723236e3b"},
-	{"regulationsName":"安全生产制度14","fileId":"8501529ce1d84f0c918e68d62a7ac573"}
-]
+
 ```
 
 ```json
-{
-		"isBrowser":1,
-		"recordId":2,
-		"tableName":"notification",
-		"userAccount":"guochuntao_01@csg.cn"
-}
+
 ```
 
-####map参数
 
-java
-
-```java
-public InvokeResult<ObaPlanDTO>  ActivityImpl(@RequestParam Map<String,Object> params){
-        log.info(params.get("confirmFlag").toString());
-//        List<ObaPlanDTO> obaPlanDTOS = obaPlanBiz.ActivityImpl(ConfirmFlag, viewFlag,leaders);
-        return InvokeResult.success();
-    }
-```
-
-url:
-
-http://localhost:6068/oba/plan/activityImpl?confirmFlag=confirm&viewFlag=week&leaders=["wenlimin_01@csg.cn","hexiqiang_01@csg.cn"]
 
 **注意:leaders参数是字符串,并且要@RequestParam标记才能入参**
 

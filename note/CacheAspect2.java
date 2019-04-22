@@ -1,10 +1,7 @@
-package cn.com.enersun.oa.oba;
 
-import cn.com.enersun.commons.cache.annotation.Cache;
-import cn.com.enersun.commons.cache.api.CacheAPI;
-import cn.com.enersun.commons.cache.aspect.CacheAspect;
-import cn.com.enersun.commons.cache.parser.ICacheResultParser;
-import cn.com.enersun.commons.cache.parser.IKeyGenerator;
+
+
+
 import cn.com.enersun.commons.cache.parser.impl.DefaultKeyGenerator;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -41,7 +38,7 @@ public class CacheAspect2 {
     public CacheAspect2() {
     }
 
-    @Pointcut("@annotation(cn.com.enersun.commons.cache.annotation.Cache)")
+    @Pointcut("@annotation(cn.com.commons.cache.annotation.Cache)")
     public void aspect() {
     }
 

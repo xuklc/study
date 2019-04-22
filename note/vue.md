@@ -12,10 +12,7 @@ arr.join(',')--将数据拼接成字符串，以逗号隔开
 
 vue的代码不能有空格，否则编译不通过
 
- ✘  http://eslint.org/docs/rules/no-multiple-empty-lines  More than 1 blank line not allowed
-  src\views\submit\bulletin\list.vue:13:1
 
-会有这样的提示
 
 ### 3 当有一处有语法错误
 

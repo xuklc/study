@@ -10,7 +10,7 @@
 
 ### 1 覆盖索引
 
-![using index](D:\software\resources\note\images\using index.png)
+
 
  MySQL 并不是跳过 offset 行，而是取 offset + N 行，然后返回放弃前 offset 行，返回
 N 行，那当 offset 特别大的时候，效率就非常的低下，要么控制返回的总页数，要么对超过
@@ -26,9 +26,7 @@ INSTR(STR,SUBSTR)
 
 在一个**字符串(STR)**中搜索**指定的字符(SUBSTR)**,返回发现指定的字符的**位置(INDEX)**,**如果没有找到就直接返回0**
 
-例子:
 
-SELECT  * FROM oba_act_info  WHERE  INSTR( oba_leaders,"wujing_01@csg.cn" )>0
 
 ##正则表达式
 
@@ -50,46 +48,6 @@ SELECT  * FROM oba_act_info  WHERE  INSTR( oba_leaders,"wujing_01@csg.cn" )>0
 **如果where 后面有OR条件的话，则OR自动会把左右的查询条件分开**
 
 例子1
-
-~~~mysql
-SELECT 
-  n.id,
-  n.name,
-  subordinate_unit_ids,
-  n.compilation_date,
-  n.info_status,
-  n.document,
-  n.user_account,
-  n.dept_id,
-  n.proc_inst_id,
-  n.proc_startor,
-  n.proc_state,
-  n.proc_task_handler,
-  n.release_time,
-  n.range,
-  n.isfinalized,
-  n.corp_id,
-  n.tenant_info_id,
-  n.dept_name,
-  CASE
-    WHEN b.is_browser = 1 
-    THEN b.is_browser 
-    ELSE 0 
-  END is_browser
-FROM
-  submit_notification n 
-  LEFT JOIN submit_browser b 
-    ON b.table_name = 'submit_notification' 
-    AND n.id = b.record_id 
-    AND b.user_account = 'yuanling@gz.csg.cn'
-WHERE (n.info_status = 'notify' AND n.range REGEXP '^.*(公司领导|所属单位负责人).*$'-- 1) 
-       OR n.proc_task_handler ='yuanling@gz.csg.cn' 
-       -- 2
-      OR (FIND_IN_SET('yuanling@gz.csg.cn', subordinate_unit_ids) > 0 
-          AND n.info_status ='notify') 
-       -- 3
-     AND tenant_info_id = 6 -- 4 调整这个顺序结果不一样，位置1和2、3、4的结果不一样
-~~~
 
 
 
@@ -234,9 +192,7 @@ Full Table Scan，全表扫描
 
 在from列表中包含子查询被标记为derived(衍生)，mysql会递归执行子查询，把结果放在临时表
 
-explain select * from (select * from oba_act_info where STATUS='Auditing') a
 
-![derived](D:\resources\study\note\images\derived.png)
 
 #### 5 union
 
@@ -270,40 +226,7 @@ explain select * from (select * from oba_act_info where STATUS='Auditing') a
 
 ### using temporary
 
-~~~mysql
-explain 
-select DISTINCT 
-  m.id,
-  m.title,
-  m.category_id,
-  m.type,
-  m.create_time,
-  m.manuscript_status,
-  m.submission_unit,
-  m.contribution_date,
-  m.contributor as contributor,
-  m.proc_inst_id,
-  c.name as categoryName,
-  IF(
-    browser.browser_id IS NULL,
-    '0',
-    '1'
-  ) as is_browser 
-from
-  submit_category c,
-  submit_manuscript m 
-  left join submit_browser browser 
-    on browser.table_name = 'submit_manuscript' 
-    and browser.user_account = 'xuqp@gz.csg.cn' 
-    and browser.is_browser = '1' 
-    and m.id = browser.record_id 
-where 1 = 1 
-  and m.next_users like 'xuqp@gz.csg.cn%'
-  and m.category_id = c.id
-  
-order by create_time desc 
-limit 0, 6
-~~~
+
 
 第一种(子查询,适合子查询部分不作为查询条件)
 
@@ -311,37 +234,7 @@ limit 0, 6
 
 暂时不知left join 是否导致using temporary
 
-~~~sql
-EXPLAIN
-SELECT DISTINCT 
-    m.id,
-    m.title,
-    m.category_id,
-    m.type,
-    m.create_time,
-    m.manuscript_status,
-    m.submission_unit,
-    m.contribution_date,
-    m.contributor AS contributor,
-    m.proc_inst_id,
-    (SELECT c.name FROM submit_category  c WHERE m.category_id = c.id) categoryName
-    ,
-    IF(
-      browser.browser_id IS NULL,
-      '0',
-      '1'
-    ) AS is_browser 
-  FROM
-    -- submit_category c,
-    submit_manuscript m 
-    LEFT JOIN submit_browser browser 
-      ON browser.table_name = 'submit_manuscript' 
-      AND browser.user_account = 'xuqp@gz.csg.cn'
-      AND browser.is_browser = '1' 
-      AND m.id = browser.record_id 
-  WHERE 1 = 1 
-      AND m.next_users LIKE 'xuqp@gz.csg.cn%'
-~~~
+
 
 第二种 非直接关联变直接关联，慎用left join
 
@@ -364,71 +257,7 @@ SELECT DISTINCT
 
 
 
-~~~sql
-explain 
-select 
-  id,
-  name,
-  oba_leaders,
-  start_time,
-  end_time,
-  address,
-  case
-    oba_type 
-    when 'Meeting' 
-    then '会议' 
-    when 'BusinessReception' 
-    then '业务接待' 
-    when 'Research' 
-    then '调查研究' 
-    when 'StudtyCommunication' 
-    then '学习交流' 
-    when 'InspectionGuidance' 
-    then '检查指导' 
-    when 'ForeignAffairs' 
-    then '外事往来' 
-    when 'ReportToHost' 
-    then '下级单位到总部请示汇报' 
-    when 'ReportToGov' 
-    then '到有关部委、五省区党委政府联系汇报' 
-  end as type,
-  case
-    status 
-    when 'Writing' 
-    then '策划中' 
-    when 'Auditing' 
-    then '审核中' 
-    when 'Examining' 
-    then '审定中' 
-    when 'Implementing' 
-    then '执行中' 
-    when 'OverallPlanning' 
-    then '备案中' 
-    when 'ApplyClose' 
-    then '资料核查中' 
-    when 'Closed' 
-    then '已关闭' 
-  end as oba_status,
-  is_conflict,
-  is_urgent,
-  charge_dept,
-  reported_member 
-from
-  oba_act_info 
-where status in ('Auditing', 'Examining') 
-  and hour(start_time) > 0 
-  and minute(start_time) > 0 
-  --  and instr(next_user, 'guochuntao_01@csg.cn') > 0 
-  -- and date_format(start_time, '%Y-%m-%d') = '2018-08-15 14:02:26'
-  -- and instr(oba_leaders, 'mengzhenping_01@csg.cn,caozhian_01@csg.cn') > 0 
-  and tenant_info_id = '11'
-  -- and date_format(start_time, '%Y-%m-%d') = '2018-08-15 14:02:26'
-  
-  EXPLAIN SELECT * FROM oba_act_info WHERE    HOUR(start_time) > 0 
-  AND MINUTE(start_time) > 0 
-  AND INSTR(next_user, 'guochuntao_01@csg.cn') > 0 
-  AND id IN ( SELECT id FROM oba_act_info WHERE STATUS IN ('Auditing', 'Examining')  )
-~~~
+
 
 ## date_format
 
