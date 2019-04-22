@@ -4,13 +4,13 @@
 
    当误点idea 的remvoe module或者build module时idea会删除该模块，如下图
 
-![ideamodule](D:\software\resources\note\images\ideamodule.png)
+
 
 
 
 解决办法:找到maven project,重新导入对应模块的pom.xml文件即可
 
-![idea-pom](D:\software\resources\note\images\idea-pom.png)
+
 
 
 
@@ -19,7 +19,7 @@
 报错如下:
 
 Disconnected from the target VM, address: '127.0.0.1:65467', transport: 'socket'
-错误: 找不到或无法加载主类 cn.com.enersun.oa.submit.SubmitBootstrap
+错误: 找不到或无法加载主类 
 
 原因多种:
 
