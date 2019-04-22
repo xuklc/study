@@ -88,3 +88,40 @@ spring mvc 接收json数组和一个json对象
 
 #### beetlSql参数绑定和返回的结果集暂时不支持基本类型的数组和包装类型的数组
 
+
+
+aop
+
+~~~java
+// &&@annotation(anno) 表示增加一个参数，参数类型是注解，参数名称是anno,这里的值是和方法的参数名一致
+    @Around("aspect()&&@annotation(anno)")
+    public Object interceptor(ProceedingJoinPoint invocation, Cache anno) throws Throwable {
+        MethodSignature signature = (MethodSignature)invocation.getSignature();
+        Method method = signature.getMethod();
+        Object result = null;
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        Object[] arguments = invocation.getArgs();
+        String key = "";
+        String value = "";
+
+        try {
+            key = this.getKey(anno, parameterTypes, arguments);
+            value = this.cacheAPI.get(key);
+            Type returnType = method.getGenericReturnType();
+            result = this.getResult(anno, result, value, returnType);
+        } catch (Exception var14) {
+            log.error("获取缓存失败：" + key, var14);
+        } finally {
+            if (result == null) {
+                result = invocation.proceed();
+                if (StringUtils.isNotBlank(key)) {
+                    this.cacheAPI.set(key, result, anno.expire());
+                }
+            }
+
+        }
+
+        return result;
+    }
+~~~
+
