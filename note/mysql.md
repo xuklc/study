@@ -331,3 +331,44 @@ select timestampdiff(day,'2011-09-30','2015-05-04');
 
 sql
 
+
+
+
+
+###  oracle
+
+#### 字符拼接
+
+```sql
+update  user r  set r.code='submit-'||  r.code  where code like '%ksfzr'  and r.id in('5','1','4','7','11','6','8','9','10','12');
+```
+
+#### 树查询
+
+语法:
+
+SELECT ... FROM    + 表名
+WHERE              + 条件3
+START WITH         + 条件1
+CONNECT BY PRIOR   + 条件2
+
+--示例
+Select * From DEMO
+Start With ID = '00001'
+Connect By Prior ID = PID
+
+
+
+条件1: 表示从哪个节点开始查找, 也就是通过条件1 查询到的数据, 作为后续查询的起始节点(参数).
+
+当然可以放宽限定条件，如 ID in ('00001', '00011')以取得多个根节点，也就是多棵树；在连接关系中，除了可以使用列明外，还允许使用列表达式。
+
+如果省略Start With
+
+就默认把所有满足查询条件的Tree整个表中的数据从头到尾遍历一次,每一个数据做一次根,然后遍历树中其他节点信息.
+
+条件2: 是连接条件，其中用PRIOR表示上一条记录，例如CONNECT BY PRIOR ID = PID，意思就是上一条记录的ID是本条记录的PID，即本记录的父亲是上一条记录。CONNECT BY子句说明每行数据将是按照层次顺序检索，并规定将表中的数据连入树形结构的关系中。
+
+Prior 在父节点的一侧表示, 自底向上查, 在 子节点的一侧表示 自上向下查询;
+
+条件3: 不能用在 Connect By 后, 这里的条件判断, 等价于 在最后查询出结果列表之后, 再进行条件筛选; 并非 删除掉 节点及子节点;
