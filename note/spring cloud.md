@@ -436,3 +436,22 @@ this.executionIsolationStrategy = getProperty(propertyPrefix, key, "execution.is
 
 #### 7 ribbon
 
+
+
+### 11 端口占用的报错
+
+端口占用的报错:
+
+org.springframework.beans.factory.BeanCreationNotAllowedException: Error creating bean with name 'sqlManagerFactoryBean': Singleton bean creation not allowed while singletons of this factory are in destruction (Do not request a bean from a BeanFactory in a destroy method implementation!)
+
+解决办法:
+
+1 查询端口号
+
+netstat -aon|findstr 6068 (端口号)
+
+2  关闭进程
+
+taskkill -PID 17400 -F
+
+![win10端口占用](D:\resources\study\note\images\win10端口占用.png)
