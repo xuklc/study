@@ -125,3 +125,10 @@ aop
     }
 ~~~
 
+
+
+### ResourceHttpRequestHandler
+
+该类继承了WebContentGenerator，WebContentGenerator可以对response进行设置header，设置缓存时间等操作，并且提供了对request的method的检查功能
+
+<mvc:resources mapping="/images/**" location="/images/" />
