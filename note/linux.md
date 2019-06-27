@@ -37,3 +37,10 @@ sudo su 运行结果 PWD=/home/用户名（当前用户主目录）
 
 sudo是一个程序，普通用户可以使用它以超级用户或其他用户的身份执行命令，sudo用户的访问权限是由 /etc/sudoers文件控制
 
+###  端口占用
+
+netstat -aon|findstr 8080
+
+结束进程
+
+输入tasklist|findstr 2524命令，其中2524加英文双引号，按回车键就可以找到PID为2524的进程，如下图所示

@@ -337,6 +337,14 @@ FROM_UNIXTIME(create_time/1000,'%Y-%m-%d %H:%i:%S')
 
 sql
 
+### mysql varchar
+
+```sql
+首先要确定mysql版本
+4.0版本以下，varchar(50)，指的是50字节，如果存放UTF8汉字时，只能存16个（每个汉字3字节） 
+5.0版本以上，varchar(50)，指的是50字符，无论存放的是数字、字母还是UTF8汉字（每个汉字3字节），都可以存放50个
+```
+
 
 
 
