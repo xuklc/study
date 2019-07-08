@@ -385,3 +385,55 @@ Thread.yield( )方法
 
 使当前线程从**执行状态（运行状态）**变为**可执行态（就绪状态）**。cpu会**从众多的可执行态里选择**，也就是说，**当前也就是刚刚的那个线程还是有可能会被再次执行到的**，并不是说一定会执行其他线程而该线程在下一次中不会执行到了
 
+
+
+###  8 [java.lang.NumberFormatException: multiple points问题
+
+<https://www.cnblogs.com/ljy-20180122/p/9520621.html>
+
+解决办法
+
+1、建议在每个方法中都new一个新的SimpleDateFormat对象，这样子就可以避免这种问题。
+
+2、也可以使用保存线程局部变量的ThreadLocal对象来保存每一个线程的SimpleDateFormat对象，小编主要说说第二种的使用，针对上述代码做的改变。
+
+```java
+package com.yongcheng.liuyang.utils;
+ 2 
+ 3 import java.text.ParseException;
+ 4 import java.text.SimpleDateFormat;
+ 5 import java.util.Date;
+ 6 
+ 7 /**
+ 8  *
+ 9  * 
+10  * @author Administrator
+11  *
+12  */
+13 public class DateUtils {
+14 
+15 private static final String format = "yyyy-MM-dd";
+16     
+17     //每一个线程
+18     private static final ThreadLocal<SimpleDateFormat> threadLocal = new 
+19             ThreadLocal<SimpleDateFormat>();
+20     
+21     public static Date covertDateStrToDate(String dateStr){
+22         SimpleDateFormat sdf = null;
+23         sdf = threadLocal.get();
+24         if (sdf == null){
+25             sdf = new SimpleDateFormat(format);
+26         }
+27         //
+28         Date date = null;
+29         try {
+30             System.out.println("当前线程为:" + Thread.currentThread().getName());
+31             date = sdf.parse(dateStr);
+32         } catch (ParseException e) {
+33             e.printStackTrace();
+34         }
+35         
+36         return date;
+37     }
+38 }
+```

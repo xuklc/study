@@ -57,3 +57,7 @@ idea 某个配置出来问题，导致maven 不能将java 源文件编译成clas
 在idea中，已经引入lombok依赖jar包和插件，但是还是编译报错，并且其他模块可以正常编译，有可能是**该模块某个地方编译出错**，但是idea的提示非常不友好，导致编译失败，然后提示找不到lombok生成的gettter和setter方法
 
 解决办法:当编译失败时要认真的从头看到尾日志，检查是否有其他编译失败的信息提示，因为其他的编译失败会导致lombok也失效。
+
+### 4 idea多线程调试
+
+![idea多线程调试](D:\resources\study\note\images\idea多线程调试.png)
