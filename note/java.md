@@ -255,6 +255,10 @@ huohuo
 
 ##5 NIO
 
+教程:
+
+<https://mp.weixin.qq.com/s?__biz=MzI4Njg5MDA5NA==&mid=2247484235&idx=1&sn=4c3b6d13335245d4de1864672ea96256&chksm=ebd7424adca0cb5cb26eb51bca6542ab816388cf245d071b74891dd3f598ccd825f8611ca20c&token=1834317504&lang=zh_CN&scene=21#wechat_redirect>
+
 易百教程: https://www.yiibai.com/java_nio/nio-timeserver.html
 
 ![nio](D:\software\resources\note\images\nio.png)
