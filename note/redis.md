@@ -106,6 +106,6 @@ AOF优缺点
 4 Sentinel可以作为**配置中心**，能够提供当前主服务器的信息
 
 ```java
-/org/findAllParents  id
+/org/findAllParents  id  mindjet MindManager
 ```
 
