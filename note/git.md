@@ -4,7 +4,7 @@
 
 git log   --pretty=oneline
 
-![gitLog](F:\workspace\idea\study\study\note\images\gitLog.png)
+![gitLog](./note\images\gitLog.png)
 
 git log -oneline
 
