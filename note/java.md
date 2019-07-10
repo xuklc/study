@@ -391,7 +391,7 @@ Thread.yield( )方法
 
 
 
-###  8 [java.lang.NumberFormatException: multiple points问题
+###  [java.lang.NumberFormatException: multiple points问题
 
 <https://www.cnblogs.com/ljy-20180122/p/9520621.html>
 
@@ -444,7 +444,7 @@ package com.yongcheng.liuyang.utils;
 
 
 
-## 线程池
+## 7 线程池
 
 在线程池创建之后，等待提交任务请求
 

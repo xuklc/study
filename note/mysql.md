@@ -240,9 +240,11 @@ Full Table Scan，全表扫描
 
 
 
+**将 mod(id, '16')= '5' 函数转换条件放在子查询外层**
 
+#### show profile for query 6
 
-
+`SET` `profiling = 1`
 
 
 
