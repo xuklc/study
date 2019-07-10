@@ -460,3 +460,21 @@ package com.yongcheng.liuyang.utils;
 
 **当一个线程闲置时间大于keepAliveTime参数指定的时间，线程池就判断当前线程数是否大于核心线程数，大于则回收该线程**
 
+#### 7.2队列
+
+当阻塞队列是空的时候，从队列中获取元素将被阻塞
+
+当阻塞队列是满的时候，从队列中添加元素将被阻塞
+
+使用队列的好处是:不需要操作什么时候阻塞线程，什么时候唤醒线程，统一是线程从队列获取任务
+
+| 队列                | 描述                                        |
+| ------------------- | ------------------------------------------- |
+| ArrayBlockingQueue  | 数组结构的有界队列                          |
+| LinkedBolckingQueue | 链表结构的有界队列，默认是Integer.MAX_VALUE |
+| SynchronousQueue    | 不存储元素的阻塞队列，单个元素队列          |
+| LinkedBlockingDeque | 链表结构的双向队列                          |
+| LinkedTransferQueue | 链表结构无解队列                            |
+|                     |                                             |
+|                     |                                             |
+
