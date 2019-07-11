@@ -10,7 +10,7 @@
 
 ### 1 覆盖索引
 
-
+**Extra中为Using index**
 
  MySQL 并不是跳过 offset 行，而是取 offset + N 行，然后返回放弃前 offset 行，返回
 N 行，那当 offset 特别大的时候，效率就非常的低下，要么控制返回的总页数，要么对超过
@@ -132,6 +132,8 @@ long_query_time=5中的**5表示查询超过五秒才记录**
 
 ##explain
 
+<https://www.jianshu.com/p/73f2c8448722>
+
 ###id
 
 id相同，从上往下执行，id不同，如果是子查询，则序号会递增，id值越大优先级越高，越先被执行
@@ -150,7 +152,7 @@ rows：MYSQL认为必须检查的用来返回请求数据的行数
 
 ###type
 
-这是重要的列，显示连接的类型，从最好到最差是const、eq_req、ref、range、index和All
+这是重要的列，显示连接的类型，从最好到最差是 **ALL, index,  range, ref, eq_ref, const, system, NULL**
 
 #### eq_ref
 
@@ -192,11 +194,13 @@ Full Table Scan，全表扫描
 
 在from列表中包含子查询被标记为derived(衍生)，mysql会递归执行子查询，把结果放在临时表
 
-
-
 #### 5 union
 
 若第二个select出现在union之后，则被标记为union,若union包含在from子句的子查询中，外层select将被标记为derived
+
+#### 6 union result
+
+UNION RESULT：UNION 的结果
 
 ### 索引
 
@@ -224,9 +228,9 @@ Full Table Scan，全表扫描
 
 上述表的连接匹配条件，即哪些列或常量被用于查找索引列的值
 
-### using temporary
+### extra
 
-
+#### using temporary
 
 第一种(子查询,适合子查询部分不作为查询条件)
 
@@ -234,30 +238,58 @@ Full Table Scan，全表扫描
 
 暂时不知left join 是否导致using temporary
 
-
-
 第二种 非直接关联变直接关联，慎用left join
 
 
 
-**将 mod(id, '16')= '5' 函数转换条件放在子查询外层**
+A：distinct：在select部分使用了distinc关键字
+ B：no tables used：不带from字句的查询或者From dual查询
+ C：使用not in()形式子查询或not exists运算符的连接查询，这种叫做反连接。即，一般连接查询是先查询内表，再查询外表，反连接就是先查询外表，再查询内表。
+ D：using filesort：排序时无法使用到索引时，就会出现这个。常见于order by和group by语句中
+ E：using index：查询时不需要回表查询，直接通过索引就可以获取查询的数据。
+ F：using join buffer（block nested loop），using join buffer（batched key accss）：5.6.x之后的版本优化关联查询的BNL，BKA特性。主要是减少内表的循环数量以及比较顺序地扫描查询。
+ G：using sort_union，using_union，using intersect，using sort_intersection：
+ using intersect：表示使用and的各个索引的条件时，该信息表示是从处理结果获取交集
+ using union：表示使用or连接各个使用索引的条件时，该信息表示从处理结果获取并集
+ using sort_union和using sort_intersection：与前面两个对应的类似，只是他们是出现在用and和or查询信息量大时，先查询主键，然后进行排序合并后，才能读取记录并返回。
+ H：using temporary：表示使用了临时表存储中间结果。临时表可以是内存临时表和磁盘临时表，执行计划中看不出来，需要查看status变量，used_tmp_table，used_tmp_disk_table才能看出来。
+ I：using where：表示存储引擎返回的记录并不是所有的都满足查询条件，需要在server层进行过滤。查询条件中分为限制条件和检查条件，5.6之前，存储引擎只能根据限制条件扫描数据并返回，然后server层根据检查条件进行过滤再返回真正符合查询的数据。5.6.x之后支持ICP特性，可以把检查条件也下推到存储引擎层，不符合检查条件和限制条件的数据，直接不读取，这样就大大减少了存储引擎扫描的记录数量。extra列显示using index condition
+ J：firstmatch(tb_name)：5.6.x开始引入的优化子查询的新特性之一，常见于where字句含有in()类型的子查询。如果内表的数据量比较大，就可能出现这个
+ K：loosescan(m..n)：5.6.x之后引入的优化子查询的新特性之一，在in()类型的子查询中，子查询返回的可能有重复记录时，就可能出现这个
 
-#### show profile for query 6
+### filtered
 
-`SET` `profiling = 1`
+使用explain extended时会出现这个列，5.7之后的版本默认就有这个字段，不需要使用explain extended了。这个字段表示存储引擎返回的数据在server层过滤后，剩下多少满足查询的记录数量的比例，注意是百分比，不是具体记录数
 
+### profile
 
+SHOW VARIABLES LIKE '%profiling%';
 
-##命令
+profiling off表示profile关闭，profiling_history_size 15表示保存最近15条SQL的资源消耗情况
 
-```shell
-- 查看执行时间
-       set profiling = 1;
-       SQL...
-       show profiles;
+开启profile功能，可以使用命令
+
+```sql
+set global profiling = 1;
 ```
 
+然后就可以使用下面命令
 
+```sql
+show profiles;
+```
+
+## 使用案例
+
+![show_profiles](D:\resources\study\note\images\show_profiles.png)
+
+显示一条SQL的具体花销在哪里
+
+![profile_for_query](D:\resources\study\note\images\profile_for_query.png)
+
+
+
+**将 mod(id, '16')= '5' 函数转换条件放在子查询外层**
 
 
 
