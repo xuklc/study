@@ -478,3 +478,64 @@ package com.yongcheng.liuyang.utils;
 |                     |                                             |
 |                     |                                             |
 
+#### 7.2.2ArrayBlockingQueue
+
+ArrayBlockingQueue在初始化时需要指定容量，在增加元素是，当队列已满，再增加元素会抛出异常
+
+1 使用add()在队列满了之后会抛错，add方法本质上也是调用offer方法增加元素
+
+```java
+public boolean add(E e) {
+        if (offer(e))
+            return true;
+        else
+            throw new IllegalStateException("Queue full");
+    }
+```
+
+2 offer()在队列满之后不再添加元素，也不抛错，会返回false,如果没有满则添加元素并返回true,**重载方法设置阻塞的等待时间**
+
+```java
+public boolean offer(E e) {
+        checkNotNull(e);
+        final ReentrantLock lock = this.lock;
+        lock.lock();
+        try {
+            if (count == items.length)
+                return false;
+            else {
+                enqueue(e);
+                return true;
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+```
+
+3 poll()会取出元素之后删除当前元素，有**重载方法设置阻塞的等待时间**
+
+```java
+ private E dequeue() {
+        // assert lock.getHoldCount() == 1;
+        // assert items[takeIndex] != null;
+        final Object[] items = this.items;
+        @SuppressWarnings("unchecked")
+        E x = (E) items[takeIndex];
+     //清空当前元素
+        items[takeIndex] = null;
+        if (++takeIndex == items.length)
+            takeIndex = 0;
+        count--;
+        if (itrs != null)
+            itrs.elementDequeued();
+        notFull.signal();
+        return x;
+    }
+```
+
+4 peek()只是取出元素，不删除元素
+
+5 take和poll方法也是取出元素就删除，take是在队列清空之后会阻塞等待
+
+6 put方法和offer()一样都可以添加元素，不同的事put在队列满了之后会阻塞等待
