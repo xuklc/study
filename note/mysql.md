@@ -279,7 +279,7 @@ set global profiling = 1;
 show profiles;
 ```
 
-## 使用案例
+####使用案例
 
 ![show_profiles](D:\resources\study\note\images\show_profiles.png)
 
@@ -288,6 +288,17 @@ show profiles;
 ![profile_for_query](D:\resources\study\note\images\profile_for_query.png)
 
 
+
+#### Sending data
+
+是包括**收集 + 发送 数据**。
+这里的关键是为什么要收集数据，原因在于：mysql使用**索引**完成查询结束后，mysql得到了一堆的**行id**，如果有的列并不在索引中，mysql需要重新到**数据行**上将需要返回的数据读取出来返回个客户端。
+
+
+
+### possible_keys
+
+这一列显示查询**可能**使用哪些索引来查找
 
 **将 mod(id, '16')= '5' 函数转换条件放在子查询外层**
 
@@ -355,13 +366,7 @@ select timestampdiff(week,'2011-09-30','2015-05-04');
 
 select timestampdiff(day,'2011-09-30','2015-05-04');
 
-```xml-dtd
-想放手但是又控制不住,近距离靠近时控制不住的紧张还有手抖，如果能控制好情绪，然后不暴露就好了，但是目前又做不到<br>
-想上前又害怕，上前又怕事情更糟糕，不上前吧一姐不可能一直等我，然后又吃醋<br>
-有没有办法解决--谈恋爱，经历过
-```
-
-##FROM_UNIXTIME
+### FROM_UNIXTIME
 
 语法:FROM_UNIXTIME(unix_timestamp,format)
 
@@ -378,4 +383,10 @@ sql
 4.0版本以下，varchar(50)，指的是50字节，如果存放UTF8汉字时，只能存16个（每个汉字3字节） 
 5.0版本以上，varchar(50)，指的是50字符，无论存放的是数字、字母还是UTF8汉字（每个汉字3字节），都可以存放50个
 ```
+
+### show processlist
+
+processlist命令的输出结果**显示了有哪些线程在运行**，不仅可以查看当前所有的连接数，还可以查看当前的连接状态帮助识别出有问题的查询语句等。
+
+如果是root帐号，能看到所有用户的当前连接。如果是其他普通帐号，则只能看到自己占用的连接。showprocesslist只能列出当前100条。如果想全部列出，可以使用**SHOW FULL PROCESSLIST**命令
 
