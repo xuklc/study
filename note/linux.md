@@ -31,3 +31,9 @@ netstat -aon|findstr 8080
 结束进程
 
 输入tasklist|findstr 2524命令，其中2524加英文双引号，按回车键就可以找到PID为2524的进程，如下图所示
+
+
+
+### tail
+
+tail  -fn100  catalina.log   查询日志尾部最后100行的日志,并且随文件;
