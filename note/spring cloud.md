@@ -455,3 +455,19 @@ netstat -aon|findstr 6068 (端口号)
 taskkill -PID 17400 -F
 
 ![win10端口占用](D:\resources\study\note\images\win10端口占用.png)
+
+
+
+### 12 @CrossOrigin
+
+配置cros解决跨域问题
+
+### 13 配置的加载顺序
+
+1 properties文件
+
+2 yaml文件
+
+3 系统环境变量
+
+4 命令行参数
