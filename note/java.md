@@ -539,3 +539,13 @@ public boolean offer(E e) {
 5 take和poll方法也是取出元素就删除，take是在队列清空之后会阻塞等待
 
 6 put方法和offer()一样都可以添加元素，不同的事put在队列满了之后会阻塞等待
+
+#### 7.3拒绝策略
+
+AbortPolicy: 直接抛出异常RejectExecutionException，
+
+CallerRunsPolicy:不抛异常，也不丢弃任务，将任务退回给调用者
+
+DiscardOldestPolicy:抛弃队列中等待时间最长的任务，尝试把当前提交给当前任务
+
+DicardPolicy:直接丢弃任务

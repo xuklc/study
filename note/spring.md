@@ -158,3 +158,31 @@ aop
 10、DispatcherServlet根据View进行渲染视图（即将模型数据填充至视图中）。
 
 11、 DispatcherServlet响应用户。
+
+
+
+
+
+### mybatis
+
+####  1调用存储过程
+
+~~~xml
+<!--
+1、使用select标签定义存储过程
+2、statementType=“CALLABLE”：要调用的存储过程
+3、in输入，out输出，cursor游标，resultSet结果集，resultMap如何封装结果集
+-->
+<select id="getPageByProcedure" statementType="CALLABLE" databaseId="oracle">
+	{call hello_test(
+	  #{start,mode=IN,jdbcType=INTEGER},
+	  #{end,mode=IN,jdbcType=INTEGER},
+	  #{count,mode=OUT,jdbcType=INTEGER},
+	  #{emps,mode=OUT,jdbcType=CURSOR,javaType=ResultSet,resultMap=javaModel}
+	)}
+</select>
+
+~~~
+
+
+
