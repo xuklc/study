@@ -549,3 +549,33 @@ CallerRunsPolicy:不抛异常，也不丢弃任务，将任务退回给调用者
 DiscardOldestPolicy:抛弃队列中等待时间最长的任务，尝试把当前提交给当前任务
 
 DicardPolicy:直接丢弃任务
+
+
+
+### 8 return 和 finally
+
+return 和finally的执行顺序，1先执行finally2 再执行return
+
+![return和finally](D:\resources\study\note\images\return和finally.png)
+
+
+
+### 9 final
+
+####1 final修饰的类不能被继承
+
+ final类的成员方法都被隐式指定为final
+
+####2 final修饰的方法不被重写
+
+####3 final修饰的变量必须初始化，且只能初始化一次,
+
+#### 3.1变量 的赋值必须有两种 
+
+##### 3.1.1 在声明时赋值
+
+#####3.1.2 只是声明，在构造方法赋值
+
+##### 3.1.3 变量是引用类型
+
+**final修饰引用类型的变量，引用地址不可改变，但是引用对象内容可以改变**
