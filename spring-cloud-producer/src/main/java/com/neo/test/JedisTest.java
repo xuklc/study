@@ -6,4 +6,7 @@ package com.neo.test;
  */
 public class JedisTest {
 
+    public static void main(String[]args) throws InterruptedException {
+        Thread.sleep(Integer.MAX_VALUE);
+    }
 }
