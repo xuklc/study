@@ -207,7 +207,7 @@ MappedInterceptor是HandlerInterceptor的拦截器
 
 ​        2 (AbstractHandlerMethodMapping.getHandlerInternal)通过路径来找到调用目标方法的信息，包括全类名、返回类型、参数和方法名称等信息
 
-3 进入getHandlerAdapter方法匹配到HttpRequestHanlderAdapter
+3 进入getHandlerAdapter方法匹配到HttpRequestHanlderAdapter(适配器模式)
 
 4 执行配置好HanlderInterceptor拦截器的逻辑
 
