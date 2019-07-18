@@ -6,6 +6,10 @@
 
 ![heap细分](D:\resources\study\note\images\heap细分.png)
 
+新生代和老年代默认是1:2
+
+-XX:NewRatio=4,新生代占比是1，老年代占比是4
+
 #### 2 本地方法栈
 
 #### 3 虚拟机栈
@@ -180,3 +184,48 @@ Heap
 
 ![survivorRatio](D:\resources\study\note\images\survivorRatio.png)
 
+
+
+### -XX:MaxTenuringThreshold
+
+设置垃圾的最大年龄，如果设置为0，则年轻代对象不经过suvivor去，直接进入老年代，如果此值设置比较大，则年轻代对象会在survivor区进行多次复制，这样可以增加对象在年轻代的存活时间，增加在年轻代被回收的概率
+
+**最大值是15**,值的范围是0-15
+
+
+
+### OOM
+
+##### stackOverflowError
+
+虚拟机栈内存爆满
+
+例子1 递归调用没有跳出循环的条件或或者递归调用有比较大对象
+
+#### OutofMemoryError:heap space
+
+堆内存爆满
+
+#### overhead limit exceeded
+
+GC回收时间过长或者GC回收效果不明显，导致频繁GC
+
+### 查看默认的GC回收器
+
+java -XX:+PrintCommandLineFlags
+
+
+
+### 垃圾收集器
+
+#### 1 串行垃圾收集器
+
+-XX:+UseSerialGC
+
+1 在垃圾收集过程中所有工作线程都会停止
+
+2 没有线程的交互，简单高效
+
+开启后新生代使用Serial+SerialOld(老年代)
+
+表示新生代和老年代都是串行收集器，新生代使用复制算法，老年代使用标记-整理法
