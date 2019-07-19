@@ -180,6 +180,21 @@ aop
 
 4 DefaultResultSetHandler.handleResultSets()解析结果
 
+二级缓存
+
+<https://blog.csdn.net/z742182637/article/details/72569014>
+
+一级缓存
+
+<https://blog.csdn.net/luanlouis/article/details/41280959>
+
+**一级缓存失效的情况：**
+
+- SqlSession不同；
+- SqlSession相同，但查询条件不同；
+- SqlSession相同，但两次查询之间执行了任何一次增删改操作；
+- SqlSession相同，但使用clearCache()方法手动清除了一级缓存
+
 
 
 ​      
