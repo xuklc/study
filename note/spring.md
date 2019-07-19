@@ -148,5 +148,38 @@ aop
 
 ~~~
 
+#### 运行过程梳理
+
+1 MapperMethod.execute()
+
+   根据sql的insert、update、delete和select类型选择执行对应的方法
+
+2 DefaultSqlSession.selectList()
+
+   然后根据nameSpace+id组成的key从mappedStatements容器中获取包含sql信息的MapperStatement
+
+3 CachingExecutor.query()
+
+ 3.1 先判断是否开启二级缓存
+
+​    如果开启二级缓存，则构建key(statementId,params和boundSql)
+
+​    从二级缓存获取数据，若返回的数据不为空则直接返回
+
+​    返回数据为空，则进入BaseExecutor.query()
+
+ 3.2 没有开启二级缓存则进入BaseExecutor.query()
+
+​     3.2.1根据上一步构建的key从localCache(本地缓存)获取数据，
+
+​    3.2.2若返回的数据不为空则直接返回，
+
+​    3.2.3若为空则从直接从数据库查询数据，并将数据存入本地缓存
+
+​    3.2.4 若开启了二级缓存则将查询结构存入二级缓存中
+
+4 DefaultResultSetHandler.handleResultSets()解析结果
 
 
+
+​      
