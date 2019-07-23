@@ -16,7 +16,7 @@ vue的代码不能有空格，否则编译不通过
 
 ### 3 当有一处有语法错误
 
+**vue不允许有空格**
 
-
-
+npm install -g cnpm --registry
 
