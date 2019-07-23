@@ -1,3 +1,7 @@
+
+
+
+
 ### 内存结构
 
 #### 1 堆内存
@@ -229,3 +233,48 @@ java -XX:+PrintCommandLineFlags
 开启后新生代使用Serial+SerialOld(老年代)
 
 表示新生代和老年代都是串行收集器，新生代使用复制算法，老年代使用标记-整理法
+
+### 2 ParNew收集器
+
+-XX:+UseParaNewGC,启用ParNew收集器，只影响新生代收集器，不影响老年代收集器
+
+开启这个参数使用新生代用ParNewGC收集器，老年代用SerialOld收集器
+
+### 3 Parallel收集器(parallel scavenge)
+
+-XX:+UseParallelGC或-XX:+UseParallelOldGC**可以互相激活**
+
+使用复制算法，并行的多线程收集器，吞吐量垃圾收集器
+
+吞吐量=运行用户代码时间/运行用户代码时间+垃圾收集时间
+
+有两个参数控制吞吐量
+
+1 -XX:MaxGCPauseMillis:设置一个大于0的毫秒数，这个是GC垃圾回收的最大停顿时间，但不一定不超时
+
+2 -XX:GCTimeRatio:设置一个垃圾回收时间的比例，等于加一个倒数，例如比值是19,则垃圾回收是1/(1+19)
+
+3 -XX:ParallelGCThreads=3--启动3个线程回收垃圾，**当cpu>8，实际线程数等于3/8,cpu<8,就是实际数**
+
+
+
+线程池，多线程,mybatis,spring cloud常用属性
+
+
+
+### 4 G1收集器
+
+-XX:+UseG1GC
+
+**标记整理算法，局部是复制算法**
+
+G1是一种服务端垃圾收集器，在实现高吞吐量 的同时，尽可能的满足垃圾收集暂停时间的要求，具有以下特性
+
+1 能与应用程序并发执行
+
+2 整理空闲空间更快
+
+3 需要更多时间预测GC停顿时间
+
+**主要改变是Eden、suvivor和Tenured等内存区域不再是连续，而是变成了一个个大小一样的region，每个region从1M到32M不等，一个region可能是Eden、Suvivor或Tenured**
+
