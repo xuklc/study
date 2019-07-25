@@ -7,6 +7,7 @@ package com.neo.test;
 public class JedisTest {
 
     public static void main(String[]args) throws InterruptedException {
-        Thread.sleep(Integer.MAX_VALUE);
+//        Thread.sleep(Integer.MAX_VALUE);
+        byte[]bytes=new byte[10*1024*1024];
     }
 }
