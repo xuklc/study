@@ -187,3 +187,83 @@ ORDER BY FIELD(proc_task_handler, 'chengwei_01@csg.cn') DESC,
   create_time DESC 
 ```
 
+
+
+#### 3 or 改成 union all
+
+~~~sql
+EXPLAIN SELECT 
+    id,
+    NAME,
+    compilation_date,
+    info_status,
+    scope,
+    document,
+    user_account,
+    dept_id,
+    proc_inst_id,
+    proc_start_time,
+    proc_end_time,
+    proc_startor,
+    proc_state,
+    proc_task_handler,
+    release_time,
+    isfinalized,
+    tenant_info_id,
+    create_time 
+  FROM
+    submit_notification b 
+  WHERE  user_account = 'chengwei_01@csg.cn'
+  OR proc_task_handler = 'chengwei_01@csg.cn'
+    
+  UNION ALL
+  SELECT 
+    id,
+    NAME,
+    compilation_date,
+    info_status,
+    scope,
+    document,
+    user_account,
+    dept_id,
+    proc_inst_id,
+    proc_start_time,
+    proc_end_time,
+    proc_startor,
+    proc_state,
+    proc_task_handler,
+    release_time,
+    isfinalized,
+    tenant_info_id,
+    create_time 
+  FROM
+    submit_notification a 
+  WHERE corp_id = 'c29cd3da9458461191b5b2d5e8417346'
+    AND FIND_IN_SET('总部各部门', a.range) > 0
+    
+    UNION ALL
+    SELECT 
+    id,
+    NAME,
+    compilation_date,
+    info_status,
+    scope,
+    document,
+    user_account,
+    dept_id,
+    proc_inst_id,
+    proc_start_time,
+    proc_end_time,
+    proc_startor,
+    proc_state,
+    proc_task_handler,
+    release_time,
+    isfinalized,
+    tenant_info_id,
+    create_time 
+  FROM
+    submit_notification n WHERE 
+    FIND_IN_SET('chengwei_01@csg.cn', subordinate_unit_ids) > 0 
+      AND n.info_status = 'notify'
+~~~
+

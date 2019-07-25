@@ -278,3 +278,16 @@ G1是一种服务端垃圾收集器，在实现高吞吐量 的同时，尽可�
 
 **主要改变是Eden、suvivor和Tenured等内存区域不再是连续，而是变成了一个个大小一样的region，每个region从1M到32M不等，一个region可能是Eden、Suvivor或Tenured**
 
+
+
+### 对象进入老年代参数
+
+-XX:PretenureSizeThreshold设置大对象直接进入年老代的阈值，当对象大小超过这个值时，将直接在年老代分配。
+
+-XX:MaxTenuringThreshold是给Serial收集器和没有开启UseAdaptiveSizePolicy的ParNew GC收集器用的(`在计算存活周期这个阈值时，hotspot会遍历所有age的table，并对其所占用的大小进行累积，当累积的大小超过了survivor space的一半时，则以这个age作为新的存活周期阈值，最后取age和MaxTenuringThreshold中更小的一个值。`)
+
+
+
+### GC参数
+
+-Xms9m -Xmx9m -XX:+PrintGCDetails -XX:MetaspaceSize=10m -XX:MaxMetaspaceSize=10m

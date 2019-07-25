@@ -197,4 +197,34 @@ aop
 
 
 
-​      
+#### 拦截器
+
+拦截器的配置
+
+<https://blog.csdn.net/zongyeqing/article/details/80152616>
+
+执行器的默认类型是
+
+```java
+protected ExecutorType defaultExecutorType = ExecutorType.SIMPLE;
+```
+
+####mybatis二级缓存开启 
+
+1 全局配置文件
+
+```xml
+<``settings``>
+    ``<!-- 开启二级缓存（默认是开的，这里写出来是为了方便代码维护） -->
+    ``<``setting` `name``=``"cacheEnabled"` `value``=``"true"` `/>
+</``settings``>
+```
+
+2 mapper.xml
+
+~~~xml
+<cache type="org.apache.ibatis.cache.impl.PerpetualCache"/>
+~~~
+
+**我们不写type就使用mybatis默认的缓存**
+

@@ -471,3 +471,12 @@ taskkill -PID 17400 -F
 3 系统环境变量
 
 4 命令行参数
+
+
+
+### druid
+
+配置数据源
+
+<https://www.jianshu.com/p/a449e7a7b326>
+
