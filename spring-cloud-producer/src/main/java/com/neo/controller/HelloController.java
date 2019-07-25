@@ -8,6 +8,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * 1 newFixedThreadPool LinkedBlockingQueue
+ * 2 newCacheThreadPool  SynchronousQueue 0 Inetger.MaxValue
+ * 3 newSingleThreadPool LinkedBlockingQueue  1 1 Integer.MaxValue
+ * 4 双端队列是LinkedList
+ */
 @RestController
 @Slf4j
 public class HelloController {

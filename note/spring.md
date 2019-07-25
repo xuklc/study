@@ -209,4 +209,22 @@ aop
 protected ExecutorType defaultExecutorType = ExecutorType.SIMPLE;
 ```
 
-​      
+####mybatis二级缓存开启 
+
+1 全局配置文件
+
+```xml
+<``settings``>
+    ``<!-- 开启二级缓存（默认是开的，这里写出来是为了方便代码维护） -->
+    ``<``setting` `name``=``"cacheEnabled"` `value``=``"true"` `/>
+</``settings``>
+```
+
+2 mapper.xml
+
+~~~xml
+<cache type="org.apache.ibatis.cache.impl.PerpetualCache"/>
+~~~
+
+**我们不写type就使用mybatis默认的缓存**
+
