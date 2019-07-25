@@ -1,5 +1,6 @@
 package com.neo.test;
 
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -14,15 +15,17 @@ public class JedisTest {
 //        Integer[] metaSpace = new Integer[10*1024*1024];
 //        System.out.println("asfd"+metaSpace);
 //        Thread.sleep(Integer.MAX_VALUE);
-        ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 2, 60, TimeUnit.SECONDS, new LinkedBlockingDeque<>());
+        ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
+        map.put("1","1");
+        map.put("2","2");
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(3, 3, 60, TimeUnit.SECONDS, new LinkedBlockingDeque<>());
         for (int i=0;i<3;i++){
             executor.execute(()->{
-                System.out.println("thread"+Thread.currentThread().getName());
             });
         }
         executor.shutdown();
 //        Thread.sleep(Integer.MAX_VALUE);
-        byte[]bytes=new byte[10*1024*1024];
+//        byte[]bytes=new byte[10*1024*1024];
     }
 
 
