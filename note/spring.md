@@ -197,4 +197,16 @@ aop
 
 
 
+#### 拦截器
+
+拦截器的配置
+
+<https://blog.csdn.net/zongyeqing/article/details/80152616>
+
+执行器的默认类型是
+
+```java
+protected ExecutorType defaultExecutorType = ExecutorType.SIMPLE;
+```
+
 ​      
