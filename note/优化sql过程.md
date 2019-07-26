@@ -105,6 +105,8 @@ ORDER BY FIELD(proc_task_handler, 'chengwei_01@csg.cn') DESC,
 
 ALTER  TABLE submit_notification  ADD INDEX corp_index(corp_id);
 
+ALTER TABLE submit_notification  ADD INDEX  handler_index(proc_task_handler);
+
 **sending Data上耗时最长**
 
 #### 2 加索引调整sql
@@ -154,6 +156,8 @@ FROM
     submit_notification n 
   WHERE ( FIND_IN_SET('chengwei_01@csg.cn', subordinate_unit_ids) > 0 
       AND n.info_status = 'notify')
+    OR proc_task_handler = 'chengwei_01@csg.cn'
+    OR user_account = 'chengwei_01@csg.cn'
   UNION
    SELECT 
     id,
@@ -180,9 +184,6 @@ FROM
     AND FIND_IN_SET('总部各部门', n.range) > 0
     ) t 
 WHERE 1 = 1 
-    -- 调整sql项
-    OR proc_task_handler = 'chengwei_01@csg.cn'
-    OR user_account = 'chengwei_01@csg.cn'
 ORDER BY FIELD(proc_task_handler, 'chengwei_01@csg.cn') DESC,
   create_time DESC 
 ```
@@ -265,5 +266,159 @@ EXPLAIN SELECT
     submit_notification n WHERE 
     FIND_IN_SET('chengwei_01@csg.cn', subordinate_unit_ids) > 0 
       AND n.info_status = 'notify'
+~~~
+
+#### 4 proc_task_handler加索引
+
+proc_task_handler区分度比较高，加索引过滤很多数据
+
+1 将proc_task_handler拆成一条单独的sql,凑够条数就不在执行其他sql执行，这样做可以避免field函数操作proc_task_handler导致索引失效
+
+2 分页查询，数量不够，再次执行sql,虽然拆成两条SQL，但是可以避免所以索引失效
+
+
+
+
+
+~~~sql
+EXPLAIN SELECT 
+  n.id,
+  n.start_time,
+  n.end_time,
+  n.name,
+  n.compilation_date,
+  n.info_status,
+  n.scope,
+  n.document,
+  n.user_account,
+  n.dept_id,
+  n.create_time,
+  n.update_time,
+  n.proc_inst_id,
+  n.proc_start_time,
+  n.proc_end_time,
+  n.proc_startor,
+  n.proc_state,
+  n.proc_task_handler,
+  n.release_time,
+  n.range,
+  n.isfinalized,
+  n.corp_id,
+  n.corp_name,
+  n.tenant_info_id,
+  n.dept_name,
+  n.periods,
+  n.total_periods,
+  n.periods_year 
+FROM
+  (SELECT 
+    n.id,
+    n.start_time,
+    n.end_time,
+    n.name,
+    n.compilation_date,
+    n.info_status,
+    n.scope,
+    n.document,
+    n.user_account,
+    n.dept_id,
+    n.create_time,
+    n.update_time,
+    n.proc_inst_id,
+    n.proc_start_time,
+    n.proc_end_time,
+    n.proc_startor,
+    n.proc_state,
+    n.proc_task_handler,
+    n.release_time,
+    n.range,
+    n.isfinalized,
+    n.corp_id,
+    n.corp_name,
+    n.tenant_info_id,
+    n.dept_name,
+    n.periods,
+    n.total_periods,
+    n.periods_year 
+  FROM
+    submit_notification n 
+  WHERE n.info_status = 'notify'
+    AND corp_id = 'c29cd3da9458461191b5b2d5e8417346' 
+    OR (
+      FIND_IN_SET('chengwei@csg.cn', subordinate_unit_ids) > 0 
+      AND n.info_status = 'notify'
+    ) 
+  UNION ALL
+  SELECT 
+    n.id,
+    n.start_time,
+    n.end_time,
+    n.name,
+    n.compilation_date,
+    n.info_status,
+    n.scope,
+    n.document,
+    n.user_account,
+    n.dept_id,
+    n.create_time,
+    n.update_time,
+    n.proc_inst_id,
+    n.proc_start_time,
+    n.proc_end_time,
+    n.proc_startor,
+    n.proc_state,
+    n.proc_task_handler,
+    n.release_time,
+    n.range,
+    n.isfinalized,
+    n.corp_id,
+    n.corp_name,
+    n.tenant_info_id,
+    n.dept_name,
+    n.periods,
+    n.total_periods,
+    n.periods_year 
+  FROM
+    submit_notification n 
+  WHERE corp_id = 'c29cd3da9458461191b5b2d5e8417346'
+    AND FIND_IN_SET('总部各部门', n.range) > 0
+
+   UNION ALL	
+   SELECT 
+    c.id,
+    c.start_time,
+    c.end_time,
+    c.name,
+    c.compilation_date,
+    c.info_status,
+    c.scope,
+    c.document,
+    c.user_account,
+    c.dept_id,
+    c.create_time,
+    c.update_time,
+    c.proc_inst_id,
+    c.proc_start_time,
+    c.proc_end_time,
+    c.proc_startor,
+    c.proc_state,
+    c.proc_task_handler,
+    c.release_time,
+    c.range,
+    c.isfinalized,
+    c.corp_id,
+    c.corp_name,
+    c.tenant_info_id,
+    c.dept_name,
+    c.periods,
+    c.total_periods,
+    c.periods_year 
+  FROM
+    submit_notification c
+    WHERE c.proc_task_handler = 'chengwei@csg.cn' 	
+    ) n 
+WHERE 1 = 1 
+ORDER BY n.create_time DESC 
+LIMIT 0, 5
 ~~~
 
