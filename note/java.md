@@ -601,3 +601,13 @@ String s = new String(“xyz”);产生几个对象？一个或两个，如果�
 就是可以从队列的头部和尾部增加或者取出元素
 
 常见的实现是:LinkedList
+
+
+
+### 11 ConcurrentHashMap
+
+1 默认有16个Node数组对象，当整个数组为空，使用cas添加元素
+
+2 取出一个Node对象,然后Node
+
+3 当计算下标，取出一个桶，然后synchonized加锁取出的一个Node对象，然后添加元素

@@ -291,3 +291,17 @@ G1是一种服务端垃圾收集器，在实现高吞吐量 的同时，尽可�
 ### GC参数
 
 -Xms9m -Xmx9m -XX:+PrintGCDetails -XX:MetaspaceSize=10m -XX:MaxMetaspaceSize=10m
+
+
+
+### CAS
+
+比较并替换，将传入的值和真实值比较，相同则更新值，不相同则不更新
+
+cas是一种系统原语，原语属于操作系统用语范畴，是由若干条指令组成的，用于完成某个功能的一个过程，并且原语的执行必须是连续的，在执行过程不会被打断，不会造成所谓的数据不一致的问题，这是一个依赖于硬件实现的功能
+
+![CAS原理](F:\workspace\idea\study\study\note\images\CAS原理.png)
+
+
+
+缺点:循环时间长，资源消耗大
