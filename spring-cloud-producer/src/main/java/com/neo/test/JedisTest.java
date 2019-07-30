@@ -15,15 +15,17 @@ public class JedisTest {
 //        Integer[] metaSpace = new Integer[10*1024*1024];
 //        System.out.println("asfd"+metaSpace);
 //        Thread.sleep(Integer.MAX_VALUE);
-        ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>();
-        map.put("1","1");
-        map.put("2","2");
-        ThreadPoolExecutor executor = new ThreadPoolExecutor(3, 3, 60, TimeUnit.SECONDS, new LinkedBlockingDeque<>());
-        for (int i=0;i<3;i++){
-            executor.execute(()->{
-            });
+        ConcurrentHashMap<String,String> map = new ConcurrentHashMap<>(16);
+        for (int i=1;i<50;i++){
+            map.put(""+i,""+i);
         }
-        executor.shutdown();
+        System.out.print(map.size());
+//        ThreadPoolExecutor executor = new ThreadPoolExecutor(3, 3, 60, TimeUnit.SECONDS, new LinkedBlockingDeque<>());
+//        for (int i=0;i<3;i++){
+//            executor.execute(()->{
+//            });
+//        }
+//        executor.shutdown();
 //        Thread.sleep(Integer.MAX_VALUE);
 //        byte[]bytes=new byte[10*1024*1024];
     }
