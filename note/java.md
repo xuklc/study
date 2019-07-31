@@ -634,3 +634,57 @@ sleep指定睡眠时间，从运行态(running)到sleeping
 
 #### 13.3 join
 
+### 14锁深度应用
+
+#### 14.1 公平锁和非公平锁
+
+公平锁:是指多个线程按照申请锁的顺序来获取锁，类似排队打饭，先来后到，遵循先进先出
+
+非公平锁:是指多个线程获取锁的顺序并不是按照申请锁的顺序，有可能后申请的线程比先申请的线程优先获取锁，在高并发的情况下，有可能造成优先级反转或饥饿现象
+
+**非公平锁是直接竞争，如果竞争失败，则采用类似公平锁的方式**
+
+**ReentrantLock有参构造方法，boolean 参数默认是false,所以默认是非公平锁**
+
+#### 14.2 可重入锁(递归锁)
+
+ReentrantLock和synchronized是典型的可重入锁,非公平锁
+
+**可以避免死锁，不代表不会死锁**
+
+**ReentrantLock调用lock，一定调用unlock方法解锁，并且是加锁几次就解锁几次，例子如下**
+
+~~~java
+public class LockTest{
+    ReentrantLock lock = new ReentrantLock();
+	public void lockTest(){
+        //加锁两次
+    	lock.lock();
+        lock.lock();
+        try{
+            // todo
+        }finally{
+            //解锁两次，否则死锁
+            lock.unlock();
+            lock.unlock();
+        }
+	}    
+}
+
+~~~
+
+
+
+例子
+
+~~~java
+// 当线程获取锁进入method1之后，虽然method2也是同步加锁代码，但是不需要再去获取锁，和method1用同一把锁
+public synchronized void methdo1(){
+    method2();
+}
+public synchronized void method2(){
+    
+}
+
+~~~
+
