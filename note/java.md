@@ -634,6 +634,49 @@ sleep指定睡眠时间，从运行态(running)到sleeping
 
 #### 13.3 join
 
+等待调用join()的线程结束，如t.join();//主要用于等待t线程执行结束
+
+~~~java
+public class JoinThread {
+
+    public static  void main(String[]args) throws InterruptedException {
+
+        JoinThreads joinThreads = new JoinThreads("join");
+        joinThreads.start();
+        /**
+        *不加join()则main线程和joinThreads子线程互相竞争，执行没有先后顺序，有多结果
+        结果1
+        0;1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;--------------
+main thread0;main thread1;main thread2;main thread3;main thread4;main thread5;main thread6;main thread7;main thread8;main thread9;--------------
+       结果2 
+       --------------
+0;main thread0;1;2;3;4;5;6;7;8;9;10;11;12;13;main thread1;14;15;16;main thread2;17;main thread3;18;main thread4;19;main thread5;main thread6;main thread7;main thread8;main thread9;-------------- 
+        */
+        joinThreads.join();
+        System.out.println("--------------");
+        for (int i=0;i<10;i++){
+            System.out.print("main thread"+i+";");
+        }
+        System.out.println("--------------");
+
+    }
+}
+class  JoinThreads  extends Thread{
+    private String name;
+    public JoinThreads(String name){
+        this.name=name;
+    }
+
+    public void run(){
+        for (int i=0;i<20;i++){
+            System.out.print(i);
+        }
+    }
+}
+~~~
+
+
+
 ### 14锁深度应用
 
 #### 14.1 公平锁和非公平锁
@@ -687,4 +730,21 @@ public synchronized void method2(){
 }
 
 ~~~
+### 15 hashcode
+
+**两个hashcode相等的对象不一定是相等的对象,hashcode相等只能保证两个对象在一个HASH表里的同一条HASH链上，继而通过equals方法才能确定是不是同一对象**
+
+hashcode 不是代表 对象所在内存地址
+
+ hashCode 的一般约定:
+
+- 在 Java 应用程序中，任何时候对同一对象多次调用 hashCode 方法，都必须一直返回同样的整数，对它提供的信息也用于对象的相等比较，且不会被修改。这个整数在两次对同一个应用程序的执行不中不需要保持一致。
+- 如果两个对象通过 equals(Object) 方法来比较相等，那么这两个对象的 hashCode 方法必须产生同样的整型结果。
+- 如果两个对象通过 equals(Object) 方法比较结果不等，这两个对象的 hashCode 不必产生同不整型结果。然而，开发者应该了解对不等的对象产生不同的整型结果有助于提高哈希表的性能
+
+
+
+**java规范要求对于同一个对象每次生成的hashcode必须相同**
+
+**java规范要求两个equals的对象一定要有相同的hashcode**
 
