@@ -35,81 +35,33 @@ CREATE TABLE notification (
 ) ENGINE=InnoDB AUTO_INCREMENT=21123 DEFAULT CHARSET=utf8;
 ```
 
-### 2 sql
 
-```sql
-EXPLAIN 
-SELECT 
-  COUNT(1) 
-FROM
-  (SELECT 
-    id,
-    NAME,
-    compilation_date,
-    info_status,
-    scope,
-    document,
-    user_account,
-    dept_id,
-    proc_inst_id,
-    proc_start_time,
-    proc_end_time,
-    proc_startor,
-    proc_state,
-    proc_task_handler,
-    release_time,
-    isfinalized,
-    tenant_info_id,
-    create_time 
-  FROM
-    notification n 
-  WHERE proc_task_handler = 'chengwei_01@csg.cn'
-    OR user_account = 'chengwei_01@csg.cn'
-    OR (
-      FIND_IN_SET('chengwei_01@csg.cn', subordinate_unit_ids) > 0 
-      AND n.info_status = 'notify'
-    ) 
-  UNION
-  SELECT 
-    id,
-    NAME,
-    compilation_date,
-    info_status,
-    scope,
-    document,
-    user_account,
-    dept_id,
-    proc_inst_id,
-    proc_start_time,
-    proc_end_time,
-    proc_startor,
-    proc_state,
-    proc_task_handler,
-    release_time,
-    isfinalized,
-    tenant_info_id,
-    create_time 
-  FROM
-    notification a 
-  WHERE corp_id = 'c29cd3da9458461191b5b2d5e8417346'
-    AND FIND_IN_SET('总部各部门', a.range) > 0
-    ) t 
-WHERE 1 = 1 
-ORDER BY FIELD(proc_task_handler, 'chengwei_01@csg.cn') DESC,
-  create_time DESC 
-```
 
-### 3 优化
+### 2 优化
 
 #### 1  常用查询的字段加索引
+
+~~~sql
+set global profling=1;
+~~~
+
+~~~sql
+show proflies
+~~~
+
+**sending Data上耗时最长**
+
+选择区分度高的字段索引
 
 ALTER  TABLE submit_notification  ADD INDEX corp_index(corp_id);
 
 ALTER TABLE submit_notification  ADD INDEX  handler_index(proc_task_handler);
 
-**sending Data上耗时最长**
+alter table submit_notification    add  index account_index(user_account);
 
 #### 2 加索引调整sql
+
+**并将or 改成union all**
 
 ```sql
 EXPLAIN SELECT 
@@ -154,11 +106,9 @@ FROM
     create_time 
   FROM
     submit_notification n 
-  WHERE ( FIND_IN_SET('chengwei_01@csg.cn', subordinate_unit_ids) > 0 
-      AND n.info_status = 'notify')
-    OR proc_task_handler = 'chengwei_01@csg.cn'
-    OR user_account = 'chengwei_01@csg.cn'
-  UNION
+  WHERE  FIND_IN_SET('chengwei_01@csg.cn', subordinate_unit_ids) > 0 
+      AND n.info_status = 'notify'
+  UNION ALL
    SELECT 
     id,
     NAME,
@@ -182,103 +132,64 @@ FROM
     submit_notification n 
   WHERE corp_id = 'c29cd3da9458461191b5b2d5e8417346'
     AND FIND_IN_SET('总部各部门', n.range) > 0
+      
+   UNION ALL   
+      SELECT 
+    id,
+    NAME,
+    compilation_date,
+    info_status,
+    scope,
+    document,
+    user_account,
+    dept_id,
+    proc_inst_id,
+    proc_start_time,
+    proc_end_time,
+    proc_startor,
+    proc_state,
+    proc_task_handler,
+    release_time,
+    isfinalized,
+    tenant_info_id,
+    create_time 
+  FROM
+    submit_notification where proc_task_handler = 'chengwei_01@csg.cn'
+    UNION ALL
+     SELECT 
+    id,
+    NAME,
+    compilation_date,
+    info_status,
+    scope,
+    document,
+    user_account,
+    dept_id,
+    proc_inst_id,
+    proc_start_time,
+    proc_end_time,
+    proc_startor,
+    proc_state,
+    proc_task_handler,
+    release_time,
+    isfinalized,
+    tenant_info_id,
+    create_time 
+  FROM
+    submit_notification where user_account = 'chengwei_01@csg.cn'
     ) t 
 WHERE 1 = 1 
 ORDER BY FIELD(proc_task_handler, 'chengwei_01@csg.cn') DESC,
   create_time DESC 
 ```
 
-
-
-#### 3 or 改成 union all
-
-~~~sql
-EXPLAIN SELECT 
-    id,
-    NAME,
-    compilation_date,
-    info_status,
-    scope,
-    document,
-    user_account,
-    dept_id,
-    proc_inst_id,
-    proc_start_time,
-    proc_end_time,
-    proc_startor,
-    proc_state,
-    proc_task_handler,
-    release_time,
-    isfinalized,
-    tenant_info_id,
-    create_time 
-  FROM
-    submit_notification b 
-  WHERE  user_account = 'chengwei_01@csg.cn'
-  OR proc_task_handler = 'chengwei_01@csg.cn'
-    
-  UNION ALL
-  SELECT 
-    id,
-    NAME,
-    compilation_date,
-    info_status,
-    scope,
-    document,
-    user_account,
-    dept_id,
-    proc_inst_id,
-    proc_start_time,
-    proc_end_time,
-    proc_startor,
-    proc_state,
-    proc_task_handler,
-    release_time,
-    isfinalized,
-    tenant_info_id,
-    create_time 
-  FROM
-    submit_notification a 
-  WHERE corp_id = 'c29cd3da9458461191b5b2d5e8417346'
-    AND FIND_IN_SET('总部各部门', a.range) > 0
-    
-    UNION ALL
-    SELECT 
-    id,
-    NAME,
-    compilation_date,
-    info_status,
-    scope,
-    document,
-    user_account,
-    dept_id,
-    proc_inst_id,
-    proc_start_time,
-    proc_end_time,
-    proc_startor,
-    proc_state,
-    proc_task_handler,
-    release_time,
-    isfinalized,
-    tenant_info_id,
-    create_time 
-  FROM
-    submit_notification n WHERE 
-    FIND_IN_SET('chengwei_01@csg.cn', subordinate_unit_ids) > 0 
-      AND n.info_status = 'notify'
-~~~
-
-#### 4 proc_task_handler加索引
+#### 3 proc_task_handler加索引
 
 proc_task_handler区分度比较高，加索引过滤很多数据
 
 1 将proc_task_handler拆成一条单独的sql,凑够条数就不在执行其他sql执行，这样做可以避免field函数操作proc_task_handler导致索引失效
 
 2 分页查询，数量不够，再次执行sql,虽然拆成两条SQL，但是可以避免所以索引失效
-
-
-
-
 
 ~~~sql
 EXPLAIN SELECT 
@@ -420,5 +331,247 @@ FROM
 WHERE 1 = 1 
 ORDER BY n.create_time DESC 
 LIMIT 0, 5
+~~~
+
+
+
+#### 4 长字段改成表
+
+subordinate_unit_ids建成一个表，然后再加索引，使用索引来检索
+
+1 可以使用缩影
+
+2 避免数据太长特殊情况，满足不了
+
+~~~sql
+CREATE TABLE submit_unit_account(
+    id BIGINT  PRIMARY KEY AUTO_INCREMENT,
+    notify_id  BIGINT,
+    user_account VARCHAR(50)
+)ENGINE=INNODB  DEFAULT CHARSET=utf8
+
+ALTER TABLE submit_unit_account ADD INDEX unit_account_index(user_account);
+~~~
+
+~~~sql
+EXPLAIN SELECT 
+  n.id,
+  n.start_time,
+  n.end_time,
+  n.name,
+  n.compilation_date,
+  n.info_status,
+  n.scope,
+  n.document,
+  n.user_account,
+  n.dept_id,
+  n.create_time,
+  n.update_time,
+  n.proc_inst_id,
+  n.proc_start_time,
+  n.proc_end_time,
+  n.proc_startor,
+  n.proc_state,
+  n.proc_task_handler,
+  n.release_time,
+  n.range,
+  n.isfinalized,
+  n.corp_id,
+  n.corp_name,
+  n.tenant_info_id,
+  n.dept_name,
+  n.periods,
+  n.total_periods,
+  n.periods_year 
+FROM
+  (
+  SELECT 
+    n.id,
+    n.start_time,
+    n.end_time,
+    n.name,
+    n.compilation_date,
+    n.info_status,
+    n.scope,
+    n.document,
+    n.user_account,
+    n.dept_id,
+    n.create_time,
+    n.update_time,
+    n.proc_inst_id,
+    n.proc_start_time,
+    n.proc_end_time,
+    n.proc_startor,
+    n.proc_state,
+    n.proc_task_handler,
+    n.release_time,
+    n.range,
+    n.isfinalized,
+    n.corp_id,
+    n.corp_name,
+    n.tenant_info_id,
+    n.dept_name,
+    n.periods,
+    n.total_periods,
+    n.periods_year 
+  FROM
+    submit_notification n 
+  WHERE n.info_status = 'notify'
+    AND corp_id = 'c29cd3da9458461191b5b2d5e8417346' 
+  UNION ALL
+  
+  SELECT 
+    b.id,
+    b.start_time,
+    b.end_time,
+    b.name,
+    b.compilation_date,
+    b.info_status,
+    b.scope,
+    b.document,
+    b.user_account,
+    b.dept_id,
+    b.create_time,
+    b.update_time,
+    b.proc_inst_id,
+    b.proc_start_time,
+    b.proc_end_time,
+    b.proc_startor,
+    b.proc_state,
+    b.proc_task_handler,
+    b.release_time,
+    b.range,
+    b.isfinalized,
+    b.corp_id,
+    b.corp_name,
+    b.tenant_info_id,
+    b.dept_name,
+    b.periods,
+    b.total_periods,
+    b.periods_year 
+    FROM submit_notification b 
+    WHERE corp_id = 'c29cd3da9458461191b5b2d5e8417346'
+    AND FIND_IN_SET('总部各部门', b.range) > 0
+    
+     UNION ALL
+    SELECT 
+    c.id,
+    c.start_time,
+    c.end_time,
+    c.name,
+    c.compilation_date,
+    c.info_status,
+    c.scope,
+    c.document,
+    c.user_account,
+    c.dept_id,
+    c.create_time,
+    c.update_time,
+    c.proc_inst_id,
+    c.proc_start_time,
+    c.proc_end_time,
+    c.proc_startor,
+    c.proc_state,
+    c.proc_task_handler,
+    c.release_time,
+    c.range,
+    c.isfinalized,
+    c.corp_id,
+    c.corp_name,
+    c.tenant_info_id,
+    c.dept_name,
+    c.periods,
+    c.total_periods,
+    c.periods_year 
+  FROM
+    submit_notification c 
+  WHERE
+       c.info_status = 'notify'
+        AND c.id IN (SELECT notify_id FROM  submit_unit_account WHERE user_account  IN('yuanling@gz.csg.cn') )
+    ) n 
+WHERE 1 = 1 
+ORDER BY n.create_time DESC 
+LIMIT 0, 5
+~~~
+
+#### 5 DEPENDENT SUBQUERY
+
+~~~sql
+SELECT 
+    c.id,
+    c.start_time,
+    c.end_time,
+    c.name,
+    c.compilation_date,
+    c.info_status,
+    c.scope,
+    c.document,
+    c.user_account,
+    c.dept_id,
+    c.create_time,
+    c.update_time,
+    c.proc_inst_id,
+    c.proc_start_time,
+    c.proc_end_time,
+    c.proc_startor,
+    c.proc_state,
+    c.proc_task_handler,
+    c.release_time,
+    c.range,
+    c.isfinalized,
+    c.corp_id,
+    c.corp_name,
+    c.tenant_info_id,
+    c.dept_name,
+    c.periods,
+    c.total_periods,
+    c.periods_year 
+  FROM
+    submit_notification c 
+  WHERE
+       c.info_status = 'notify'
+       AND exists (SELECT notify_id FROM  submit_unit_account u WHERE user_account  IN('yuanling@gz.csg.cn') and u.notify_id=c.id)
+       -- AND c.id IN (SELECT notify_id FROM  submit_unit_account WHERE user_account  ---  IN('yuanling@gz.csg.cn'))
+~~~
+
+改造
+
+去除exists
+
+~~~sql
+SELECT 
+    c.id,
+    c.start_time,
+    c.end_time,
+    c.name,
+    c.compilation_date,
+    c.info_status,
+    c.scope,
+    c.document,
+    c.user_account,
+    c.dept_id,
+    c.create_time,
+    c.update_time,
+    c.proc_inst_id,
+    c.proc_start_time,
+    c.proc_end_time,
+    c.proc_startor,
+    c.proc_state,
+    c.proc_task_handler,
+    c.release_time,
+    c.range,
+    c.isfinalized,
+    c.corp_id,
+    c.corp_name,
+    c.tenant_info_id,
+    c.dept_name,
+    c.periods,
+    c.total_periods,
+    c.periods_year 
+  FROM
+    submit_notification c 
+  WHERE
+       c.info_status = 'notify'
+        AND c.id IN (SELECT notify_id FROM  submit_unit_account WHERE user_account    IN('yuanling@gz.csg.cn'))
 ~~~
 
