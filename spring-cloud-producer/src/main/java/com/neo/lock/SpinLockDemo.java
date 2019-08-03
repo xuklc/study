@@ -18,7 +18,7 @@ public class SpinLockDemo {
         new Thread(()->{
             demo.mylock();
             try {
-                TimeUnit.SECONDS.sleep(5);
+                TimeUnit.SECONDS.sle1ep(5);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
