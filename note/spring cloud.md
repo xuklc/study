@@ -480,3 +480,6 @@ taskkill -PID 17400 -F
 
 <https://www.jianshu.com/p/a449e7a7b326>
 
+### 15全局唯一的id
+
+在应用启动时设置一个全局唯一的应用编码，应用编码+UUID

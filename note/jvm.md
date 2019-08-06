@@ -282,7 +282,7 @@ G1是一种服务端垃圾收集器，在实现高吞吐量 的同时，尽可�
 
 ### 对象进入老年代参数
 
--XX:PretenureSizeThreshold设置大对象直接进入年老代的阈值，当对象大小超过这个值时，将直接在年老代分配。
+-XX:PretenureSizeThreshold设置大对象直接进入年老代的阈值，当对象大小超过这个值时，将直接在年老代分配。默认值是0
 
 -XX:MaxTenuringThreshold是给Serial收集器和没有开启UseAdaptiveSizePolicy的ParNew GC收集器用的(`在计算存活周期这个阈值时，hotspot会遍历所有age的table，并对其所占用的大小进行累积，当累积的大小超过了survivor space的一半时，则以这个age作为新的存活周期阈值，最后取age和MaxTenuringThreshold中更小的一个值。`)
 
@@ -300,8 +300,26 @@ G1是一种服务端垃圾收集器，在实现高吞吐量 的同时，尽可�
 
 cas是一种系统原语，原语属于操作系统用语范畴，是由若干条指令组成的，用于完成某个功能的一个过程，并且原语的执行必须是连续的，在执行过程不会被打断，不会造成所谓的数据不一致的问题，这是一个依赖于硬件实现的功能
 
+**CAS是一条CPU的原子指令**
+
 ![CAS原理](F:\workspace\idea\study\study\note\images\CAS原理.png)
 
 
 
 缺点:循环时间长，资源消耗大
+
+#### ABA问题
+
+问题1  线程1从堆内存读取一个共享变量x的值是A,线程2从堆内存读取共享变量x的是A,然后线程2将是改为B，再然后线程2又把变量x的值改为A，这个时候线程1从将栈内存的值A和堆内存的值比较都是A，两者相等，线程1更新变量x的值
+
+解决办法
+
+1 引入AtomicReference(原子引用)
+
+2 加入版本号
+
+### 大对象进入老年代条件
+
+1 对象大小大于Eden区的总大小
+
+2 超过PretenureSizeThreshold的值，默认值是0

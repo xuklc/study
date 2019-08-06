@@ -1,3 +1,7 @@
+官网
+
+https://www.mysql.com/cn/why-mysql/performance/
+
 ## 1 sql语句
 
  **1.禁止使用count（常量）或者count（列名），因为它们避免不了NULL值    用count(\*)来计算条数**
@@ -420,3 +424,48 @@ processlist命令的输出结果**显示了有哪些线程在运行**，不仅�
 
   例子:user_account in ('','')
 
+4 or分割的条件，如果or前的条件中的列有索引，二后面的列没有索引，那么涉及的索引都不会用到
+
+在倒入数据前限制性set unique_checks=0，关闭唯一性校验，再倒入结束后执行set unique_checks=1，恢复唯一性校验可以提高到付效率。
+
+### innoDB
+
+1 InnoDB支持事,MyISAM不支持事务
+
+2 InnoDB支持行级锁
+
+#### 特性
+
+1 插入缓冲(insert buffer)
+
+2 二次写(double write)
+
+~~~sql
+show global status like 'innodb_dblwr%'
+~~~
+
+说明：用户若需要统计数据库在生产环境中写入的量，可以通过innodb_dblwr_pages_written进行统计。
+
+参数skip_innodb_doublewrite可以禁止使用doublewrite功能
+
+3 自适应哈希索引
+
+4 预读(read ahead)
+
+### mysql id自增
+
+https://www.csdn.net/gather_20/MtTaIgzsMTAwMC1ibG9n.html
+
+http://ju.outofmemory.cn/entry/370625
+
+InnoDB会为自增的列维护一个计数器，这个计数器的值维护在内存中，而不是数据文件中
+
+MyISAM存入数据文件中
+
+![auto_increment](F:\workspace\idea\study\study\note\images\auto_increment.png)
+
+### 事务的实现原理
+
+1、实现事务特性的原理：
+使用Redo Log和Undo Log，Undo Log用于帮助未提交事务进行回滚，Redo Log记录
+已经提交的事务，Undo Log会随机读写，而Redo Log基本是顺序

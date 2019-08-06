@@ -768,3 +768,59 @@ hashcode 不是代表 对象所在内存地址
 
 **java规范要求两个equals的对象一定要有相同的hashcode**
 
+### 16volatile
+
+#### 16.1禁止指令重排
+
+指令重排三步骤
+
+1 编译器优化重排
+
+2 指令并行重排
+
+3 内存系统重排
+
+volatile禁止指令重排
+
+![volatile禁止指令重排](F:\workspace\idea\study\study\note\images\volatile禁止指令重排.png)
+
+volatile禁止指令重排2
+
+
+
+![volatile禁止指令重排2](F:\workspace\idea\study\study\note\images\volatile禁止指令重排2.png)
+
+多线程环境下指令重排会导致结果不可预测
+
+例如 进行指令重排后，代码的结果变成
+
+~~~java
+public void  method01(){
+    flag=true;
+    a=1;
+}
+public void method02(){
+    if(flag){
+        a=a+5;
+        System.out.println("value"+a);
+    }
+}
+~~~
+
+在**多线程**环境下，线程1执行method01()，然后flag=true(a=1还没有被执行);这个时候线程2刚好执行method02,结果就变成a=a+5的结果是5；
+
+#### 16.2Memory Barrier内存屏障(内存栅栏)
+
+**是一个CPU指令,编译器和处理器都能执行指令优化，如果在指令间插入内存屏障(memory)则会告诉编译器和CPU,不管什么指令都不能和Memory Barrier指令重排序，通过插入内存屏障禁止在内存屏障的前后的指令执行重排序优化内存屏障的另外一个作用就是强制刷各种CPU的缓存数据**
+
+ 作用1 保证特定操作的执行顺序
+
+作用2 保证某些变量的可见性(利用该特性实现volatile的可见性)
+
+### 17synchronized和lock的区别
+
+#### 17.1 notify()
+
+方法notify（）通知任何一个线程任意唤醒。确切唤醒哪个线程的选择是非确定性的 ，取决于实现。
+
+由于notify（）唤醒了一个随机线程，因此它可用于实现线程执行类似任务的互斥锁定，但在大多数情况下，实现notifyAll（）会更可行

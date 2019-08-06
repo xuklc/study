@@ -64,6 +64,10 @@ public Object intercept(Object proxy, Method method, Object[] args, MethodProxy 
 
 **@Around注解**
 
+### IOC
+
+
+
 ### spring mvc
 
 spring mvc 接收json数组和一个json对象
@@ -228,3 +232,8 @@ protected ExecutorType defaultExecutorType = ExecutorType.SIMPLE;
 
 **我们不写type就使用mybatis默认的缓存**
 
+整合spring boot
+
+http://www.hellojava.com/a/72278.html
+
+@Signature(type,method.args)
