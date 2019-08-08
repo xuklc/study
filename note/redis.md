@@ -109,3 +109,56 @@ AOF优缺点
 /org/findAllParents  id  mindjet MindManager
 ```
 
+
+
+### 9 lua
+
+https://blog.csdn.net/fly910905/article/details/78955343
+
+redis会保证lua脚本执行的原子性
+
+~~~tex
+Also Redis guarantees that a script is executed in an atomic way: no other script or Redis command will be executed while a script is being executed. This semantic is similar to the one of MULTI / EXEC
+~~~
+
+在分布式锁或者分布式事务时会用到lua脚本来保证原子性，这个暂时空缺出来
+
+### 10 分布式锁
+
+基于redis实现分布式锁的机制，主要是依赖redis自身的原子操作
+
+使用setnx命令
+
+```shell
+set  key  value NX PX 30000
+```
+
+分布式锁
+
+http://ifeve.com/redis-lock/
+
+http://developer.51cto.com/art/201812/588335.htm
+
+![分布式锁时延](F:\workspace\idea\study\study\note\images\分布式锁时延.png)
+
+注意看，上面的步骤(3)-->步骤(4.1)并不是**原子性操作**。也就说，你可能出现在步骤(3)的时候返回的是有效这个标志位，但是在传输过程中，因为**延时等原因**，在步骤(4.1)的时候，**锁已经超时失效了**。那么，这个时候锁就会被另一个客户端锁获得。就出现了两个客户端共同操作共享资源的情况
+
+**redis的主从复制是异步，给有可能出现master节点宕机了，slave来不及同步数据就被选为master,从而导致数据丢失**
+
+具体流程如下:
+
+1 客户端1从master获取锁
+
+2 master宕机了，存储锁的key还没来得及同步到slave上
+
+3 slave升级为master
+
+4 客户端2 从新的master获取对应的同一资源锁
+
+解决办法
+
+**redLock算法**
+
+
+
+### 11 分布式事务

@@ -824,3 +824,16 @@ public void method02(){
 方法notify（）通知任何一个线程任意唤醒。确切唤醒哪个线程的选择是非确定性的 ，取决于实现。
 
 由于notify（）唤醒了一个随机线程，因此它可用于实现线程执行类似任务的互斥锁定，但在大多数情况下，实现notifyAll（）会更可行
+
+#### 17.2synchronized(重要)
+
+在JAVA中的Object类型中，都是带有一个内存锁的，在有线程获取该内存锁后，其它线程无法访问该内存，从而实现JAVA中简单的同步、互斥操作
+
+synchronized就是针对内存区块申请内存锁，[this关键字](https://www.baidu.com/s?wd=this关键字&tn=SE_PcZhidaonwhc_ngpagmjz&rsv_dl=gh_pc_zhidao)代表类的一个对象，所以其内存锁是针对相同对象的互斥操作，而static成员属于类专有，其内存空间为该类所有成员共有，这就导致synchronized()对static成员加锁，相当于对类加锁，也就是在该类的所有成员间实现互斥，在同一时间只有一个线程可访问该类的实例。如果只是简单的想要实现在JAVA中的线程互斥，明白这些基本就已经够了。但如果需要在线程间相互唤醒的话就需要借助Object.wait(), Object.nofity()了
+
+**Obj.wait()，与Obj.notify()必须要与synchronized(Obj)一起使用,语法角度来说就是Obj.wait(),Obj.notify必须在synchronized(Obj){...}语句块内**
+
+**有一点需要注意的是notify()调用后，并不是马上就释放对象锁的，而是在相应的synchronized(){}语句块执行结束，自动释放锁后，JVM会在wait()对象锁的线程中随机选取一线程，赋予其对象锁，唤醒线程，继续执行**
+
+**调用obj的wait(), notify()方法前，必须获得obj锁**
+

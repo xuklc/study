@@ -469,3 +469,104 @@ MyISAM存入数据文件中
 1、实现事务特性的原理：
 使用Redo Log和Undo Log，Undo Log用于帮助未提交事务进行回滚，Redo Log记录
 已经提交的事务，Undo Log会随机读写，而Redo Log基本是顺序
+
+### join
+
+1 left join A表为驱动表
+
+2 inner join MySQL会自动找出数据少的表作为驱动表
+
+3 right join B 表作为驱动表
+
+4 straight_join强制指定左边的表就是驱动表
+
+
+
+### 事务
+
+#### 1 隔离级别设置
+
+~~~ sql
+//查看数据库版本
+mysql> select @@version;    
++-----------+
+| @@version |
++-----------+
+| 8.0.12    |
++-----------+
+1 row in set (0.01 sec)
+
+
+//查看数据库隔离级别
+mysql> select @@transaction_isolation;
++-------------------------+
+| @@transaction_isolation |
++-------------------------+
+| REPEATABLE-READ         |
++-------------------------+
+1 row in set (0.02 sec)
+
+
+//查看数据库是否是自动提交
+mysql> show variables like 'autocommit';
++---------------+-------+
+| Variable_name | Value |
++---------------+-------+
+| autocommit    | ON    |
++---------------+-------+
+1 row in set (0.03 sec)
+
+
+//将数据库 自动提交 去掉
+mysql> set autocommit = 0;
+Query OK, 0 rows affected (0.00 sec)
+
+
+//再次查看事务是否自动提交
+mysql> show variables like 'autocommit';
++---------------+-------+
+| Variable_name | Value |
++---------------+-------+
+| autocommit    | OFF   |
++---------------+-------+
+1 row in set (0.04 sec)
+
+
+现在来看看MySQL数据库为我们提供的四种隔离级别：
+
+　　1.Serializable (串行化)：可避免脏读、不可重复读、幻读的发生。
+
+　　2. Repeatable read (可重复读)：可避免脏读、不可重复读的发生。
+
+　　3. Read committed (读已提交)：可避免脏读的发生。
+
+　　4. Read uncommitted (读未提交)：最低级别，任何情况都无法保证。
+
+
+
+//设置数据库的隔离级别
+mysql> set transaction isolation level read committed;
+Query OK, 0 rows affected (0.00 sec)
+
+
+//开始事务
+mysql> start transaction;
+Query OK, 0 rows affected (0.00 sec)
+
+
+//设置数据库的隔离级别
+set session transaction isolation level read committed;
+set session transaction isolation level read uncommitted;
+set session transaction isolation level repeatable read;
+set session transaction isolation level serializable;
+~~~
+
+
+
+#### 四种隔离级别
+
+##### 1 read uncommit（读未提交）
+
+http://www.zsythink.net/archives/1233
+
+https://blog.csdn.net/weishuai528/article/details/90676316

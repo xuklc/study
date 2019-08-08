@@ -4,6 +4,12 @@
 
 ### spring aop
 
+连接点:是程序执行的一个点
+
+切点:是一个匹配连接点的断言或者表达式
+
+
+
 动态代理的部分源码,报错就可以知道aop的源码了
 
  CglibAopProxy.intercept()
