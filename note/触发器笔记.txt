@@ -1,0 +1,9 @@
+create  OR REPLACE  trigger  material_trigger
+    after update of enablestate,pk_material !--监听的字段
+    on bd_material !--监听的表
+    for each row !--行级触发器
+  begin 
+      
+      insert into deltable(tablename,pkname,pkvalue,fieldname,fieldvalue)  values('mid_bd_material','pk_material',:new.pk_material,'enablestate',:new.enablestate);
+  end;
+  其中在begin和end之间的sql语句结尾必须要有;,end后面也必须有;  update,insert,delete 后面的of可以跟列名

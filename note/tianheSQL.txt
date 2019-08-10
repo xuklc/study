@@ -1,0 +1,32 @@
+!--创建表空间
+!--uniform 是指定区的大小
+!--extent management local指定表空间采用本地表空间管理
+!-- uniform size 512k设置extent每次分配的大小为512k
+create tablespace tianheData 
+datafile 	'E:\app\Administrator\oradata\orcl\tianheData.dbf'
+size 	500M 
+autoextend on next 50M extent management local uniform size 512k
+
+！--创建临时表空间
+create tablespace tianhe_INDEX01 datafile 	'E:\app\Administrator\oradata\orcl\tianhe_index01.dbf'
+size 	500M autoextend on next 50M extent management local uniform size 256k
+
+！--创建用户
+
+ create user th
+  identified by th
+  default tablespace tianheData
+  temporary tablespace TEMP
+
+！--给用户授权
+
+grant sysdba to th
+ grant connect to th  
+
+！--创建输入输出目录,as 后面是dmp（数据文件）所在的目录
+CREATE DIRECTORY dump_dir as 'E:\orcl'
+！--将文件授权给用户
+grant read,write on directory dump_dir to 用户名
+
+!--导入数据
+impdp 

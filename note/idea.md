@@ -61,3 +61,20 @@ idea 某个配置出来问题，导致maven 不能将java 源文件编译成clas
 ### 4 idea多线程调试
 
 ![idea多线程调试](D:\resources\study\note\images\idea多线程调试.png)
+
+### 5 idea 配置文件过大
+
+找到安装路径下有个属性文件，我的是在 D:\JetBrains\IntelliJ IDEA 9.0\bin 进入bin目录后找到属性文件：idea.properties 用记事本或者Editplus 将其打开，找到如下代码段：
+
+```properties
+# path to IDEA config folder. Make sure you're using forward slashes  idea.config.path=${user.home}/.IntelliJIdea90/config   
+# path to IDEA system folder. Make sure you're using forward slashes  #idea.system.path=${user.home}/.IntelliJIdea90/system   # path to user installed plugins #folder. Make sure you're using forward slashes  idea.plugins.path=${user.home}/.IntelliJIdea90/config/plugins 
+```
+
+发现其中包含3个路径 idea.config.path和idea.system.path和idea.plugins.path   这个就是设置了文件的存放路径，那么我们将 ${user.home} 替换为我们自定义的路径就好了，替换 如：D:/JetBrains ，注意“/”的方向。我的修改后的如下：
+
+```properties
+# path to IDEA config folder. Make sure you're using forward slashes  idea.config.path=D:/JetBrains/.IntelliJIdea90/config   
+# path to IDEA system folder. Make sure you're using forward slashes  #idea.system.path=D:/JetBrains/.IntelliJIdea90/system   
+# path to user installed plugins folder. Make sure you're using forward slashes  idea.plugins.path=D:/JetBrains/.IntelliJIdea90/config/plugins 
+```

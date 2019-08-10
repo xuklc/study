@@ -2,6 +2,14 @@
 
 https://www.mysql.com/cn/why-mysql/performance/
 
+文档
+
+https://dev.mysql.com/doc/refman/8.0/en/server-system-variable-reference.html
+
+### 注意
+
+**SQLyog这个工具，一个连接就只是一个事务，这点PLSQL Developer不一样，PLSQL Developer是新开一个SQL窗口就是一个新的事务，但是SQLyog在一个连接之内，多少个SQL执行窗口都是同一个事务**
+
 ## 1 sql语句
 
  **1.禁止使用count（常量）或者count（列名），因为它们避免不了NULL值    用count(\*)来计算条数**
@@ -484,6 +492,32 @@ MyISAM存入数据文件中
 
 ### 事务
 
+#### show variables
+
+**SHOW VARIABLES **
+
+show variables like '变量名称'
+
+#### 变量
+
+MySQL维护两种变量，一种是全局变量，一种是局部变量，全局变量的值的修改是set global var_name ,
+
+查看全局变量语句
+
+show  [global | session ] variables like 
+
+**修改全局变量需要super权限**
+
+局部变量是 set  session var_name
+
+#### show  status
+
+show status LIKE  '状态名称'
+
+使用show status查看MySQL服务器状态信息
+
+
+
 #### 1 隔离级别设置
 
 ~~~ sql
@@ -495,9 +529,17 @@ mysql> select @@version;
 | 8.0.12    |
 +-----------+
 1 row in set (0.01 sec)
-
+1.查看当前会话隔离级别
+select @@tx_isolation;
+2.查看系统当前隔离级别
+select @@global.tx_isolation;
+3.设置当前会话隔离级别
+set session transaction isolation level repeatable read;
+4.设置系统当前隔离级别
+set global transaction isolation level repeatable read;
 
 //查看数据库隔离级别
+//这条sql才能看到事务的隔离级别 SHOW VARIABLES LIKE 'tx_isolation%'
 mysql> select @@transaction_isolation;
 +-------------------------+
 | @@transaction_isolation |
@@ -518,6 +560,9 @@ mysql> show variables like 'autocommit';
 
 
 //将数据库 自动提交 去掉
+//永久生效设置方法：
+//通过修改配置文件my.cnf文件，通过vim编辑my.cnf文件，在[mysqld]（服务器选项下）添加:
+//autocommit=0
 mysql> set autocommit = 0;
 Query OK, 0 rows affected (0.00 sec)
 
@@ -561,12 +606,111 @@ set session transaction isolation level repeatable read;
 set session transaction isolation level serializable;
 ~~~
 
+#### 2 设置session隔离级别
+
+![session_isolation](F:\workspace\idea\study\study\note\images\session_isolation.png)
+
 
 
 #### 四种隔离级别
 
-##### 1 read uncommit（读未提交）
-
 http://www.zsythink.net/archives/1233
 
 https://blog.csdn.net/weishuai528/article/details/90676316
+
+##### 1 read uncommit（读未提交）
+
+当前事务可以看到其他事务未提交的数据，这种现象就是脏读，例如事务1修改了数据，但是**未提交事务**,事务2可以看到事务1修改未提交的数据就是脏读
+
+#### 2  read commit (读已提交)
+
+读已提交就是当前事务只能读取另外一个事务修改并提交是数据，未提交的数据读取不到
+
+可重复读存在的问题就是不可重复读
+
+##### 不可重复读
+
+不可重复读：就是在同一个事务中一条SQL执行两次得到的结果不一致
+
+例子
+
+事务1 
+
+1 设置隔离级别是read committed
+
+2 设置不自动提交
+
+3 使用begin开启事务，并读取表t1的数据
+
+![不可重复读1](F:\workspace\idea\study\study\note\images\不可重复读1.png)
+
+事务2
+
+1 设置隔离级别是read committed
+
+2 设置不自动提交
+
+3 使用begin开启事务，并读取表t1的数据
+
+![不可重复读2](F:\workspace\idea\study\study\note\images\不可重复读2.png)
+
+4 修改数据，并提交
+
+![不可重复读3](F:\workspace\idea\study\study\note\images\不可重复读3.png)
+
+
+
+![不可重复读4](F:\workspace\idea\study\study\note\images\不可重复读4.png)
+
+
+
+事务1
+
+t1表更新前
+
+![不可重复读1](F:\workspace\idea\study\study\note\images\不可重复读1.png)
+
+更新后
+
+​          
+
+
+
+![不可重复读5](F:\workspace\idea\study\study\note\images\不可重复读5.png)
+
+以上的例子就是同一个事务同一SQL在不同的时间查询得到的结果不一致，就是不可重复读
+
+，解决办法就是将隔离级别设置成可重复读(repeatable read)
+
+#### 3 repeatable read(可重复读)
+
+可重复读存在幻读的问题
+
+可重复读就是开启事务1，然后读取数据，然后再开启事务2，然后更新数据提交之后，事务1再执行SQL查询到的结果和第一次查询得到的结果是一样的
+
+例子，如下图
+
+![可重复读](F:\workspace\idea\study\study\note\images\可重复读.png)
+
+##### 幻读
+
+幻读主要是针对新增和删除的，就是在同一个事务中，执行更新时会多出几条数据
+
+![幻读](F:\workspace\idea\study\study\note\images\幻读.png)
+
+
+
+
+
+#### 读写锁并行问题
+
+事务的隔离是由锁实现的，在执行update、insert、delete操作时，会加上写锁，但是其他事务仍然可以读取被加锁的数据，这是因为InnoDB采用了"一致性非锁定读"的机制来提高并发性，即在需要被读取的数据行被加排它锁之后，不会等待排它锁的释放，而是读取一个快照的数据，如下图
+
+![读取快照数据](F:\workspace\idea\study\study\note\images\读取快照数据.png)
+
+#### 4 串行化
+
+串行化就是写和读操作不能并行执行
+
+![串行化](F:\workspace\idea\study\study\note\images\串行化.png)
+
