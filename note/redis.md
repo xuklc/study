@@ -125,6 +125,10 @@ Also Redis guarantees that a script is executed in an atomic way: no other scrip
 
 ### 10 分布式锁
 
+zokeeper分布式锁
+
+**https://blog.csdn.net/qiangcuo6087/article/details/79067136**
+
 基于redis实现分布式锁的机制，主要是依赖redis自身的原子操作
 
 使用setnx命令
@@ -162,3 +166,286 @@ http://developer.51cto.com/art/201812/588335.htm
 
 
 ### 11 分布式事务
+
+**不保证原子性，一条命令执行失败，其他命令继续执行**
+
+// 先加锁监控
+
+watch
+
+//开始事务
+
+multi
+
+提交的命令加入任务队列，但是没有加锁
+
+// 原子操作
+
+exec
+
+exec命令在key在watch监视加锁的情况没有被改动才能执行成功，否则会事务回滚
+
+// 取消监控，放弃锁
+
+unwatch
+
+//监控加锁
+
+watch
+
+multi
+
+exec
+
+### 12安装
+
+1 解压压缩包
+
+tar -zxvf redis-xxx.tar.gz
+
+2 执行maker命令安装
+
+  ~~~sh
+make
+  ~~~
+
+3 若没有gcc命令则需要安装
+
+gcc是linux是一个编译程序
+
+ 安装方法
+
+1 上网
+
+~~~shell
+yum install gcc-c++
+~~~
+
+2 本地安装gcc
+
+// todo
+
+### 13 配置和启动redis
+
+#### 13.1配置redis
+
+1 修改redis.conf文件，设置redis线程为守护线程  
+
+~~~properties
+daemonize yes
+~~~
+
+ **查找启动的redis进程命令**
+
+~~~shell
+ps -ef|grep redis
+~~~
+
+#### 13.2 启动redis
+
+~~~shell
+./redis-server ../redis.conf
+~~~
+
+#####  redis-cli
+
+~~~shell
+redis-cli -p 6379
+~~~
+
+![redis-cli](F:\workspace\idea\study\study\note\images\redis-cli.png)
+
+### 14 基础知识
+
+1 redis是单线程(指处理读写请求是使用单线程,不止一个线程)
+
+2 使用多路IO复用模型
+
+3 对读写等事件的响应是通过epoll函数的包装来实现的，Epoll是linux内核为处理大批量文件描述而改进的epoll,是linux下多路复用IO接口select/poll的增强版本
+
+4 select index切换数据库 
+
+例子
+
+~~~shell
+select 7  --(第8个数据库的下表是7)
+~~~
+
+#### 5 DBSIZE
+
+查看当前数据库有多少key
+
+~~~shell
+key *  --查看当前数据库所有的key
+~~~
+
+#### 6 清空当前数据库的key
+
+~~~shell
+FLUSHDB
+FLUSHALL --清空所有数据库的key
+~~~
+
+### 数据类型
+
+**命令参考**
+
+http://redisdoc.com/hash/hlen.html
+
+#### hash
+
+KV模式不变，但V是一个键值对
+
+**hset、hget、hmset、hmget、hgetall、hdel**
+
+例子
+
+~~~shell
+hset user id 11
+hget user id
+~~~
+
+![redis_hash](F:\workspace\idea\study\study\note\images\redis_hash.png)
+
+hmset(其中的m是more的意思)
+
+![hmset](F:\workspace\idea\study\study\note\images\hmset.png)
+
+hdel是删除key
+
+![hdel](F:\workspace\idea\study\study\note\images\hdel.png)
+
+hlen key--返回key的数量
+
+hkeys --返回一个hash中key包含所有的key,等同于获取map中所有的key
+
+hvals --返回hash中包含的所有value,等同于获取map中所有的values
+
+hincrby customer age 2 --表示customer.age属性增加2，该操作是原子操作
+
+hincrbyfloat customer score 0.5 -- 表示customer.score 属性增加0.5，该操作是原子操作
+
+hsetnx key  value --当key不存在则创建一个，否则什么也不做，返回值0表示false,1表示true
+
+#### sorted set
+
+sorted set是有序集合
+
+#### set
+
+
+
+1 主从复制
+
+2 容错，复制的整个过程(全复制和增量复制)
+
+3 
+
+### 配置文件
+
+配置文件的修改有两种1 是用命令config set  propeties value
+
+2 修改配置文件
+
+#### includes包含
+
+例子:包含其他的配置文件
+
+include /path/to/local.conf
+
+#### general
+
+##### 日志级别
+
+debug,verbose,notice,warning
+
+timeout 表示客户端限制多长时间关闭该连接，**值为0表示关闭该功能，即该客户端永远不关闭**
+
+dir 设置本地数据库的存放目录
+
+#### SNAPSHOTTING(快照)
+
+#### SECURITY
+
+设置密码
+
+config  set  requirepass "123456"
+
+验证密码
+
+auth  password
+
+#### limits
+
+Maxclients
+
+Maxmemory
+
+Maxmemory-policy
+
+缓存的过期策略
+
+Maxmemory-samples
+
+### AOF
+
+
+
+### RDB
+
+
+
+### 乐观锁
+
+
+
+### 悲观锁
+
+当需要修改数据是会被阻塞知道拿到锁为止，例如表锁、行锁、写锁，在操作之前先上锁
+
+
+
+### 主从复制
+
+http://redisdoc.com/topic/index.html
+
+1 复制粘贴几个配置文件
+
+2 修改配置文件
+
+3 学习一个命令 info  repliation
+
+4 slaveof host port
+
+#### 复制原理
+
+slave启动成功连接到master后发送一个sync命令
+
+Master接到命令后启动后台的存盘进程，同时收集所有接收的用于**修改数据集命令**
+
+在后台进程执行完毕之后，master将传送整个数据文件到slave,完成一次完全同步
+
+全量复制:slave服务在接收到数据文件后，将数据文件写到硬盘并加载到内存中
+
+增量复制:Master继续将新的所有收集到的修改命令依次传给slave，完成同步
+
+#### 哨兵机制
+
+1 自定义sentinel.conf文件,**文件名不能出错**
+
+文件内容
+
+~~~properties
+sentinel  monitor host6379 127.0.0.1 6379 1 --最后一个是表示Master宕机之后，slave得票多少才能成为master
+~~~
+
+2 启动sentinel
+
+~~~shell
+redis-sentinel ../src/sentinel.conf  --配置sentinel文件的路径
+~~~
+
+master宕机启动之后会变成slave,(sentinel会将master设置成slave)
+
+分布式锁才是重点，今晚要搞定
+
