@@ -155,3 +155,30 @@ mvn help :active-profiles
         </repository>
     </repositories>
 ```
+
+
+
+### 9  mirror
+
+**mirror的访问顺序和上下有关,应该是从上到下访问**
+
+### 10 jar
+
+![](D:\note\note\images\maven加载不了jar.png)
+
+一般都是导入别人的工程，因为**自己的maven环境、仓库配置信息、下载的jar包来源、甚至时IDE环境不一致**导致
+
+下载不了jar或者加载本来本地已经存在的jar的解决方法,
+
+1 加载不了本地jar，修改文件和删除文件
+
+​     若存在：删掉_maven.repositories和_remote.repositories文件（或用文本编辑器打开，将“>main=”改为“>=”，即         删除main，当然main也可能是其他值），删除xxxx.lastUpdate相关文件，然后update project 或 update dependency
+
+2 远程仓库或私服下载不了则检查远程仓库和私服是否有对应jar存在
+
+**下载不了jar,还有可能是某个远程仓库太慢，导致相应超时导致的**
+
+
+
+
+
