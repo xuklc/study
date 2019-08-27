@@ -484,7 +484,9 @@ taskkill -PID 17400 -F
 
 在应用启动时设置一个全局唯一的应用编码，应用编码+UUID
 
-### 
+### 16 @Sync
+
+org.springframework.scheduling.annotation.Async
 
 
 

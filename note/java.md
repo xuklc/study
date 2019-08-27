@@ -837,3 +837,33 @@ synchronized就是针对内存区块申请内存锁，[this关键字](https://ww
 
 **调用obj的wait(), notify()方法前，必须获得obj锁**
 
+### 18 Function和BiFunction
+
+**定义一个方法就可以实现多种功能**
+
+~~~java
+public int compute(int a, Function<Integer, Integer> function) {
+    int result = function.apply(a);
+    return result;
+}
+~~~
+
+~~~java
+test.compute(5,value -> value * value) //25 计算平方
+test.compute(5,value -> value + value) //10 求和
+test.compute(5,value -> value - 2) //3 
+~~~
+
+andThen方法源码
+
+**在目标方法之后再执行一次，逻辑一样**
+
+BiFunction和Function的区别是BiFunction可以接受两个参数
+
+~~~java
+default <V> BiFunction<T, U, V> andThen(Function<? super R, ? extends V> after) {
+        Objects.requireNonNull(after);
+        return (T t, U u) -> after.apply(apply(t, u));
+    }
+~~~
+

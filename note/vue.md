@@ -20,3 +20,16 @@ vue的代码不能有空格，否则编译不通过
 
 npm install -g cnpm --registry
 
+
+
+### node
+
+#### 查看npm的基本配置
+
+npm config list //查看基本配置
+
+### chrome调试小技巧
+
+**下图打钩Preserve log之后在在请求完成后即便是页面跳转也不会清除之前的请求，而是保留**
+
+![](D:\note\note\images\chrome调试小技巧.png)

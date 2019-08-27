@@ -14,7 +14,7 @@
 
 ![1540797253970](D:\software\resources\note\images\1540797253970.png)
 
-###4 scope
+### 4 scope
 
 1.compile：默认值 他表示被依赖项目需要参与当前项目的编译，还有后续的测试，运行周期也参与其中，是一个比较强的依赖。打包的时候通常需要包含进去
 
@@ -28,7 +28,7 @@
 
 6 import
 
-###5 jar包不同版本冲突
+### 5 jar包不同版本冲突
 
 **注意:有时候显示jar冲突，或者使用lombok插件，然后编译提示找不到getter和setter方法的，重启可以解决问题**
 
@@ -179,6 +179,55 @@ mvn help :active-profiles
 **下载不了jar,还有可能是某个远程仓库太慢，导致相应超时导致的**
 
 
+
+### 11 resources
+
+有的时候还希望把其他目录中的资源也复制到classes目录中。这些情况下就需要在Pom.xml文件中修改配置了
+
+可以有两种方法：
+
+- 一是在<build>元素下添加<resources>进行配置。
+- 另一种是在<build>的<plugins>子元素中配置**maven-resources-plugin**等处理资源文件的插件。
+
+若<filtering>、<include>和<exclude>都不配置，就是把directory下的所有配置文件都放到classpath下，若这时如下配置
+
+~~~xml
+<resources>
+  <resource>
+    <directory>src/main/resources-dev</directory>
+  </resource>
+  <resource>
+    <directory>src/main/resources</directory>
+  </resource>
+</resources>
+
+ <plugin>
+            <artifactId>maven-resources-plugin</artifactId>
+            <version>2.5</version>
+            <executions>
+                <execution>
+                    <id>copy-xmls</id>
+                    <phase>process-sources</phase>
+                    <goals>
+                        <goal>copy-resources</goal>
+                    </goals>
+                    <configuration>
+                        <outputDirectory>${basedir}/target/classes</outputDirectory>
+                        <resources>
+                            <resource>
+                                <directory>${basedir}/src/main/java</directory>
+                                <includes>
+                                    <include>**/*.xml</include>
+                                </includes>
+                            </resource>
+                        </resources>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+~~~
+
+会以**resources-dev**下的相同文件为准，不一样的文件取并集。其实这样配合下面讲的profiles也可以实现各种不同环境的自动切换
 
 
 

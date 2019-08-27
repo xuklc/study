@@ -226,3 +226,40 @@ MappedInterceptor是HandlerInterceptor的拦截器
 7 检查回应请求是否有异常，没有则调用render()进行视图渲染
 
    7.1 从ModelAndView对象获取view名称，然后通过该view名称解析得到一个view对象，然后渲染视图
+
+
+
+### 7 springboot 配置springmvc的interceptor
+
+1 继承HanlderInteceptor
+
+2 继承WebMvcConfigurerAdapter注入拦截器或者使用@Bean注解来注册拦截器
+
+@Bean注解的做法
+
+~~~java
+//所有的WebMvcConfigurerAdapter组件都会一起起作用
+    @Bean //将组件注册在容器
+    public WebMvcConfigurerAdapter webMvcConfigurerAdapter(){
+        WebMvcConfigurerAdapter adapter = new WebMvcConfigurerAdapter() {
+            @Override
+            public void addViewControllers(ViewControllerRegistry registry) {
+                registry.addViewController("/").setViewName("login");
+                registry.addViewController("/index.html").setViewName("login");
+                registry.addViewController("/main.html").setViewName("dashboard");
+            }
+
+            //注册拦截器
+            @Override
+            public void addInterceptors(InterceptorRegistry registry) {
+                //super.addInterceptors(registry);
+                //静态资源；  *.css , *.js
+                //SpringBoot已经做好了静态资源映射
+                registry.addInterceptor(new LoginHandlerInterceptor()).addPathPatterns("/**")
+                        .excludePathPatterns("/index.html","/","/user/login");
+            }
+        };
+        return adapter;
+    }
+~~~
+
