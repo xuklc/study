@@ -1,4 +1,4 @@
-##maven
+## maven
 
 **关于spring cloud的依赖直接使用现有demo的不要去纠结**
 
@@ -229,5 +229,52 @@ mvn help :active-profiles
 
 会以**resources-dev**下的相同文件为准，不一样的文件取并集。其实这样配合下面讲的profiles也可以实现各种不同环境的自动切换
 
+### dependencyManagement vs dependencies
 
+**maven是单继承**
 
+dependencyManagement只是声明依赖，并不引入，子项目还需要显示声明引入，只是不再需要声明version和scope，version和scope都从声明dependencyManagement的父项目读取.**Maven会沿着父子层次向上走，直到找到一个拥有dependencyManagement元素的项目**
+
+ dependencies即使在子项目中不写该依赖项，那么子项目仍然会从父项目中继承该依赖项（全部继承）
+
+****
+
+**注意**
+
+子模块可以直接不用做任何声明依赖就可以直接引用父工程已经声明好的<dependencies>依赖，但是在spring boot 中的父工程声明的依赖不了，例子说明
+
+```xml
+<parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.1.7.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
+ </parent>
+<!--这里的dependencies是继承spring-boot-starter-parent中的，无法传递到子模块中，这些依赖需要在子模块单独声明 -->
+ <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+</dependencies>
+```
+
+单继承：maven的继承跟java一样，单继承，也就是说子model中只能出现一个parent标签；
+
+parent模块中，dependencyManagement中预定义太多的依赖，造成pom文件过长，而且很乱；
+
+如何让这些依赖可以分类并清晰的管理？
+
+ 
+
+问题解决：import scope依赖
+
+如何使用：
+
+1、maven2.9以上版本
+
+2、将dependency分类，每一类建立单独的pom文件
+
+3、在需要使用到这些依赖的子model中，使用dependencyManagement管理依赖，并import scope依赖
+
+3、注意：scope=import只能用在dependencyManagement里面,且仅用于type=pom的dependency

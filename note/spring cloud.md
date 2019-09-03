@@ -1,4 +1,4 @@
-##spring cloud
+## spring cloud
 
 ###  写在前头
 
@@ -39,7 +39,7 @@ spring cloud 依赖版本管理器，spring cloud 版本管理器需要集成spr
 </dependencyManagement>
 ```
 
-###3  eureka
+### 3  eureka
 
   eureka server 依赖
 
@@ -489,4 +489,16 @@ taskkill -PID 17400 -F
 org.springframework.scheduling.annotation.Async
 
 
+
+### 17启动器
+
+spring-boot-starter
+
+```xml-dtd
+Spring Boot的核心启动器，包含了自动配置、日志和YAML
+```
+
+spring-boot-starter-web
+
+web的场景，自动帮我们引入了web模块开发需要的相关jar包
 
