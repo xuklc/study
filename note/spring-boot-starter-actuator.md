@@ -35,10 +35,6 @@ actuator是监控系统健康情况的工具
 
 自动化配置报告,可以看出一些自动化配置为什么没有生效
 
-
-
-
-
 ![img](https://upload-images.jianshu.io/upload_images/9211971-02fd1309ccced1d9.png?imageMogr2/auto-orient/strip|imageView2/2/w/933/format/webp)
 
 image.png
@@ -46,10 +42,6 @@ image.png
 - ##### /beans
 
 可以看到定义的所有的bean
-
-
-
-
 
 ![img](https://upload-images.jianshu.io/upload_images/9211971-6c39a9695df30828.png?imageMogr2/auto-orient/strip|imageView2/2/w/969/format/webp)
 
@@ -59,17 +51,11 @@ image.png
 
 可以看到application.properties里面的信息
 
-
-
-
-
 ![img](https://upload-images.jianshu.io/upload_images/9211971-7b75c7b27e34cea9.png?imageMogr2/auto-orient/strip|imageView2/2/w/930/format/webp)
 
 image.png
 
 - ##### /env
-
-
 
 ![img](https://upload-images.jianshu.io/upload_images/9211971-852d1f9105a166f7.png?imageMogr2/auto-orient/strip|imageView2/2/w/865/format/webp)
 

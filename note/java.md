@@ -867,3 +867,7 @@ default <V> BiFunction<T, U, V> andThen(Function<? super R, ? extends V> after) 
     }
 ~~~
 
+
+
+### 19FastDateFormat
+

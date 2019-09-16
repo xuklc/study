@@ -37,3 +37,9 @@ npm config list //查看基本配置
 **下图打钩Preserve log之后在在请求完成后即便是页面跳转也不会清除之前的请求，而是保留**
 
 ![](D:\note\note\images\chrome调试小技巧.png)
+
+
+
+### nginx
+
+http://www.nginx.cn/install

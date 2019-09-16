@@ -2,6 +2,10 @@
 
 https://gitee.com/MaxBill/RedisPlus
 
+**命令参考**
+
+http://redisdoc.com/hash/hlen.html
+
 ### 1 redis数据库
 
 redis默认有16个数据库
@@ -291,10 +295,6 @@ FLUSHALL --清空所有数据库的key
 ~~~
 
 ### 数据类型
-
-**命令参考**
-
-http://redisdoc.com/hash/hlen.html
 
 #### hash
 
