@@ -871,3 +871,90 @@ default <V> BiFunction<T, U, V> andThen(Function<? super R, ? extends V> after) 
 
 ### 19FastDateFormat
 
+
+
+### 20`<init>`与`<clinit>`
+
+Java在编译之后会在字节码文件中生成`<init>`方法，称之为实例构造器，该实例构造器会将语句块，变量初始化，调用父类的构造器等操作收敛到`<init>`方法中，收敛顺序（这里只讨论非静态变量和语句块）为：
+
+  1父类变量初始化
+2. 父类语句块
+3. 父类构造函数
+4. 子类变量初始化
+5. 子类语句块
+6. 子类构造函数
+
+**所谓收敛到`<init>`方法中的意思就是，将这些操作放入到`<init>`中去执行**
+
+Java在编译之后会在字节码文件中生成`<clinit>`方法，称之为**类构造器**，类构造器同实例构造器一样，也会将静态语句块，静态变量初始化，收敛到`<clinit>`方法中，收敛顺序为：
+
+1. 父类静态变量初始化
+2. 父类静态语句块
+3. 子类静态变量初始化
+4. 子类静态语句块
+
+**`<clinit>`方法是在类加载过程中执行的，而`<init>`是在对象实例化执行的，所以`<clinit>`一定比`<init>`先执行**
+
+**java默认的执行顺序是从上到下**
+
+**变量没有多态性，变量的调用是根据声明的引用变量来的**
+
+#### 执行顺序
+
+1 父类的静态变量和父类的静态代码块，两者的执行顺序取决于上下的顺序
+
+2 子类的静态变量和子类的静态代码块，两者的执行顺序取决于上下的顺序
+
+3 父类的实例变量和代码块，两者的执行顺序取决两者的上下的顺序
+
+4 父类的构造方法
+
+5 子类的实例变量和代码块,两者的执行顺序取决两者的上下的顺序
+
+6 子类的构造方法
+
+**注意:子类调用父类的构造方法默认是无参的构造方法，除非用super(xx)显式调用父类的有参构造方法，所以当自行提供有参构造方法之后，子类需要显式父类的构造方法，因为只有当没有构造方法，java才自动提供无参构造方法**
+
+### 21强转
+
+1 基本类型是大范围转小范围需要强转,小范围到大范围不需要
+
+  例子 
+
+~~~java
+public int a=2;
+public short b=3;
+b=(short)a;
+~~~
+
+2 高精度到到低进度也需要强转
+
+~~~java
+{
+        System.out.println("父类代码块:,"+this.a);
+    }
+     int a=2;
+    public static int b=5;
+    public String c="c";
+    public static long d=0;
+    public static float f=1f;
+    public static  short g=1;
+    // int转double不需要强转
+    public static double e=0;
+    static{
+        System.out.println("父类静态代码块:,"+b);
+    }
+
+    public Parent(){
+        System.out.println("父类无参构造方法:,"+b);
+    }
+    public Parent(int a){
+        this.a=a;
+        //大范围转小范围需要强转
+        this.g=(short) this.a;
+        //高精度到到低进度也需要强转
+        this.a=(int)this.e;
+        System.out.println("父类有参构造方法:,"+b);
+    }
+~~~
+

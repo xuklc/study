@@ -16,6 +16,10 @@
 
 
 
+7 AbstractInstanceRegistry.register()
+
+8 ServletContainer.service() --> AbstractInstanceRegistry.register()
+
 ### 服务发现
 
 包含gateway,ribbon,histryix
