@@ -1,4 +1,4 @@
-##spring cloud
+## spring cloud
 
 ###  写在前头
 
@@ -39,7 +39,7 @@ spring cloud 依赖版本管理器，spring cloud 版本管理器需要集成spr
 </dependencyManagement>
 ```
 
-###3  eureka
+### 3  eureka
 
   eureka server 依赖
 
@@ -136,7 +136,7 @@ filters：请求过滤filter，为一个数组，每个filter都会顺序执行�
 1. name：过滤filter名称，**常用的有Hystrix断路由**，**RequestRateLimiter限流**，**StripPrefix截取请求url **
 2. args：参数key-value键值对,例：
 
-#####Hystrix
+##### Hystrix
 
 Hystrix是一个断路器，是一个独立的组件，这里只是集成到gateway当中
 
@@ -224,6 +224,8 @@ LoadBalancerClientFilter会作用在url以**lb开头**的路由，然后利用lo
 
 ### 8 eureka
 
+服务注册包括属性解析和服务注册
+
 **spring.factories**
 
 ```java
@@ -294,15 +296,15 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
 ```
 
-####3 lease-expiration-duration-in-seconds
+#### 3 lease-expiration-duration-in-seconds
 
 
 
-####4 lease-renewal-interval-in-seconds
+#### 4 lease-renewal-interval-in-seconds
 
 
 
-####5 preferIpAddress
+#### 5 preferIpAddress
 
 #### 6 检查心跳
 
@@ -310,7 +312,7 @@ eureka:
 
 lease-expiration-duration-in-seconds  告诉服务端，如果我2s之内没有给你发心跳，就代表我“死”了，将我踢出掉。
 
-####7 删除指定服务
+#### 7 删除指定服务
 
 **用postman发送DELTE请求**
 
@@ -320,7 +322,7 @@ lease-expiration-duration-in-seconds  告诉服务端，如果我2s之内没有�
 
 **值得注意的是，Eureka客户端每隔一段时间（默认30秒）会发送一次心跳到注册中心续约。如果通过这种方式下线了一个服务，而没有及时停掉的话，该服务很快又会回到服务列表中**
 
-#####例子1 
+##### 例子1 
 
 下面是下线一个hello-service的例子
 
@@ -336,7 +338,7 @@ lease-expiration-duration-in-seconds  告诉服务端，如果我2s之内没有�
 
 
 
-###9 profile
+### 9 profile
 
 除application.properties外，还可以根据**命名约定**（ 命名格式：**application-{profile}.properties**）来配置
 
@@ -344,11 +346,11 @@ lease-expiration-duration-in-seconds  告诉服务端，如果我2s之内没有�
 
 如：spring.profiles.active=hello-world,sender,dev 有三个参数，其中 **dev** 正好匹配下面配置中的**application-dev.properties **配置文件，所以app启动时，项目会**先从**application-dev.properties加载配置，再从application.properties配置文件加载配置，如果有**重复的配置**，则会**以application.properties的配置为准**。
 
-###10 feign
+### 10 feign
 
 **Spring Cloud integrates Ribbon and Eureka to provide a load balanced http client when using Feign**
 
-####feign使用Hystix和LoadBalancer步骤
+#### feign使用Hystix和LoadBalancer步骤
 
 #### 1添加依赖
 
@@ -484,7 +486,26 @@ taskkill -PID 17400 -F
 
 在应用启动时设置一个全局唯一的应用编码，应用编码+UUID
 
-### 
+### 16 @Sync
+
+org.springframework.scheduling.annotation.Async
 
 
 
+### 17启动器
+
+spring-boot-starter
+
+```xml-dtd
+Spring Boot的核心启动器，包含了自动配置、日志和YAML
+```
+
+spring-boot-starter-web
+
+web的场景，自动帮我们引入了web模块开发需要的相关jar包
+
+
+
+### 18 zookeeper
+
+https://blog.csdn.net/qq_35394707/article/details/80139176

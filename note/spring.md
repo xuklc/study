@@ -56,7 +56,7 @@ public Object intercept(Object proxy, Method method, Object[] args, MethodProxy 
 }
 ```
 
-#####指定每个 aspect 的执行顺序
+##### 指定每个 aspect 的执行顺序
 方法有两种：
 
 - 实现**org.springframework.core.Ordered**接口，实现它的**getOrder()**方法
@@ -70,37 +70,7 @@ public Object intercept(Object proxy, Method method, Object[] args, MethodProxy 
 
 **@Around注解**
 
-### IOC
-
-
-
-### spring mvc
-
-spring mvc 接收json数组和一个json对象
-
-**想查看json如何解析，传入的json和目标对象数据类型不一样就可以报错了，然后就可以知道json如何解析的**
-
-```json
-
-```
-
-```json
-
-```
-
-
-
-**注意:leaders参数是字符串,并且要@RequestParam标记才能入参**
-
-### HttpServletRequestWrapper
-
-### beetlSql
-
-#### beetlSql参数绑定和返回的结果集暂时不支持基本类型的数组和包装类型的数组
-
-
-
-aop
+#### 例子1
 
 ~~~java
 // &&@annotation(anno) 表示增加一个参数，参数类型是注解，参数名称是anno,这里的值是和方法的参数名一致
@@ -134,6 +104,141 @@ aop
         return result;
     }
 ~~~
+
+##### 第二个代码示例
+
+~~~java
+import com.rq.aop.common.annotation.MyAnnotation;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.springframework.stereotype.Component;
+
+@Aspect //标注增强处理类（切面类）
+@Component //交由Spring容器管理
+public class AnnotationAspect {
+
+	/*
+    可自定义切点位置，针对不同切点，方法上的@Around()可以这样写ex：@Around(value = "methodPointcut() && args(..)")
+    @Pointcut(value = "@annotation(com.rq.aop.common.annotation.MyAnnotation)")
+    public void methodPointcut(){}
+
+    @Pointcut(value = "@annotation(com.rq.aop.common.annotation.MyAnnotation2)")
+    public void methodPointcut2(){}
+    */
+
+	//定义增强，pointcut连接点使用@annotation（xxx）进行定义
+    @Around(value = "@annotation(around)") //around 与 下面参数名around对应
+    public void processAuthority(ProceedingJoinPoint point,MyAnnotation around) throws Throwable{
+        System.out.println("ANNOTATION welcome");
+        System.out.println("ANNOTATION 调用方法："+ around.methodName());
+        System.out.println("ANNOTATION 调用类：" + point.getSignature().getDeclaringTypeName());
+        System.out.println("ANNOTATION 调用类名" + point.getSignature().getDeclaringType().getSimpleName());
+        point.proceed(); //调用目标方法
+        System.out.println("ANNOTATION login success");
+    }
+}
+
+/**
+注解类
+*/
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Retention(RetentionPolicy.RUNTIME)//运行时有效
+@Target(ElementType.METHOD)//作用于方法
+public @interface MyAnnotation {
+    String methodName () default "";
+}
+
+~~~
+
+
+
+#### 例子2
+
+使用表达式
+
+~~~shell
+execution(public *.com.xkl..*(..))//最后的两个..表示任意参数
+~~~
+
+任意公共方法的执行：execution(public * *(..))
+任何一个以“set”开始的方法的执行：execution(* set*(..))
+AccountService 接口的任意方法的执行：execution(* com.xyz.service.AccountService.*(..))
+定义在service包里的任意方法的执行： execution(* com.xyz.service.*.*(..))
+定义在service包和所有子包里的任意类的任意方法的执行：execution(* com.xyz.service..*.*(..))
+
+代码示例
+
+~~~java
+@Aspect
+@Component
+@Order(0)
+public class MyAspect {
+	
+
+	@Pointcut("execution(public * com.xkl.aop.gateway..*Controller.*(..))")
+	public void aopIntercepor() {
+		logger.info("{} is runing", this.getClass());
+	}
+
+	@Around("aopIntercepor()")
+	public Object aroundController(ProceedingJoinPoint joinPoint) {
+		try {
+				return joinPoint.proceed();
+		} catch (Throwable e) {
+			LoggerFactory.getLogger(this.getClass()).error(e.getMessage(), e);
+			return new ResponseDomain<>();
+		}
+	}
+~~~
+
+
+
+#### aop的执行顺序
+
+##### 正常
+
+![](D:\note\note\images\around.png)
+
+
+
+##### 异常
+
+![](D:\note\note\images\around exception.png)
+
+
+
+
+
+### IOC
+
+### spring mvc
+
+spring mvc 接收json数组和一个json对象
+
+**想查看json如何解析，传入的json和目标对象数据类型不一样就可以报错了，然后就可以知道json如何解析的**
+
+```json
+
+```
+
+```json
+
+```
+
+
+
+**注意:leaders参数是字符串,并且要@RequestParam标记才能入参**
+
+### HttpServletRequestWrapper
+
+### beetlSql
+
+#### beetlSql参数绑定和返回的结果集暂时不支持基本类型的数组和包装类型的数组
 
 
 
@@ -243,3 +348,39 @@ protected ExecutorType defaultExecutorType = ExecutorType.SIMPLE;
 http://www.hellojava.com/a/72278.html
 
 @Signature(type,method.args)
+
+### ClassPathXmlApplicationContext
+
+
+
+### ApplicationContextAware
+
+#### 问题背景
+
+在我们的web程序中，用spring来管理各个实例(bean), 有时在程序中为了使用已被实例化的bean, 通常会用到这样的代码：
+
+```cpp
+ApplicationContext appContext = new ClassPathXmlApplicationContext("applicationContext-common.xml");  
+AbcService abcService = (AbcService)appContext.getBean("abcService");  
+```
+
+但是这样就会存在一个问题：因为它会重新装载`applicationContext-common.xml`并实例化上下文bean，如果有些线程配置类也是在这个配置文件中，那么会造成做相同工作的的线程会被启两次。一次是web容器初始化时启动，另一次是上述代码显示的实例化了一次。当于重新初始化一遍！！！！这样就产生了冗余。
+
+#### 解决方法
+
+不用类似new ClassPathXmlApplicationContext()的方式，从已有的spring上下文取得已实例化的bean。通过ApplicationContextAware接口进行实现。
+
+当一个类实现了这个接口（ApplicationContextAware）之后，这个类就可以方便获得ApplicationContext中的所有bean。换句话说，就是这个类可以直接获取[spring](http://lib.csdn.net/base/javaee)配置文件中，所有有引用到的bean对象
+
+#### 用法
+
+1  实现ApplicationContextAware接口
+
+spring能够为我们自动地执行了ApplicationContextAware.setApplicationContext()
+
+**spring不会无缘无故地为某个类执行它的方法的，所以，就很有必要通过注册方法类AppUtil的方式告知spring有这样子一个类的存在。这里我们使用`@Component`来进行注册，或者我们也可以像下面这样在配置文件声明bean：**
+
+~~~xml
+<bean id="appUtil" class="com.htsoft.core.util.AppUtil"/>
+~~~
+

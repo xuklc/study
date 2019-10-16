@@ -67,3 +67,7 @@ cp /soft/redis-5.0.5/sentinel.conf
 cp /soft/redis-5.0.5/sentinel.conf  .  -- 最后面的表示当前目录
 ~~~
 
+### vmwarekey
+
+FF31K-AHZD1-H8ETZ-8WWEZ-WUUVA
+CV7T2-6WY5Q-48EWP-ZXY7X-QGUWD

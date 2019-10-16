@@ -1,4 +1,4 @@
-##maven
+## maven
 
 **关于spring cloud的依赖直接使用现有demo的不要去纠结**
 
@@ -14,7 +14,7 @@
 
 ![1540797253970](D:\software\resources\note\images\1540797253970.png)
 
-###4 scope
+### 4 scope
 
 1.compile：默认值 他表示被依赖项目需要参与当前项目的编译，还有后续的测试，运行周期也参与其中，是一个比较强的依赖。打包的时候通常需要包含进去
 
@@ -28,7 +28,7 @@
 
 6 import
 
-###5 jar包不同版本冲突
+### 5 jar包不同版本冲突
 
 **注意:有时候显示jar冲突，或者使用lombok插件，然后编译提示找不到getter和setter方法的，重启可以解决问题**
 
@@ -155,3 +155,126 @@ mvn help :active-profiles
         </repository>
     </repositories>
 ```
+
+
+
+### 9  mirror
+
+**mirror的访问顺序和上下有关,应该是从上到下访问**
+
+### 10 jar
+
+![](D:\note\note\images\maven加载不了jar.png)
+
+一般都是导入别人的工程，因为**自己的maven环境、仓库配置信息、下载的jar包来源、甚至时IDE环境不一致**导致
+
+下载不了jar或者加载本来本地已经存在的jar的解决方法,
+
+1 加载不了本地jar，修改文件和删除文件
+
+​     若存在：删掉_maven.repositories和_remote.repositories文件（或用文本编辑器打开，将“>main=”改为“>=”，即         删除main，当然main也可能是其他值），删除xxxx.lastUpdate相关文件，然后update project 或 update dependency
+
+2 远程仓库或私服下载不了则检查远程仓库和私服是否有对应jar存在
+
+**下载不了jar,还有可能是某个远程仓库太慢，导致相应超时导致的**
+
+
+
+### 11 resources
+
+有的时候还希望把其他目录中的资源也复制到classes目录中。这些情况下就需要在Pom.xml文件中修改配置了
+
+可以有两种方法：
+
+- 一是在<build>元素下添加<resources>进行配置。
+- 另一种是在<build>的<plugins>子元素中配置**maven-resources-plugin**等处理资源文件的插件。
+
+若<filtering>、<include>和<exclude>都不配置，就是把directory下的所有配置文件都放到classpath下，若这时如下配置
+
+~~~xml
+<resources>
+  <resource>
+    <directory>src/main/resources-dev</directory>
+  </resource>
+  <resource>
+    <directory>src/main/resources</directory>
+  </resource>
+</resources>
+
+ <plugin>
+            <artifactId>maven-resources-plugin</artifactId>
+            <version>2.5</version>
+            <executions>
+                <execution>
+                    <id>copy-xmls</id>
+                    <phase>process-sources</phase>
+                    <goals>
+                        <goal>copy-resources</goal>
+                    </goals>
+                    <configuration>
+                        <outputDirectory>${basedir}/target/classes</outputDirectory>
+                        <resources>
+                            <resource>
+                                <directory>${basedir}/src/main/java</directory>
+                                <includes>
+                                    <include>**/*.xml</include>
+                                </includes>
+                            </resource>
+                        </resources>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+~~~
+
+会以**resources-dev**下的相同文件为准，不一样的文件取并集。其实这样配合下面讲的profiles也可以实现各种不同环境的自动切换
+
+### dependencyManagement vs dependencies
+
+**maven是单继承**
+
+dependencyManagement只是声明依赖，并不引入，子项目还需要显示声明引入，只是不再需要声明version和scope，version和scope都从声明dependencyManagement的父项目读取.**Maven会沿着父子层次向上走，直到找到一个拥有dependencyManagement元素的项目**
+
+ dependencies即使在子项目中不写该依赖项，那么子项目仍然会从父项目中继承该依赖项（全部继承）
+
+****
+
+**注意**
+
+子模块可以直接不用做任何声明依赖就可以直接引用父工程已经声明好的<dependencies>依赖，但是在spring boot 中的父工程声明的依赖不了，例子说明
+
+```xml
+<parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.1.7.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
+ </parent>
+<!--这里的dependencies是继承spring-boot-starter-parent中的，无法传递到子模块中，这些依赖需要在子模块单独声明 -->
+ <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+</dependencies>
+```
+
+单继承：maven的继承跟java一样，单继承，也就是说子model中只能出现一个parent标签；
+
+parent模块中，dependencyManagement中预定义太多的依赖，造成pom文件过长，而且很乱；
+
+如何让这些依赖可以分类并清晰的管理？
+
+ 
+
+问题解决：import scope依赖
+
+如何使用：
+
+1、maven2.9以上版本
+
+2、将dependency分类，每一类建立单独的pom文件
+
+3、在需要使用到这些依赖的子model中，使用dependencyManagement管理依赖，并import scope依赖
+
+3、注意：scope=import只能用在dependencyManagement里面,且仅用于type=pom的dependency
