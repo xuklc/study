@@ -8,6 +8,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 /**
  * 1 newFixedThreadPool LinkedBlockingQueue
  * 2 newCacheThreadPool  SynchronousQueue 0 Inetger.MaxValue
@@ -22,6 +26,10 @@ public class HelloController {
     FeignInterface feignInterface;
     @RequestMapping("/hello")
     public String index(@RequestParam String name) {
+//        ThreadPoolExecutor executor = new ThreadPoolExecutor(1,2,0, TimeUnit.MILLISECONDS,new LinkedBlockingQueue<>(1));
+//        executor.execute(()->{
+//            System.out.println(name);
+//        });
         return "hello " + name + "，this is first messge";
     }
 

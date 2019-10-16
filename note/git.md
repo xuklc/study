@@ -41,3 +41,47 @@ git reflog
 当执行 "git checkout ." 或者 "git checkout -- <file>" 命令时，会用暂存区全部或指定的文件替换工作区的文件。这个操作很危险，会清除工作区中未添加到暂存区的改动。
 
 当执行 "git checkout HEAD ." 或者 "git checkout HEAD <file>" 命令时，会用 HEAD 指向的 master 分支中的全部或者部分文件替换暂存区和以及工作区中的文件。这个命令也是极具危险性的，因为不但会清除工作区中未提交的改动，也会清除暂存区中未提交的改动
+
+### ssh-keygen
+
+**不能有空格**
+
+### 忽略文件
+
+#### 1 忽略还没有纳入版本管理的文件
+
+直接把要忽略文件添加到.gitgnore
+
+####2 已经纳入版本管理
+
+已经纳入版本管理的文件仅仅是编辑.gitgnore是无效的，**原因是.gitignore只能忽略那些原来没有被追踪的文件，如果某些文件已经被纳入了版本管理中，则修改.gitignore是无效的。那么解决方法就是先把本地缓存删除（改变成未被追踪状态），然后再提交**
+
+例子1
+
+![gitgnore](D:\resources\study\note\images\gitgnore.png)
+
+例子2 
+
+![gitgnore2](D:\resources\study\note\images\gitgnore2.png)
+
+
+
+#### 3 忽略加入版本管理的某一类文件
+
+![git忽略加入版本控制的某一类文件](D:\resources\study\note\images\git忽略加入版本控制的某一类文件.png)
+
+###不同平台换行符
+
+https://www.jianshu.com/p/450cd21b36a4
+
+```shell
+git config --global core.autocrlf true
+```
+
+
+
+**windows平台开发如下设置**
+
+```shell
+git config --global core.autocrlf false
+```
