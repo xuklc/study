@@ -58,6 +58,11 @@
             <version>3.4.6</version>
         </dependency>
         -->
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson</artifactId>
+            <version>3.2.3</version>
+        </dependency>
     </dependencies>
 
     <build>

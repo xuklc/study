@@ -151,6 +151,8 @@ http://ifeve.com/redis-lock/
 
 http://developer.51cto.com/art/201812/588335.htm
 
+https://github.com/redisson/redisson/wiki/8.-分布式锁和同步器
+
 ![分布式锁时延](F:\workspace\idea\study\study\note\images\分布式锁时延.png)
 
 注意看，上面的步骤(3)-->步骤(4.1)并不是**原子性操作**。也就说，你可能出现在步骤(3)的时候返回的是有效这个标志位，但是在传输过程中，因为**延时等原因**，在步骤(4.1)的时候，**锁已经超时失效了**。那么，这个时候锁就会被另一个客户端锁获得。就出现了两个客户端共同操作共享资源的情况
