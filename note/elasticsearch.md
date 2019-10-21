@@ -123,3 +123,30 @@ GET  pjt/_search
 
 ### Jest 是一个Java 版的ElasticSearch Http Rest 客户端，基于HttpClient 封装实现。
 
+
+
+### 修改数据
+
+**kibana环境**
+
+~~~sql
+POST   if/base/51423c8a-5a4b-4bbd-a5e6-50318ab382bf/_update
+{
+
+  "doc":{
+    "PHASEID": "df38b897-a72e-4fbb-a85b-b3fb9c09baa4"
+  }
+}
+~~~
+
+~~~shell
+curl -XPOST "http://10.16.27.56:9200/if/base/51423c8a-5a4b-4bbd-a5e6-50318ab382bf/_update" -H 'Content-Type: application/json' -d' { "doc":{ "PHASEID": "df38b897-a72e-4fbb-a85b-b3fb9c09baa4" } }'
+~~~
+
+### 查询数据
+
+~~~shell
+GET   if/base/51423c8a-5a4b-4bbd-a5e6-50318ab382bf
+~~~
+
+https://blog.csdn.net/wanbf123/article/details/81504097
