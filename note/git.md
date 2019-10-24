@@ -85,3 +85,25 @@ git config --global core.autocrlf true
 ```shell
 git config --global core.autocrlf false
 ```
+
+
+
+### SVN解决冲突
+
+https://blog.csdn.net/l18848956739/article/details/83268489
+
+![](D:\note\note\images\SVNconflict.png)
+
+合并一般分为4种情况：
+
+保留”我的修改”,舍弃”别人的修改”。鼠标右键点击Mine框的相应行，点击”Use this text block”。
+
+舍弃”我的修改”,保留”别人的修改”。鼠标右键点击Theirs框的相应行，点击”Use this text block”。
+
+同时保留”我的修改”和”别人的修改”，并将”我的修改”放在前面。鼠标右键点击Mine框的相应行，点击”Use text block from mine before theirs”。
+
+同时保留”我的修改”和”别人的修改”，并将”别人的修改”放在前面。鼠标右键点击Mine框的相应行，点击”Use text block from theirs before mine”。
+
+合并完成，Ctrl+S存盘，退出。
+
+然后，在资源管理器中，选择冲突文件，鼠标右键菜单选择”Resolved”,标记冲突已解决。系统会自动删除因冲突而新建的文件。此时，就可以继续进行commit操作了
