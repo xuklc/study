@@ -491,7 +491,7 @@ public class Room {
 
 本节，我们来了解从 Spring IOC 容器中获取 bean 实例的流程（简化版），这对我们后续的源码分析会有比较大的帮助。先看图：
 
-![SpringIOC容器源码分析-循环依赖的解决办法_](https://blog-pictures.oss-cn-shanghai.aliyuncs.com/15284164871636.jpg)
+![](D:\git\note\images\bean获取过程.jpg)
 
 先来简单介绍一下这张图，这张图是一个简化后的流程图。开始流程图中只有一条执行路径，在条件 sharedInstance != null 这里出现了岔路，形成了绿色和红色两条路径。在上图中，读取/添加缓存的方法我用蓝色的框和标注了出来。至于虚线的箭头，和虚线框里的路径，这个下面会说到。
 
@@ -787,7 +787,7 @@ protected Object getSingleton(String beanName, boolean allowEarlyReference) {
 
 以上的过程对应下面的流程图：
 
-![SpringIOC容器源码分析-循环依赖的解决办法_](https://blog-pictures.oss-cn-shanghai.aliyuncs.com/15283756103006.jpg)
+![](D:\git\note\images\bean创建详细过程.jpg)
 
 **4. 总结**
 
