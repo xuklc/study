@@ -101,11 +101,11 @@ client.indices.putMapping({
 例子:
 
 ~~~shell
-GET  pjt/_search
+GET  index/type/_search
 {
   "query": {
     "match": {
-      "NAME":"项目名称8"
+      "NAME":"654321xasfdas"
     }
   }
 }
@@ -130,23 +130,23 @@ GET  pjt/_search
 **kibana环境**
 
 ~~~sql
-POST   if/base/51423c8a-5a4b-4bbd-a5e6-50318ab382bf/_update
+POST   index/type/id/_update
 {
 
   "doc":{
-    "PHASEID": "df38b897-a72e-4fbb-a85b-b3fb9c09baa4"
+    "field1": "value1",
+    "field2": "value2"
   }
 }
 ~~~
 
 ~~~shell
-curl -XPOST "http://10.16.27.56:9200/if/base/51423c8a-5a4b-4bbd-a5e6-50318ab382bf/_update" -H 'Content-Type: application/json' -d' { "doc":{ "PHASEID": "df38b897-a72e-4fbb-a85b-b3fb9c09baa4" } }'
+curl -XPOST "http://localhost:9200/index/type/id/_update" -H 'Content-Type: application/json' -d' { "doc":{ "PHASEID":  "field1": "value1","field2": "value2" } }
 ~~~
 
 ### 查询数据
 
-~~~shell
-GET   if/base/51423c8a-5a4b-4bbd-a5e6-50318ab382bf
-~~~
-
 https://blog.csdn.net/wanbf123/article/details/81504097
+
+
+
