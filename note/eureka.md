@@ -1,3 +1,9 @@
+### 学习链接
+
+1 https://blog.csdn.net/u012394095/article/details/80693713
+
+
+
 ### 服务注册
 
 配置的解析，注解是怎么起作用的
@@ -14,7 +20,9 @@ bean.start()
 
 5 EurekaRegistration.getEurekaClient
 
-7 AbstractInstanceRegistry.register()8 ServletContainer.service() --> AbstractInstanceRegistry.register()
+7 AbstractInstanceRegistry.register()
+
+8 ServletContainer.service() --> AbstractInstanceRegistry.register()
 
 包含gateway,ribbon,histryix
 

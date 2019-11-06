@@ -386,6 +386,14 @@ spring能够为我们自动地执行了ApplicationContextAware.setApplicationCon
 
 
 
+### CachingConfigurerSupport
+
+**@EnableCaching**
+
+### ApplicationRunner
+
+
+
 ### ioc
 
 https://www.imooc.com/article/34150

@@ -107,3 +107,16 @@ https://blog.csdn.net/l18848956739/article/details/83268489
 合并完成，Ctrl+S存盘，退出。
 
 然后，在资源管理器中，选择冲突文件，鼠标右键菜单选择”Resolved”,标记冲突已解决。系统会自动删除因冲突而新建的文件。此时，就可以继续进行commit操作了
+
+
+
+### git合并某次提交到某个分支
+
+语法 git cherry-pick commitid
+
+~~~shell
+git checkout master
+git cherry-pick ee3c72
+git push
+~~~
+
