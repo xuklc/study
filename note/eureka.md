@@ -32,7 +32,19 @@ SpringApplication
 
 7  EurekaServiceRegistry.getEurekaClient()
 
+服务注册分为两种
 
+7.1 DiscoveryClient.register()-->fetchRegistry()
+
+7.2 AbstractJerseyEurekaHttpClient.register()
+
+8 DiscoveryClient.getAndStoreFullRegistry()
+
+9 SessionEurekaHttpClient.getApplications()
+
+
+
+10 AbstractJerseyEurekaHttpClient.register()
 
 8 EurekaServiceRegistry.maybeInitializeClient
 
