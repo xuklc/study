@@ -10,6 +10,8 @@
 
 配置的解析，注解是怎么起作用的
 
+#### 1客户端启动注册
+
 SpringApplication
 
 1 AnnotationConfigApplicationContext.refresh()
@@ -46,11 +48,17 @@ SpringApplication
 
 11 resourceBuilder.post()//发送post请求
 
+#### 2 服务端处理注册请求
+
+### 
+
+##### Lease
+
+renew()服务续约的方法
 
 
 
-
-8 EurekaServiceRegistry.maybeInitializeClient
+8 EurekaServiceRegistry.maybeInitializeClient  
 
 9 EurekaRegistration.getEurekaClient()
 
@@ -61,6 +69,12 @@ SpringApplication
 ​    ServletContainer继承了HttpServlet
 
 包含gateway,ribbon,histryix
+
+
+
+### 定时任务 
+
+PeerReplicationResource.batchReplication()
 
 
 
