@@ -42,9 +42,13 @@ SpringApplication
 
 9 SessionEurekaHttpClient.getApplications()
 
-
-
 10 AbstractJerseyEurekaHttpClient.register()
+
+11 resourceBuilder.post()//发送post请求
+
+
+
+
 
 8 EurekaServiceRegistry.maybeInitializeClient
 
