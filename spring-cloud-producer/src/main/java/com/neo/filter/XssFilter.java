@@ -12,9 +12,9 @@ public class XssFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-            XssHttpServletRequestWrapper xssHttpServletRequestWrapper =
-                    new XssHttpServletRequestWrapper((HttpServletRequest)request);
-            chain.doFilter(xssHttpServletRequestWrapper, response);
+//            XssHttpServletRequestWrapper xssHttpServletRequestWrapper =
+//                    new XssHttpServletRequestWrapper((HttpServletRequest)request);
+//            chain.doFilter(xssHttpServletRequestWrapper, response);
     }
 
     @Override

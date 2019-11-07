@@ -6,23 +6,43 @@
 
 ### 服务注册
 
+
+
 配置的解析，注解是怎么起作用的
 
-1 DefaultLifecycleProcessor
+SpringApplication
 
-bean.start()
+1 AnnotationConfigApplicationContext.refresh()
 
-2 EurekaAutoServiceRegistration实现了
+-- 1 ClassPathXmlApplicationContext.finishRefresh()
 
-3 EurekaRegistration这个类封装了服务端口和注册到eureka Servrer的服务信息
+1.1 AbstractApplicationContext.refresh()
 
-4 EurekaServiceRegistry.maybeInitializeClient
+2 DefaultLifecycleProcessor.onRefresh() 
 
-5 EurekaRegistration.getEurekaClient
+3 DefaultLifecycleProcessor.startBeans()  
 
-7 AbstractInstanceRegistry.register()
+4 EurekaAutoServiceRegistration.start()
 
-8 ServletContainer.service() --> AbstractInstanceRegistry.register()
+ EurekaAutoServiceRegistration实现了SmartLifecycle接口,SmartLifecycle接口继承了Lifecycle
+
+5 EurekaRegistration这个类封装了服务端口和注册到eureka Servrer的服务信息
+
+6 EurekaServiceRegistry.register()
+
+7  EurekaServiceRegistry.getEurekaClient()
+
+
+
+8 EurekaServiceRegistry.maybeInitializeClient
+
+9 EurekaRegistration.getEurekaClient()
+
+10 
+
+10 ServletContainer.service() --> AbstractInstanceRegistry.register()
+
+​    ServletContainer继承了HttpServlet
 
 包含gateway,ribbon,histryix
 
