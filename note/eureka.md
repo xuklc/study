@@ -50,11 +50,79 @@ SpringApplication
 
 #### 2 服务端处理注册请求
 
-### 
+InstanceInfo--封装客户端的各种信息
 
-##### Lease
+1 ServletContainer.service()
 
-renew()服务续约的方法
+2 WebApplicationImpl.handleRequest()
+
+...中间各种
+
+ApplicationResource.addInstance()
+
+在addInstance()方法中校验了instanceId,hostname,ipaddress等基本的参数是否为空
+
+3 AbstractInstanceRegistry.register() 
+
+ConcurrentHashMap  registry//存放实例信息
+
+1 第一次注册的时候根据应用名称获取实例信息
+
+```java
+Map<String, Lease<InstanceInfo>> gMap = registry.get(registrant.getAppName());
+```
+
+2 实例化Lease对象的serviceUpTimestamp和lastUpadtedTimestamp属性
+
+3把lease对象加到map中
+
+4 Lease.serviceUp(){serviceUpTimestamp= System.currentTimeMillis();}
+
+lastUpdatedTimestamp=System.currentTimeMillis()
+
+5 PeerAwareInstanceRegistryImpl.replicateToPeers--将客户端的信息复制到集群中 
+
+6 return Response.status(204).build();//返回204状态码
+
+
+
+#### 服务端集群转发客户端注册信息
+
+##### 1 判断类型
+
+```java
+ switch (action) {
+                case Cancel:
+                    node.cancel(appName, id);
+                    break;
+                case Heartbeat:
+                    InstanceStatus overriddenStatus = overriddenInstanceStatusMap.get(id);
+                    infoFromRegistry = getInstanceByAppAndId(appName, id, false);
+                    node.heartbeat(appName, id, infoFromRegistry, overriddenStatus, false);
+                    break;
+                case Register:
+                    node.register(info);
+                    break;
+                case StatusUpdate:
+                    infoFromRegistry = getInstanceByAppAndId(appName, id, false);
+                    node.statusUpdate(appName, id, newStatus, infoFromRegistry);
+                    break;
+                case DeleteStatusOverride:
+                    infoFromRegistry = getInstanceByAppAndId(appName, id, false);
+                    node.deleteStatusOverride(appName, id, infoFromRegistry);
+                    break;
+            }
+```
+
+##### 2 PeerEurekaNode.register()
+
+##### 3 AbstractJerseyEurekaHttpClient.register
+
+发送post请求
+
+##### Lease 
+
+renew()服务续约的方法 
 
 
 
@@ -87,3 +155,8 @@ client和server
 先搞定服务注册和心跳维持，然后再看配置的解析
 
 @ConditionalOnClass、@ConditionalOnProperty、@AutoConfigureBefore、@AutoConfigureAfter
+
+
+
+### 服务发现
+
