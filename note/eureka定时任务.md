@@ -1,3 +1,5 @@
+
+
 ### 学习链接
 
 1 https://blog.csdn.net/u012394095/article/details/80693713
@@ -94,10 +96,79 @@ client和server
 
 
 
+### 定时任务 
+
+DiscoveryClient
+
+EurekaAotuServiceRegistration smartLifecycle
+
+```java
+@Inject
+DiscoveryClient(...){
+    initScheduledTasks
+}
+```
+
+DiscoveryClient的注入初始化
+
+CloudEurekaClient是DiscoveryClient子类
+
+~~~java
+@Configuration
+@ConditionalOnRefreshScope
+protected static class RefreshableEurekaClientConfiguration{
+   @Bean(destroyMethod = "shutdown")
+	@ConditionalOnMissingBean(value = EurekaClient.class, search =SearchStrategy.CURRENT)
+		@org.springframework.cloud.context.config.annotation.RefreshScope
+		@Lazy
+		public EurekaClient eurekaClient(ApplicationInfoManager manager, 		                     EurekaClientConfig config, EurekaInstanceConfig instance) {
+			manager.getInfo(); // force initialization
+			return new CloudEurekaClient(manager, config, this.optionalArgs,
+					this.context);
+		} 
+}
+CloudEurekaClient(){
+    super(applicationInfoManager, config, args);
+}
+
+~~~
+#### 客户端
+
+1 DiscoveryClient.refreshRegistry()
+
+2 DiscoveryClient.getAndUpdateDelta//发送post请求
+
+2.1 instancesMap.put()//更新实例信息
+
+3 取到返回的数据，更新版本号
 
 
 
+#### 服务端
 
+
+
+1 InstanceResource.renewLease()//更新是put请求 
+
+2 AbstractInstanceRegistry.renew()
+
+2.1Map<String, Lease<InstanceInfo>> gMap = registry.get(appName);//根据应用名称获取实例信息
+
+2.2 instanceInfo.setStatusWithoutDirty(overriddenInstanceStatus)//设置实例的状态是UP
+
+2.3 leaseToRenew.renew()//更新最后上线时间lastUpdateTimestamp
+
+3 PeerAwareInstanceRegistryImpl.renew()
+
+3.1 replicateToPeers()//转发到集群
+
+
+
+5 instancesMap--本地缓存服务列表
+
+AOP 
+redis集群
+缓存击穿
 
 
 
