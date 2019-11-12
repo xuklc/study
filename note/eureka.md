@@ -160,3 +160,17 @@ client和server
 
 ### 服务发现
 
+https://www.cnblogs.com/x1mercy/p/9276332.html
+
+`com.netflix.discovery.DiscoveryClient.CacheRefreshThread`刷新缓存，通过一个定时任务，定时向服务端获取服务信息，放在本地缓存中
+
+定时任务默认是30s获取一次
+
+```java
+public int getRegistryFetchIntervalSeconds() {    
+    return configInstance.getIntProperty(
+        namespace + REGISTRY_REFRESH_INTERVAL_KEY, 30).get();
+}
+```
+
+在DiscoveryClient初始化时就初始化一个定时任务，然后把从获取服务器获取的方法refreshRegistry()提交给CacheRefreshThread的run()

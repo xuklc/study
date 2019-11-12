@@ -79,3 +79,9 @@ FROM
     ON userLevel.user_id = rankUser.id 
   LEFT JOIN rank_user_login_stat AS userLoginInfo 
     ON rankUser.id = userLoginInfo.user_id ORDER BY rankUser.create_time DESC LIMIT 10 OFFSET 0 
+	
+	spring cloud
+	redis 
+	sql
+	多线程
+	
