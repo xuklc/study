@@ -96,7 +96,7 @@ client和server
 
 
 
-### 定时任务 
+### 定时任务服务续约 
 
 DiscoveryClient
 
@@ -133,6 +133,10 @@ CloudEurekaClient(){
 
 ~~~
 #### 客户端
+
+new  CloudEurekaClient()
+
+DiscoveryClient是CloudEurekaClient的父类
 
 1 DiscoveryClient.refreshRegistry()
 

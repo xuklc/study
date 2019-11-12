@@ -72,9 +72,9 @@ ConcurrentHashMap  registry//存放实例信息
 Map<String, Lease<InstanceInfo>> gMap = registry.get(registrant.getAppName());
 ```
 
-2 实例化Lease对象的serviceUpTimestamp和lastUpadtedTimestamp属性
+2 设置Lease对象的serviceUpTimestamp和lastUpadtedTimestamp属性
 
-3把lease对象加到map中
+3 把lease对象加到map中
 
 4 Lease.serviceUp(){serviceUpTimestamp= System.currentTimeMillis();}
 
@@ -158,6 +158,8 @@ client和server
 
 
 
+
+
 ### 服务发现
 
 https://www.cnblogs.com/x1mercy/p/9276332.html
@@ -174,3 +176,27 @@ public int getRegistryFetchIntervalSeconds() {
 ```
 
 在DiscoveryClient初始化时就初始化一个定时任务，然后把从获取服务器获取的方法refreshRegistry()提交给CacheRefreshThread的run()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
