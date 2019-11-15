@@ -8,7 +8,7 @@
 HystrixInvocationHandler.invoke	
 ```
 
-####2AbstractCommand类初始化
+#### 2AbstractCommand类初始化
 
 ```java
 protected AbstractCommand(HystrixCommandGroupKey group, HystrixCommandKey key, HystrixThreadPoolKey threadPoolKey, HystrixCircuitBreaker circuitBreaker, HystrixThreadPool threadPool,

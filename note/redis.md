@@ -455,3 +455,32 @@ master宕机启动之后会变成slave,(sentinel会将master设置成slave)
 
 分布式锁才是重点，今晚要搞定
 
+### 序列化器
+
+redis默认的序列化器是 JdkSerializationRedisSerializer ，另外还有 Jackson2JsonRedisSerializer 和 KryoRedisSerializer ，修改默认的redis的序列化器就是在初始化redisTemplate时设置指定的序列化器
+
+~~~java
+@Bean
+public RedisTemplate redisTemplate(JedisConnectionFactory connectionFactory) {
+        RedisTemplate redisTemplate = new RedisTemplate();
+        redisTemplate.setConnectionFactory(connectionFactory);
+
+        // 使用Jackson2JsonRedisSerialize 替换默认序列化
+        Jackson2JsonRedisSerializer jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer(Object.class);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+        objectMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        jackson2JsonRedisSerializer.setObjectMapper(objectMapper);
+
+        // 设置value的序列化规则和 key的序列化规则
+        redisTemplate.setValueSerializer(jackson2JsonRedisSerializer);
+        redisTemplate.setHashValueSerializer(jackson2JsonRedisSerializer);
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setHashKeySerializer(redisTemplate.getKeySerializer());
+        redisTemplate.afterPropertiesSet();
+
+        return redisTemplate;
+}
+~~~
+

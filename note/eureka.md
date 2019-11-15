@@ -6,7 +6,7 @@
 
 ### 服务注册
 
-
+EurekaRegistry 
 
 配置的解析，注解是怎么起作用的
 
@@ -34,7 +34,25 @@ SpringApplication
 
 7  EurekaServiceRegistry.getEurekaClient()
 
-服务注册分为两种
+~~~java
+//DiscoveryClient类
+
+@Override
+                public void notify(StatusChangeEvent statusChangeEvent) {
+                    if (InstanceStatus.DOWN == statusChangeEvent.getStatus() ||
+                            InstanceStatus.DOWN == statusChangeEvent.getPreviousStatus()) {
+                        // log at warn level if DOWN was involved
+                        logger.warn("Saw local status change event {}", statusChangeEvent);
+                    } else {
+                        logger.info("Saw local status change event {}", statusChangeEvent);
+                    }
+                    instanceInfoReplicator.onDemandUpdate();
+                }
+~~~
+
+
+
+7.1.1 InstanceInfoReplicator.onDemandUpdate()
 
 7.1 DiscoveryClient.register()-->fetchRegistry()
 

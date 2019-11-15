@@ -509,3 +509,28 @@ web的场景，自动帮我们引入了web模块开发需要的相关jar包
 ### 18 zookeeper
 
 https://blog.csdn.net/qq_35394707/article/details/80139176
+
+
+
+### 19 日志
+
+spring cloud 使用logback日志框架记录日志，spring-boot-starter依赖已经包含spring-boot-starter-logging(即logback框架),在src/main/resource/文件下配置文件名logback-spring.xml日志配置，spring cloud会自动加载，
+
+日志的使用方式有两种
+
+1 安装lombok插件
+
+2 logger
+
+~~~java
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class HelloWorld {
+  public static void main(String[] args) {
+    Logger logger = LoggerFactory.getLogger(HelloWorld.class);
+    logger.info("Hello World");
+  }
+}
+~~~
+

@@ -14,7 +14,7 @@
 
 #### 1客户端启动注册
 
-SpringApplication
+SpringApplication.run()
 
 1 AnnotationConfigApplicationContext.refresh()
 
@@ -35,12 +35,6 @@ SpringApplication
 6 EurekaServiceRegistry.register()
 
 7  EurekaServiceRegistry.getEurekaClient()
-
-服务注册分为两种
-
-7.1 DiscoveryClient.register()-->fetchRegistry()
-
-7.2 AbstractJerseyEurekaHttpClient.register()
 
 8 DiscoveryClient.getAndStoreFullRegistry()
 

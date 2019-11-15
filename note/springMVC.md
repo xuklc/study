@@ -193,7 +193,7 @@ MappedInterceptor是HandlerInterceptor的拦截器
 
 
 
-###整体的流程自己梳理
+### 整体的流程自己梳理
 
 **applyPreHandle VS applyPostHandle**
 
@@ -262,4 +262,40 @@ MappedInterceptor是HandlerInterceptor的拦截器
         return adapter;
     }
 ~~~
+
+### 全局异常处理
+
+#### @ ControllerAdvice 
+
+ @ControllerAdvice**并不是使用AOP的方式来织入业务逻辑的**，而是Spring内置对其各个逻辑的织入方式进行了内置支持 
+
+使用方式
+
+##### 1 @ExceptionHandler
+
+~~~java
+@ControllerAdvice(basePackages = "mvc")
+public class SpringControllerAdvice {
+  @ExceptionHandler(RuntimeException.class)
+  public ModelAndView runtimeException(RuntimeException e) {
+    e.printStackTrace();
+    return new ModelAndView("error");
+  }
+}
+~~~
+
+##### 2 @InitBinder
+
+~~~java
+
+@ControllerAdvice(basePackages = "mvc")
+public class SpringControllerAdvice {
+  @InitBinder
+  public void globalInitBinder(WebDataBinder binder) {
+    binder.addCustomFormatter(new DateFormatter("yyyy-MM-dd"));
+  }
+}
+~~~
+
+### WebMvcConfigurer
 
