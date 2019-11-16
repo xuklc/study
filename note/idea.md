@@ -78,3 +78,23 @@ idea 某个配置出来问题，导致maven 不能将java 源文件编译成clas
 # path to IDEA system folder. Make sure you're using forward slashes  #idea.system.path=D:/JetBrains/.IntelliJIdea90/system   
 # path to user installed plugins folder. Make sure you're using forward slashes  idea.plugins.path=D:/JetBrains/.IntelliJIdea90/config/plugins 
 ```
+
+
+
+### 快捷键
+
+Ctrl+Alt+B　　跳转到方法实现处
+
+Ctrl+Shift+左箭头　　上一个浏览的地方
+
+Ctrl+Shift+右箭头　　下一个浏览的地方
+
+Ctrl+Shift+E　　最近更改的文件
+
+Shift+Click(鼠标左键单机)　　可以关闭文件
+
+**Ctrl+Q　　显示注释文档 **
+
+ F2 或 Shift+F2　　高亮错误或警告快速定位 
+
+ Ctrl＋Alt+Shift＋N　　快速搜索函数 

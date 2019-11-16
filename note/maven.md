@@ -278,3 +278,27 @@ parent模块中，dependencyManagement中预定义太多的依赖，造成pom文
 3、在需要使用到这些依赖的子model中，使用dependencyManagement管理依赖，并import scope依赖
 
 3、注意：scope=import只能用在dependencyManagement里面,且仅用于type=pom的dependency
+
+### maven下载地址
+
+https://archive.apache.org/dist/maven/maven-3/
+
+**maven的版本和idea不匹配会导致:Unable to  import maven project:See logs for detail**
+
+具体日志如下:
+
+~~~xml-dtd
+2 errors 
+java.lang.RuntimeException: com.google.inject.CreationException: Unable to create injector, see the following errors:
+
+1) No implementation for org.apache.maven.model.path.PathTranslator was bound.
+  while locating org.apache.maven.model.path.PathTranslator
+    for field at org.apache.maven.model.interpolation.AbstractStringBasedModelInterpolator.pathTranslator(Unknown Source)
+  at org.codehaus.plexus.DefaultPlexusContainer$1.configure(DefaultPlexusContainer.java:350)
+
+2) No implementation for org.apache.maven.model.path.UrlNormalizer was bound.
+  while locating org.apache.maven.model.path.UrlNormalizer
+    for field at org.apache.maven.model.interpolation.AbstractStringBasedModelInterpolator.urlNormalizer(Unknown Source)
+  at org.codehaus.plexus.DefaultPlexusContainer$1.configure(DefaultPlexusContainer.java:350)
+~~~
+

@@ -958,3 +958,18 @@ b=(short)a;
     }
 ~~~
 
+### 定时任务
+
+ScheduledExecutorService本质上和普通的线程池有两点区别
+
+1 最大线程数是:Integer.MAX_VALUE
+
+2 最大的区别点是使用DelayedWorkQueue队列
+
+ new ScheduledExecutorService().schedule()创建**执行一次**的延迟任务，**不是周期性任务**
+
+###  DelayedWorkQueue 
+
+ 使用优先级队列DelayedWorkQueue，保证添加到队列中的任务，会按照任务的延时时间进行排序，延时时间少的任务首先被获取 
+
+最大线程数是:Integer.MAX_VALUE
