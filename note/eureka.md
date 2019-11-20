@@ -74,7 +74,7 @@ InstanceInfo--封装客户端的各种信息
 
 2 WebApplicationImpl.handleRequest()
 
-...中间各种
+...中间各种//各种反射调用和权限校验
 
 ApplicationResource.addInstance()
 

@@ -388,11 +388,88 @@ public void run() {
 
 ### 服务端接受注册请求
 
+1 ServletContainer.service()
 
+2 WebApplicationImpl.handleRequest()
+
+3 ...中间各种//各种反射调用和权限校验
+
+4  ApplicationResource.addInstance()
+
+5 InstanceRegistry.register()
+
+6 PeerAwareInstanceRegistryImpl
+
+~~~java
+super.register(info, leaseDuration, isReplication);
+        replicateToPeers(Action.Register, info.getAppName(), info.getId(), info, null, isReplication);
+~~~
+
+7 AbstractInstanceRegistry.register()
+
+​	  ConcurrentHashMap  registry//存放实例信息
+
+   1 第一次注册的时候根据应用名称获取实例信息
+
+```java
+Map<String, Lease<InstanceInfo>> gMap = registry.get(registrant.getAppName());
+```
+
+   2 设置Lease对象的serviceUpTimestamp和lastUpadtedTimestamp属性
+
+  3 把lease对象加到map中
+
+  4 Lease.serviceUp(){serviceUpTimestamp= System.currentTimeMillis();}
+
+   lastUpdatedTimestamp=System.currentTimeMillis()
+
+  5 PeerAwareInstanceRegistryImpl.replicateToPeers--将客户端的信息复制到集群中 
+
+  6 return Response.status(204).build();//返回204状态码
+
+8 PeerAwareInstanceRegistryImpl.register()
+
+replicateToPeers(Action.Register, info.getAppName(), info.getId(), info, null, isReplication);
 
 ### 服务端接受续约请求
 
+#### 
 
+
+
+### 服务端集群转发客户端注册信息
+
+#### 1 判断类型
+
+~~~java
+switch (action) {
+                case Cancel:
+                    node.cancel(appName, id);
+                    break;
+                case Heartbeat:
+                    InstanceStatus overriddenStatus = overriddenInstanceStatusMap.get(id);
+                    infoFromRegistry = getInstanceByAppAndId(appName, id, false);
+                    node.heartbeat(appName, id, infoFromRegistry, overriddenStatus, false);
+                    break;
+                case Register:
+                    node.register(info);
+                    break;
+                case StatusUpdate:
+                    infoFromRegistry = getInstanceByAppAndId(appName, id, false);
+                    node.statusUpdate(appName, id, newStatus, infoFromRegistry);
+                    break;
+                case DeleteStatusOverride:
+                    infoFromRegistry = getInstanceByAppAndId(appName, id, false);
+                    node.deleteStatusOverride(appName, id, infoFromRegistry);
+                    break;
+            }
+~~~
+
+##### 2 PeerEurekaNode.register()
+
+##### 3 AbstractJerseyEurekaHttpClient.register
+
+发送post请求
 
 
 

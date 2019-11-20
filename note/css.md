@@ -42,3 +42,9 @@
 ###  last-child 
 
  选择器用来匹配父元素中最后一个子元素 
+
+### 居中
+
+
+
+https://blog.csdn.net/mars2009/article/details/79683924
