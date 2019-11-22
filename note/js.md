@@ -216,6 +216,8 @@ for(let attribuex in attributeObj ){
 
 ### 数组
 
+**注意:js的数组直接赋值和java的引用传递是一样的，即有一个改变则另外一个也会对应改变，解决办法是使用循环来赋值**
+
 ~~~javascript
 var A=[12,78,78,78,89]
 console.log(A)
