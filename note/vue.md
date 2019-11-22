@@ -1,3 +1,9 @@
+### vue官网
+
+https://cn.vuejs.org/v2/guide/components-props.html#传入一个对象的所有属性
+
+https://cn.vuejs.org/v2/guide/components-registration.html
+
 ### 注意 
 
 **在postman中，如果get在，然后在body里增加参数给导致参数失效**
@@ -535,3 +541,327 @@ import 'jquery'
         $(".aaa").css("color", "red");
     },
 ```
+
+
+
+### 父子组件
+
+**组件需要注册才能使用**
+
+父子组件的区别是**被引入的就是子组件**，**子组件需要用到父组件的数据，不需要引入父组件，直接按照语法传参即可**
+
+父组件需要用到子组件的数据，需要使用import引入子组件，并注册在compoment下(即向父组件注册子组件)，例子
+
+#### 父组件
+
+~~~vue
+<template>
+...
+</template>
+import Child1 from "@/portal/components/Child1";
+import { Child2 } from "@/portal/utils/Child2";
+import { Child3 } from "@/portal/components/Child3";
+import Child4 from "./edit/Child4";
+import Child5 from "./edit/Child5";
+export default {
+  name: "parent", //多语言的名称前缀为name的值
+  components: {//子组件
+    Child1,
+    Child2,
+    Child3,
+    Child4,
+	Child5
+  },
+...
+}
+~~~
+
+#### 子组件
+
+~~~vue
+<template>
+...
+</template>
+export default {
+  name: "Child4",
+  components: {},
+  props: {
+    addFlag: {
+      type: Boolean,
+      default: false
+    },
+    params: {
+      type: Object,
+      default: null
+    }
+...
+}
+~~~
+
+#### 父子组件传参
+
+https://www.jianshu.com/p/09a5b0843926
+
+### if
+
+参数类型可以不是boolean
+
+debugger
+
+### 调试
+
+https://cn.vuejs.org/v2/cookbook/debugging-in-vscode.html#在浏览器中展示源代码
+
+### json
+
+1、将对象转换为JSON格式字符串
+
+```vue
+JSON.stringify(object)
+```
+
+2、将JSON字符串转换为对象
+
+```vue
+JSON.parse(jsonString);
+```
+
+
+
+### export default
+
+https://www.cnblogs.com/win-and-coffee/p/10186649.html
+
+###  observer 
+
+https://segmentfault.com/a/1190000008377887?utm_source=tag-newest
+
+
+
+~~~vue
+attributes:{
+        attribute1:false,
+        attribute2:false,
+        attribute3:false,
+        attribute4:false,
+        attribute5:false,
+        attribute6:false,
+        attribute7:false,
+        attribute8:false,
+        attribute9:false,
+        attribute10:false,
+        attribute11:false,
+        attribute12:false,
+        attribute13:false,
+        attribute14:false,
+        attribute15:false,
+        attribute16:false,
+        attribute17:false,
+        attribute18:false,
+        attribute19:false,
+        attribute20:false
+      },
+    attributeArray: [
+                {
+                    prop: 'attribute1',
+                    label: _this.$t("parameterValue.headers.attribute1"),
+                    filter: {
+                              clearable: true,
+                              type: "text",
+                              maxlength: 150
+                            }
+                  }
+          ,
+                  {
+                    prop: 'attribute2',
+                    label: _this.$t("parameterValue.headers.attribute2"),
+                    filter: {
+                         clearable: true,
+                             type: "text",
+                             maxlength: 150
+                          }
+                  }
+          ,
+                  {
+                    prop: 'attribute3',
+                    label: _this.$t("parameterValue.headers.attribute3"),
+                    filter: {
+                         clearable: true,
+                             type: "text",
+                             maxlength: 150
+                          }
+                  }
+          ,
+                  {
+                    prop: 'attribute4',
+                    label: _this.$t("parameterValue.headers.attribute4"),
+                    filter: {
+                         clearable: true,
+                             type: "text",
+                             maxlength: 150
+                          }
+                  }
+          ,
+                  {
+                    prop: 'attribute5',
+                    label: _this.$t("parameterValue.headers.attribute5"),
+                    filter: {
+                         clearable: true,
+                             type: "text",
+                             maxlength: 150
+                          }
+                  }
+          ,
+                  {
+                    prop: 'attribute6',
+                    label: _this.$t("parameterValue.headers.attribute6"),
+                    filter: {
+                         clearable: true,
+                             type: "text",
+                             maxlength: 150
+                          }
+                  }
+          ,
+                  {
+                    prop: 'attribute7',
+                    label: _this.$t("parameterValue.headers.attribute7"),
+                    filter: {
+                         clearable: true,
+                             type: "text",
+                             maxlength: 150
+                          }
+                  }
+          ,
+                  {
+                    prop: 'attribute8',
+                    label: _this.$t("parameterValue.headers.attribute8"),
+                    filter: {
+                         clearable: true,
+                             type: "text",
+                             maxlength: 150
+                          }
+                  }
+          ,
+                  {
+                    prop: 'attribute9',
+                    label: _this.$t("parameterValue.headers.attribute9"),
+                    filter: {
+                         clearable: true,
+                             type: "text",
+                             maxlength: 150
+                          }
+                  }
+          ,
+                  {
+                    prop: 'attribute10',
+                    label: _this.$t("parameterValue.headers.attribute10"),
+                    filter: {
+                         clearable: true,
+                             type: "text",
+                             maxlength: 150
+                          }
+                  }
+          ,
+                  {
+                    prop: 'attribute11',
+                    label: _this.$t("parameterValue.headers.attribute11"),
+                    filter: {
+                         clearable: true,
+                             type: "text",
+                             maxlength: 150
+                          }
+                  }
+          ,
+                  {
+                    prop: 'attribute12',
+                    label: _this.$t("parameterValue.headers.attribute12"),
+                    filter: {
+                         clearable: true,
+                             type: "text",
+                             maxlength: 150
+                          }
+                  }
+          ,
+                  {
+                    prop: 'attribute13',
+                    label: _this.$t("parameterValue.headers.attribute13"),
+                    filter: {
+                         clearable: true,
+                             type: "text",
+                             maxlength: 150
+                          }
+                  }
+          ,
+                  {
+                    prop: 'attribute14',
+                    label: _this.$t("parameterValue.headers.attribute14"),
+                    filter: {
+                         clearable: true,
+                             type: "text",
+                             maxlength: 150
+                          }
+                  }
+          ,
+                  {
+                    prop: 'attribute15',
+                    label: _this.$t("parameterValue.headers.attribute15"),
+                    filter: {
+                         clearable: true,
+                             type: "text",
+                             maxlength: 150
+                          }
+                  }
+          ,
+                  {
+                    prop: 'attribute16',
+                    label: _this.$t("parameterValue.headers.attribute16"),
+                    filter: {
+                         clearable: true,
+                             type: "text",
+                             maxlength: 150
+                          }
+                  }
+          ,
+                  {
+                    prop: 'attribute17',
+                    label: _this.$t("parameterValue.headers.attribute17"),
+                    filter: {
+                         clearable: true,
+                             type: "text",
+                             maxlength: 150
+                          }
+                  }
+          ,
+                  {
+                    prop: 'attribute18',
+                    label: _this.$t("parameterValue.headers.attribute18"),
+                    filter: {
+                         clearable: true,
+                             type: "text",
+                             maxlength: 150
+                          }
+                  }
+          ,
+                  {
+                    prop: 'attribute19',
+                    label: _this.$t("parameterValue.headers.attribute19"),
+                    filter: {
+                         clearable: true,
+                             type: "text",
+                             maxlength: 150
+                          }
+                  }
+          ,
+                  {
+                    prop: 'attribute20',
+                    label: _this.$t("parameterValue.headers.attribute20"),
+                    filter: {
+                         clearable: true,
+                             type: "text",
+                             maxlength: 150
+                          }
+                  }
+
+    ]
+~~~
+

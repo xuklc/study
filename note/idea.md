@@ -98,3 +98,9 @@ Shift+Click(鼠标左键单机)　　可以关闭文件
  F2 或 Shift+F2　　高亮错误或警告快速定位 
 
  Ctrl＋Alt+Shift＋N　　快速搜索函数 
+
+ctrl+shift+alt+F7 搜索class文件被调用的地方
+
+### 热部署
+
+https://blog.csdn.net/qq_16148137/article/details/99694566
