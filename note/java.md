@@ -973,3 +973,21 @@ ScheduledExecutorService本质上和普通的线程池有两点区别
  使用优先级队列DelayedWorkQueue，保证添加到队列中的任务，会按照任务的延时时间进行排序，延时时间少的任务首先被获取 
 
 最大线程数是:Integer.MAX_VALUE
+
+### 枚举
+
+https://www.cnblogs.com/VergiLyn/p/6753706.html
+
+1 重写enum的toString()
+
+   ~~~java
+JSON.toJSONString(SongsEnum.STYLE,SerializerFeature.WriteEnumUsingToString)
+   ~~~
+
+2   fastjson的config设置 
+
+~~~java
+config.configEnumAsJavaBean(SongsEnum.class);
+    String s = JSON.toJSONString(SongsEnum.SOUND_OF_SILENCE, config);
+~~~
+

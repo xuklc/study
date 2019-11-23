@@ -642,3 +642,56 @@ https://segmentfault.com/a/1190000008377887?utm_source=tag-newest
 
 :xxx表示属性或者函数
 
+### 国际化
+
+https://blog.csdn.net/Dream_xun/article/details/82743762
+
+https://q.cnblogs.com/q/108194
+
+###  <el-select
+
+~~~vue
+<el-form ref="form" :model="form" style="width:300px;margin:0 auto;">
+      <el-form-item label="名字">
+        <el-select @change="selectGet" v-model="form.region" placeholder="请选择名字">
+          <el-option 
+            v-for="item in selectList" 
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          ></el-option>
+        </el-select>
+      </el-form-item>
+    </el-form>
+~~~
+
+~~~vue
+ data() {
+    return {
+      selectList:[
+          {id:0,name:'张三'},
+          {id:1,name:'里三'},
+          {id:2,name:'李四'}
+        ],
+      form: {
+        region: ""
+      }
+    };
+  }
+~~~
+
+~~~vue
+selectGet(vId){
+      let obj = {};
+      obj = this.selectList.find((item)=>{//这里的selectList就是上面遍历的数据源
+          return item.id === vId;//筛选出匹配数据
+      });
+      console.log(obj.name);//我这边的name就是对应label的
+      console.log(obj.id);
+    }
+~~~
+
+
+
+
+

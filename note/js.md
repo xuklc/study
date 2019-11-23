@@ -1,3 +1,7 @@
+MDN
+
+https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
+
 ### ES6
 
 #### 函数参数
@@ -203,6 +207,12 @@ for(var i in obj){ console.log(i); }
 
 例子2
 
+**当attributeObj是对象时，attribuex是对象的key,this.attributes[attribuex]是对象的value**
+
+**当attributeObj是数组时，attribuex是数组的下表**
+
+****
+
 ~~~javascript
 Object.keys(attributeObj).forEach((attribuex)=>{
         this.attributes[attribuex]=true;
@@ -216,7 +226,7 @@ for(let attribuex in attributeObj ){
 
 ### 数组
 
-**注意:js的数组直接赋值和java的引用传递是一样的，即有一个改变则另外一个也会对应改变，解决办法是使用循环来赋值**
+**注意:js的数组直接赋值和java的引用传递是一样的，即有一个改变则另外一个也会对应改变，解决办法是使用循环来赋值，即数组之间通过“=”赋值是浅拷贝**
 
 ~~~javascript
 var A=[12,78,78,78,89]
@@ -255,5 +265,54 @@ typeof a
 typeof(b)
 ~~~
 
+### ECMAScript
 
+#### 数据类型
+
+ 符串（String）、数字(Number)、布尔(Boolean)、对空（Null）、未定义（Undefined）、Symbol 
+
+**注：Symbol 是 ES6 引入了一种新的原始数据类型，表示独一无二的值**
+
+##### 引用数据类型：
+
+对象(Object)、数组(Array)、函数(Function)
+
+**特点：存储的是该对象在栈中引用，真实数据存放在堆内存中**
+
+**引用数据类型在栈中存储了指针，该指针指向堆中该实体的起始地址。当解释器寻找引用值时，会首先检索其在栈中的地址，取得地址后从堆中获得实体**
+
+### Object.assign()
+
+Object.assign() 方法用于将所有可枚举属性的值从一个或多个源对象复制到目标对象。它将返回目标对象 
+
+~~~javascript
+const target = { a: 1, b: 2 };
+const source = { b: 4, c: 5 };
+
+const returnedTarget = Object.assign(target, source);
+
+console.log(target);
+// expected output: Object { a: 1, b: 4, c: 5 }
+
+console.log(returnedTarget);
+// expected output: Object { a: 1, b: 4, c: 5 }
+~~~
+
+如果目标对象中的属性具有相同的键，则属性将被源对象中的属性覆盖。后面的源对象的属性将类似地覆盖前面的源对象的属性。
+
+`Object.assign` 方法只会拷贝源对象自身的并且可枚举的属性到目标对象。该方法使用源对象的`[[Get]]`和目标对象的`[[Set]]`，所以它会调用相关 getter 和 setter。因此，它分配属性，而不仅仅是复制或定义新的属性。如果合并源包含getter，这可能使其不适合将新属性合并到原型中。为了将属性定义（包括其可枚举性）复制到原型，应使用[`Object.getOwnPropertyDescriptor()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertyDescriptor)和[`Object.defineProperty()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty) 。
+
+[`String`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/String)类型和 [`Symbol`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Symbol) 类型的属性都会被拷贝。
+
+在出现错误的情况下，例如，如果属性不可写，会引发[`TypeError`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/TypeError)，如果在引发错误之前添加了任何属性，则可以更改`target`对象。
+
+注意，`Object.assign` 不会在那些`source`对象值为 [`null`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/null) 或 [`undefined`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/undefined) 的时候抛出错误
+
+### 字符判空
+
+~~~javascript
+attributeList == null ||attributeList == undefined ||Object.keys(attributeList).length == 0
+~~~
+
+### find
 
