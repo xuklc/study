@@ -176,5 +176,67 @@ nested exception is com.netflix.hystrix.exception.HystrixRuntimeException
 
 
 
+### 服务调用整个过程
+
+https://blog.csdn.net/lgq2626/article/details/80392914
+
+~~~java
+public void refresh() throws BeansException, IllegalStateException {
+        synchronized (this.startupShutdownMonitor) {
+
+            // 扫描本项目里面的java文件，把bean对象封装成BeanDefinitiaon对象，然后调用DefaultListableBeanFactory#registerBeanDefinition()方法把beanName放到DefaultListableBeanFactory 的 List<String> beanDefinitionNames 中去
+            ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
+
+            // Prepare the bean factory for use in this context.
+            prepareBeanFactory(beanFactory);
+
+            try {
+                postProcessBeanFactory(beanFactory);
+
+                // 在这里调用到FeignClientsRegistrar对象的registerBeanDefinitions()方法
+                invokeBeanFactoryPostProcessors(beanFactory);
+
+                //从DefaultListableBeanFactory里面的beanDefinitionNames中找到所有实现了BeanPostProcessor接口的方法，如果有排序进行排序后放到list中
+                registerBeanPostProcessors(beanFactory);
+
+                //Spring的国际化
+                initMessageSource();
+
+                // 
+                initApplicationEventMulticaster();
+
+                // Initialize other special beans in specific context subclasses.
+                onRefresh();
+
+                // 
+                registerListeners();
+
+                // Spring的IOC、ID处理。Spring的AOP。事务都是在IOC完成之后调用了BeanPostProcessor#postProcessBeforeInitialization()和postProcessBeforeInitialization()方法，AOP(事务)就是在这里处理的
+                finishBeanFactoryInitialization(beanFactory);
+
+                // 执行完之后调用实现了所有LifecycleProcessor接口的类的onRefresh()方法，同时调用所有观察了ApplicationEvent接口的事件(观察者模式)
+                finishRefresh();
+            }
+
+            catch (BeansException ex) {
+
+                // 找到所有实现了DisposableBean接口的方法，调用了destroy()方法，这就是bean的销毁
+                destroyBeans();
+
+                // Reset 'active' flag.
+                cancelRefresh(ex);
+
+                throw ex;
+            }
+
+            finally {
+                resetCommonCaches();
+            }
+        }
+    }
+~~~
+
+
+
 
 

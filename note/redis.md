@@ -286,7 +286,7 @@ select 7  --(第8个数据库的下表是7)
 查看当前数据库有多少key
 
 ~~~shell
-key *  --查看当前数据库所有的key
+keys *  --查看当前数据库所有的key
 ~~~
 
 #### 6 清空当前数据库的key
@@ -484,3 +484,56 @@ public RedisTemplate redisTemplate(JedisConnectionFactory connectionFactory) {
 }
 ~~~
 
+### String VS Hash
+
+https://www.jianshu.com/p/4537467bb593
+
+
+
+### 安装配置
+
+1 下载解压
+
+2 执行make命令
+
+3 修改reids.conf配置文件
+
+3.1 daemonize改为yes,改为yes表示redis进程可以后台运行，关闭窗口后不会关闭进程
+
+
+
+### RedisTemplate
+
+https://www.jianshu.com/p/7bf5dc61ca06/ 		
+
+### protected-mode
+
+默认是yes，即开启。设置外部网络连接redis服务，设置方式如下：
+
+1、关闭protected-mode模式，此时外部网络可以直接访问
+
+2、开启protected-mode保护模式，需配置bind ip或者设置访问密码
+
+### 设置远程访问
+
+1.注释掉bind 127.0.0.1;在地址前面加个#；
+
+2.设置密码，在#requirepass foobared去掉#号变requirepass foobared;foobared是密码;
+
+3.protected-mode 设置成no;修改后是protected-mode no;
+
+### 集群模式
+
+https://www.jianshu.com/p/8e1ed39fdab3
+
+https://blog.csdn.net/Aquester/article/details/50150163
+
+1 一主多从
+
+
+
+2  sentinel模式
+
+
+
+3 cluster模式

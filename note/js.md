@@ -1,4 +1,4 @@
-MDN
+### MDN
 
 https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
 
@@ -38,7 +38,7 @@ function add(...x){
 }
 ```
 
-####let和const
+#### let和const
 
 可以把let看成var,只是它定义的变量被限定在特定范围之内被使用，离开这个范围则无效，const则很直观，const是定义常量
 
@@ -104,13 +104,13 @@ ws.add({ data: 42 });//因为添加到ws的这个临时对象没有其他变量�
 |    https://www.google.com:81    |  否  | 端口不一样             |
 | https://www.google.com/a/s.html |  是  | 协议，端口和域名都一样 |
 
-####同源策略的限制：
+#### 同源策略的限制：
 
 1. 存储在浏览器中的数据，如localStroage、Cooke和IndexedDB不能通过脚本跨域访问
 2. 不能通过脚本操作不同域下的DOM
 3. **不能通过ajax请求不同域的数据**
 
-####原因
+#### 原因
 
 设置同源限制主要是为了安全，如果没有同源限制存在浏览器中的cookie等其他数据可以任意读取，不同域下DOM任意操作，Ajax任意请求的话如果浏览了恶意网站那么就会泄漏这些隐私数据
 
@@ -154,13 +154,15 @@ ws://example.com:80/some/path
 
 ### Object.assign()
 
-
+https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
 
 ### return/break/continue
 
 break/continue和java一样
 
- return语句就是用于指定函数返回的值。return语句只能出现在函数体内，出现在代码中的其他任何地方都会造成语法错误！ 
+ return语句就是用于指定函数返回的值。return语句只能出现在函数体内，出现在代码中的其他任何地方都会造成语法错误！
+
+**return的用法和java很类似，javascript不需要在函数声明返回的类型，可以直接return ,reutrn ;和java的一样**
 
 ### 数据类型
 
@@ -315,4 +317,135 @@ attributeList == null ||attributeList == undefined ||Object.keys(attributeList).
 ~~~
 
 ### find
+
+
+
+### 闭包
+
+https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Closures
+
+Closures--闭包
+
+1 背景:处于种种原因，有时候我们需要得到函数内部的局部变量，正常情况下是做不到的，解决办法是**在函数内部再定义一个函数，在内部函数返回需要访问的变量**
+
+闭包是一种保护私有变量的机制，在函数执行时形成私有的作用域，保护里面的私有变量不受外界干扰。
+
+直观的说就是形成一个不销毁的栈环境
+
+#### 链式作用域
+
+子对象会一级一级的向上寻找**所有父对象**的变量，父对象的所有变量对子对象都是可见的，反之不成立
+
+~~~javascript
+function f1(){
+	var n=999;
+	function f2(){
+		alter(n);
+	}
+	return f2;
+}
+var result=f1();
+result();//999
+~~~
+
+**闭包就是能够读取其他函数内部变量的函数**
+
+用法
+
+1 访问局部变量，例如上面的例子
+
+2 让变量始终保持在内存中
+
+~~~javascript
+function f1(){
+	var n=999;
+    nAdd = function() {n+=1;}//匿名函数
+	function f2(){
+		alter(n);
+	}
+	return f2;
+}
+var result=f1();
+result();//999
+nAdd();//
+result();//1000
+~~~
+
+在这段代码中，result实际上就是闭包f2函数。它一共运行了两次，第一次的值是999，第二次的值是1000。这证明了，函数f1中的局部变量n一直保存在内存中，并没有在f1调用后被自动清除。
+
+为什么会这样呢？原因就在于f1是f2的父函数，而f2被赋给了一个全局变量，这导致f2始终在内存中，而f2的存在依赖于f1，因此f1也始终在内存中，不会在调用结束后，被垃圾回收机制（garbage collection）回收
+
+ 这段代码中另一个值得注意的地方，就是"nAdd=function(){n+=1}"这一行，首先在nAdd前面没有使用var关键字，因此nAdd是一个全局变量，而不是局部变量。其次，nAdd的值是一个**匿名函数（anonymous function）**，而这个匿名函数本身也是一个闭包，所以nAdd相当于是一个setter，可以在函数外部对函数内部的局部变量进行操作 
+
+ 利用闭包可以读取函数内部的变量，变量在函数外部不能直接读取到，从而达到保护变量安全的作用。因为私有方法在函数内部都能被访问到，从而实现了私有属性和方法的共享 
+
+### 函数的定义
+
+1 funciton name(){}
+
+2 使用var
+
+~~~javascript
+var vname={
+    name1:function(){
+        
+    }
+}
+~~~
+
+3 var functionOne=  function(){}
+
+4 匿名函数
+
+### window对象
+
+所有浏览器都支持 window 对象。它表示浏览器窗口。
+
+所有 JavaScript 全局对象、函数以及变量均自动成为 window 对象的成员。
+
+全局变量是 window 对象的属性。
+
+全局函数是 window 对象的方法。
+
+甚至 HTML DOM 的 document 也是 window 对象的属性之一
+
+### prototype
+
+所有的 JavaScript 对象都会从一个 prototype（原型对象）中继承属性和方法：
+
+- `Date` 对象从 `Date.prototype` 继承。
+- `Array` 对象从 `Array.prototype` 继承。
+- `Person` 对象从 `Person.prototype` 继承
+
+对象的构造函数中添加属性或方法。
+
+使用 prototype 属性就可以给对象的构造函数添加新的属性
+
+~~~javascript
+function Person(first, last, age, eyecolor) {
+  this.firstName = first;
+  this.lastName = last;
+  this.age = age;
+  this.eyeColor = eyecolor;
+}
+ 
+Person.prototype.nationality = "English"
+~~~
+
+ prototype 属性就可以给对象的构造函数添加新的方法 
+
+~~~javascript
+function Person(first, last, age, eyecolor) {
+  this.firstName = first;
+  this.lastName = last;
+  this.age = age;
+  this.eyeColor = eyecolor;
+}
+ 
+Person.prototype.name = function() {
+  return this.firstName + " " + this.lastName;
+};
+~~~
+
+
 
