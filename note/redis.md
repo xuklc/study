@@ -298,7 +298,11 @@ FLUSHALL --清空所有数据库的key
 
 ### 数据类型
 
+整个redis是数据类型本质都是string
+
 #### hash
+
+hset--每个key-value的时间复杂的是O(1),N个O(N)
 
 KV模式不变，但V是一个键值对
 
@@ -311,11 +315,11 @@ hset user id 11
 hget user id
 ~~~
 
-![redis_hash](F:\workspace\idea\study\study\note\images\redis_hash.png)
+![](redis.assets/redis_hash.png)
 
 hmset(其中的m是more的意思)
 
-![hmset](F:\workspace\idea\study\study\note\images\hmset.png)
+![](redis.assets/hmset.png)
 
 hdel是删除key
 
@@ -337,15 +341,143 @@ hsetnx key  value --当key不存在则创建一个，否则什么也不做，返
 
 sorted set是有序集合
 
-#### set
+#### 字符串
+
+set--时间复杂度是O(1)
+
+getset
+
+getset key value--和set一样可以设置，但是会返回旧值，如果key不存在则返回nil
+
+append
+
+append  key  value
+
+在末尾追加字符串
+
+incr
+
+在原有基础上加1，并返回运算后的值，即加1之后的值,**本操作的值限制在 64 位(bit)有符号数字表示之内**
+
+incr key
+
+incrby 
+
+在原数值基础加指定的值
+
+incrby key  increment
+
+incrbyflot key increment
+
+decr
+
+decrby 
+
+mset
+
+mset和set命令类似，set是单个key操作，mset是多个key操作，set返回成功ok,加上nx会返回nil,mset返回1和0，setnx也是返回1和0
+
+#### 列表
+
+列表从左到右，左边是表头，右边是表尾，left是左边，right是右边，push是插入操作，pop是删除，lrange是取数操作，
+
+lpush
+
+rpush
+
+lpop
+
+blpop--阻塞版本，通过timeout来完成阻塞
+
+rpop
+
+brpop--阻塞版本,通过timeout来完成阻塞
+
+llen
+
+lindex
+
+lset--对列表指定下标的元素修改
+
+linsert
+
+blpop
+
+brpop
+
+#### 集合
+
+sadd--增加元素，支持多个同时操作
+
+sismember--判断集合是否有目标元素
+
+sismember key value
+
+smembers--列出集合的所有元素
+
+smove--集合之间的元素移动的原子操作，成功则返回1，不含该元素则返回0
+
+smove  source dest member--source删除元素，dest增加元素
+
+spop--随机集合的一个元素
+
+srem--(set remove member)--删除指定的一个或多个元素
+
+scard--返回集合的个数，==size()
+
+sinter--给定集合中求交集
+
+sinterstore--在sinter的基础上求交集的同时，将交集结果存到指定集合中
+
+sinterstore  dest key[key...]
+
+sunion--求并集
+
+sunion key1 key2...
+
+sdiff--求差集
+
+sdiffstore--求差集并存储
+
+#### 有序集合
+
+有序集合维护一个score值来保证集合的有序
+
+zadd 
+
+zadd key score member
+
+zscore key member --获取score
+
+zincrby key increment member --对key的member的score值进行增减操作，increment 为负值时就是减操作
+
+zcard key--相当于size
+
+zcount key min max--返回score值在mix和max之间的元素个数,包含min和max
+
+zrange key start stop [withscores]--返回start和stop之间的元素，withsocres表示是否返回score,注意:这里是包含stat和stop的，**-1表示倒数第一，-2表示倒数第二个**
+
+zrevrange key start stop [withscores]:倒序返回
+
+zrangebyscore key min max withscores:这里的mix指的是score的值，max也是，都是包含在内，zrange的start和stop指的是集合中的下标
+
+zrank key member:返回元素按照score值的排名，即在集合的下标
+
+zrevrank key member:是反过来的下标，**即表头和表尾呼唤，表头和表尾的下标也呼唤**
+
+zrem key member:删除指定的元素
+
+zremrangebyrank key start stop:删除指定下标区间的元素,-1表示最后一个元素
+
+zremrangebyscore key min max:删除指定score区间值的元素
+
+zunionstore dest  numberkeys key1 key2...---求集合并集，numberkeys指定要合并的集合的数量
+
+zinterstoer dest numbers key1 key2...--求集合交集，numberkeys和zunionstore一样，dest是交集之后的结果
+
+#### scan
 
 
-
-1 主从复制
-
-2 容错，复制的整个过程(全复制和增量复制)
-
-3 
 
 ### 配置文件
 
@@ -488,8 +620,6 @@ public RedisTemplate redisTemplate(JedisConnectionFactory connectionFactory) {
 
 https://www.jianshu.com/p/4537467bb593
 
-
-
 ### 安装配置
 
 1 下载解压
@@ -500,11 +630,11 @@ https://www.jianshu.com/p/4537467bb593
 
 3.1 daemonize改为yes,改为yes表示redis进程可以后台运行，关闭窗口后不会关闭进程
 
-
-
 ### RedisTemplate
 
-https://www.jianshu.com/p/7bf5dc61ca06/ 		
+https://www.jianshu.com/p/7bf5dc61ca06/ 	
+
+​	
 
 ### protected-mode
 
@@ -537,3 +667,9 @@ https://blog.csdn.net/Aquester/article/details/50150163
 
 
 3 cluster模式
+
+### rehash
+
+https://mp.weixin.qq.com/s/fRtxp-ivEqWfa3kN0EZ3MQ
+
+**由于Redis使用的是渐进式rehash机制，因此，scan命令在需要同时扫描新表和旧表，将结果返回客户端**

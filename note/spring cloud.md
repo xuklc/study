@@ -1,5 +1,7 @@
 ## spring cloud
 
+**spring cloud大部分配置都可以用注解配置，不仅仅是yml文件**
+
 ###  写在前头
 
 学习一个新的东西，首先是要看官网的介绍，认真的看，看不懂也没关系，百度一下，例如spring cloud gateway,gateway有三个概念routes、predicates和filter，可以这样先百度spring cloud gateway,spring cloud gateway routes,spring cloud gateway predicates,spring cloud gateway filter,gateway  predicates,gateway filter
