@@ -673,3 +673,42 @@ https://blog.csdn.net/Aquester/article/details/50150163
 https://mp.weixin.qq.com/s/fRtxp-ivEqWfa3kN0EZ3MQ
 
 **由于Redis使用的是渐进式rehash机制，因此，scan命令在需要同时扫描新表和旧表，将结果返回客户端**
+
+### 复制
+
+https://www.cnblogs.com/wdliu/p/9407179.html
+
+1 redis使用异步复制
+
+2 master和slave是一对多的关系
+
+3 复制过程是非阻塞的
+
+**当master和slave断开连接，slave会自动重连master，当master收到多个slave同步请求的请求，master会执行一个单独的后台线程**
+
+####  主从复制的方式
+
+1 一主多从
+
+![](redis.assets/redis-master-slave.png)
+
+2 链式主从复制
+
+![](redis.assets/redis-master-slave-chain.png)
+
+#### 工作流程
+
+1 每个master都有一个replication ID(随机字符串),维持一个偏移量(offset)
+
+2 slave连接到master，发送psync命令来发送记录上一次的replacation ID和offset
+
+#### 全量同步
+
+1 master开启一个后台保存进程，生成RDB文件流，同时缓存所有从客户端接收到的新的写入命令
+
+2 当后台进程保存完成时，master将数据文件传输给slave,slave将之保存到磁盘里，然后加载文件到内存
+
+3 master以指令流的形式把缓存的写入命令发送给slave
+
+
+

@@ -691,6 +691,229 @@ selectGet(vId){
     }
 ~~~
 
+### form表单
+
+https://blog.csdn.net/qq_33616027/article/details/90290239
+
+~~~vue
+<template>
+    <div>
+        <el-form :model="dengmiQueryForm" ref="dengmiQueryForm" label-width="100px" class="demo-ruleForm" size="mini">
+            <el-row>
+                <el-col span="8">
+                    <el-form-item label="谜面">
+                        <el-input v-model="dengmiQueryForm.mimian"></el-input>
+                    </el-form-item>
+                </el-col>
+                <el-col span="8">
+                    <el-form-item label="谜目">
+                        <el-input v-model="dengmiQueryForm.mimu"></el-input>
+                    </el-form-item>
+                </el-col>
+                <el-col span="8">
+                    <el-form-item label="谜格">
+                        <el-input v-model="dengmiQueryForm.mige"></el-input>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col span="8">
+                    <el-form-item label="谜底">
+                        <el-input v-model="dengmiQueryForm.midi"></el-input>
+                    </el-form-item>
+                </el-col>
+                <el-col span="8">
+                    <el-form-item label="作者">
+                        <el-input v-model="dengmiQueryForm.zuozhe"></el-input>
+                    </el-form-item>
+                </el-col>
+                <el-col span="8">
+                    <el-form-item label="谜底字数">
+                        <el-input v-model="dengmiQueryForm.midiLength"></el-input>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col>
+                    <el-button type="primary" @click="submitForm" icon="el-icon-search">查询</el-button>
+                    <el-button type="warning" @click="resetForm" icon="el-icon-search" plain>重置</el-button>
+                </el-col>
+            </el-row>
+        </el-form>
+    </div>
+</template>
+
+<script>
+    export default {
+        name: "dengmiQuery",
+        data() {
+            return {
+                dengmiQueryForm: {
+                    mimian:'',
+                    mimu:'',
+                    mige:'',
+                    midi:'',
+                    zuozhe:'',
+                    midiLength:''
+                }
+            };
+        },
+        methods: {
+            submitForm(formName) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        alert('submit!');
+                    } else {
+                        console.log('error submit!!');
+                        return false;
+                    }
+                });
+            },
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+            }
+        }
+    }
+</script>
+
+<style scoped>
+   
+</style>
+~~~
+
+###  
+
+### 方法和属性调用
+
+方法和属性调用需要this,不能和java那样直接调用,本文件内的也不可以
+
+### 放大镜
+
+~~~vue
+<el-input
+                  v-model="form.propertry">
+                  <i slot="suffix" class="el-icon-search"></i>
+</el-input>
+~~~
+
+### 常用方法
+
+**push()** 方法可向数组的末尾添加一个或多个元素，并返回新的长度。
+
+**pop()** 方法用于删除并返回数组的最后一个元素。
+
+**shift()** 方法用于把数组的第一个元素从其中删除，并返回第一个元素的值。
+
+**unshift()** 方法可向数组的开头添加一个或更多元素，并返回新的长度。
+
+**splice()** 方法向/从数组中添加/删除项目，然后返回被删除的项目。
+
+**sort()** 方法用于对数组的元素进行排序。
+
+**reverse()** 方法用于颠倒数组中元素的顺序。
+
+**filter()** 方法创建一个新的数组，新数组中的元素是通过检查指定数组中符合条件的所有元素。
+
+**concat()** 方法用于连接两个或多个数组。
+
+**slice()** 方法可从已有的数组中返回选定的元素。
+
+**split()** 方法用于把一个字符串分割成字符串数组
+
+#### 实现表格增删行效果
+
+1 增行
+
+~~~vue
+addRow(tableData){
+	let emptyRow={"partCode":'',"partLocalDesc":'',"unit":'',"applyQty":'',"balance":'',"remark":'',
+        __id: Math.floor(Math.random() * Date.now()),
+      };
+	tableData.push(emptyRow);
+}
+~~~
+
+2 删行
+
+方法1 **在<el-table>标签的环境**下通过scope.$index把下标传到行数中
+
+~~~vue
+<template>
+...
+	<el-table>
+        ...
+        <el-table-column>
+            <template>
+                // tableData是定义在data(){}里的数组
+                <el-button @click="delCurrentRow(scope.$index,tableData)"></el-button>
+			</template>
+    	</el-table-column>
+        ...
+    </el-table>
+...
+</template>
+
+delCurrentRow(index,tableData{
+	tableData.splice(index,1);
+}
+~~~
+
+方法2  直接传scope
+
+~~~vue
+<template>
+...
+	<el-table>
+        ...
+        <el-table-column>
+            <template>
+                // tableData是定义在data(){}里的数组
+                <el-button @click="delCurrentRow(scope,tableData)"></el-button>
+			</template>
+    	</el-table-column>
+        ...
+    </el-table>
+...
+</template>
+
+delRow(index,tableData{
+	tableData.splice(index,1);
+}
+~~~
+
+方法3 直接操作tableData数组
+
+~~~vue
+<template>
+...
+	<el-table>
+        ...
+        <el-table-column>
+            <template>
+                // tableData是定义在data(){}里的数组
+                <el-button @click="delCurrentRow"></el-button>
+			</template>
+    	</el-table-column>
+        ...
+    </el-table>
+...
+</template>
+
+delCurrentRow(index,tableData{
+// multipleSelection在data(){}定义
+	let ids= this.multipleSelection.map((item)=>{
+	// addRow函数定义了_id属性
+		return item._id;
+	});
+	let newTableData=this.tableData.filter((item)=>{
+		return ids.includes(item._id)==false;
+	});
+	this.tableData=newTableData;
+}
+~~~
+
+
+
 
 
 
