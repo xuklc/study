@@ -70,3 +70,19 @@ https://blog.csdn.net/mr_javascript/article/details/80888681
 </script>
 ~~~
 
+### :的作用
+
+element ui组件:就会把属性当做一个变量或者一个函数来处理
+
+例子:
+
+~~~vue
+...
+// 这里直接显示$t('messge')
+<el-table label="$t('messge')"></el-table>
+// :label相当于一个变量，可以读取messge变量
+<el-table :label="$t('messge')"></el-table>
+...
+
+~~~
+

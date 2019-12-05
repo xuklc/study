@@ -602,6 +602,115 @@ export default {
 
 https://www.jianshu.com/p/09a5b0843926
 
+https://blog.csdn.net/weixin_44849078/article/details/89227848
+
+#### 子传父
+
+##### 例子1
+
+子组件
+
+~~~vue
+<template>
+	<button v-on:click="updateParentValue">点击传值</button>
+</template>
+
+<script>
+export default {
+  data () {
+    return {
+    	
+    },
+    methods: {
+    	updateParentValue () {
+    		this.$emit('updateParentValue', 'abcde');
+    	}
+    }
+  }
+}
+</script>
+
+~~~
+
+父组件
+
+~~~vue
+<template>
+	<div></div>
+</template>
+
+<script>
+export default {
+  data () {
+    return {
+    	
+    },
+    methods: {
+    	updateParentValue (childrenValue) {
+    		console.log(childrenValue); // 'abcde'
+    	}
+    }
+  }
+}
+</script>
+~~~
+
+##### 例子2
+
+子组件
+
+在子组件通过点击事件触发子组件向父组件传参
+
+~~~vue
+...
+<script>
+    // 元素的点击事件
+    method(){
+        ...
+        eleClilkFunction(){
+            let childData ={
+                childDataList=this.childData,
+                opType:"del"
+            }
+            this.$emit('childData', childData);
+    	}
+        ...
+	}
+
+</script>
+
+...
+~~~
+
+父组件
+
+~~~vue
+<template>
+...
+// 引入子组件并注册,parentData同时可以向子组件传值
+<child-component :parentData="parentData" @childData="childData"></child-component>
+...
+</template>
+<script>
+	...
+    method(){
+        // params就是子组件传给父组件的值,childData()函数在子组件触发事件触发子组件向父组件传值到
+        // 这个函数由子组件的事件触发
+        childData(params){
+            
+            if("del"===params.opType){
+               let childDataList=params.childDataList;
+                ... 业务逻辑
+               }
+        }
+    }
+    ...
+    
+</script>
+~~~
+
+
+
 ### if
 
 参数类型可以不是boolean
@@ -912,9 +1021,62 @@ delCurrentRow(index,tableData{
 }
 ~~~
 
+### props vs data
 
+1 props和data的区别是props定义的属性只有接收父组件修改字段的值，data可以在vue实例里操作修改，即在vue文件中
 
+2 当前组件作为**弹框**引入时，当弹框关闭做props里定义的属性就回复默认值
 
+子组件中的data数据，不是通过父组件传递的是子组件私有的，是可读可写的。
 
+子组件中的所有 props中的数据，都是通过父组件传递给子组件的，是只读的
 
+### watch
+
+**Vue.js 有一个方法 watch，它可以用来监测Vue实例上的数据变动**
+
+~~~vue
+<template>
+  <div>
+    <el-input v-model="demo"></el-input>
+    {{value}}
+  </div>
+</template>
+<script>
+  export default {
+    name: 'index',
+    props:{
+      prop1:{
+          type:Boolean,
+          default:function(){
+              return false;
+          }
+      },
+      prop2:{
+          type:Object,
+          default:function(){
+              return null;
+          }
+      }
+    },
+    data() {
+      return {
+        demo: '',
+        value: ''
+      };
+    },
+    watch: {
+       // 监听data函数李的变量
+      demo(val) {
+        this.value = this.demo;
+      },
+        // 可以监听props里定义的变量
+      prop1:function(){
+          
+      }
+       
+    }
+  };
+</script>
+~~~
 
