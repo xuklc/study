@@ -478,7 +478,12 @@ https://www.jb51.net/article/136596.htm
 methods: {
         sss() {
             this.$refs.s.style.color = "blue";
+			// 第二种写法
+			this.$refs["form"].validate(valid => {
+				
+			});
         }
+
     }
 ```
 
