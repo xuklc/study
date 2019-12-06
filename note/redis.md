@@ -710,5 +710,7 @@ https://www.cnblogs.com/wdliu/p/9407179.html
 
 3 master以指令流的形式把缓存的写入命令发送给slave
 
+### info
 
+http://blog.itpub.net/15498/viewspace-2644200/
 
