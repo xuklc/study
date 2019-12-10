@@ -1239,3 +1239,6 @@ public class RedisUtil {
 }
 ~~~
 
+### config
+
+cloud.config.client.ConfigServicePropertySourceLocator [ConfigServicePropertySourceLocator.java : 205] Fetching config from server

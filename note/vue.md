@@ -1085,3 +1085,34 @@ delCurrentRow(index,tableData{
 </script>
 ~~~
 
+### v-model
+
+在<el-form>中:model变量绑定了一个在data()的变量，<el-form>标签的子标签的v-model指令绑定的属性要在:model绑定的变量中定义
+
+例子:
+
+~~~vue
+<templte>
+	<el-form :model="formData">
+        <el-form-item>
+            <el-input v-model="formData.userName" />
+        </el-form-item>
+        <el-form-item>
+			<el-input v-model="formData.userCode" />
+        </el-form-item>
+    </el-form>
+</templte>
+<script>
+    ...
+	data(){
+       return{
+           formData:{
+               userCode:null
+               //没有定义userName，则<el-input v-model="formData.userName" />无法输入
+           }
+       } 
+    }
+    ...
+</script>
+~~~
+

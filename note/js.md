@@ -447,5 +447,13 @@ Person.prototype.name = function() {
 };
 ~~~
 
+### 字符串判空
+
+~~~javascript
+if(str==null||str==='undefined'||str===''){
+   
+   }
+~~~
+
 
 
