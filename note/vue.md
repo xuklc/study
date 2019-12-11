@@ -1,3 +1,5 @@
+
+
 ### vue官网
 
 https://cn.vuejs.org/v2/guide/components-props.html#传入一个对象的所有属性
@@ -1115,4 +1117,87 @@ delCurrentRow(index,tableData{
     ...
 </script>
 ~~~
+
+### mounted
+
+html加载完成后执行。执行顺序：子组件-父组件
+
+### ref
+
+https://blog.csdn.net/qq_15509267/article/details/88286695
+
+1 本页面获取dom元素
+
+2 获取子组件的data
+
+3 调用子组件的方法
+
+- **类型**：`Object`
+
+- **只读**
+
+- **详细**：
+
+  一个对象，持有注册过 [`ref` 特性](https://cn.vuejs.org/v2/api/#ref) 的所有 DOM 元素和组件实例
+
+  用法1 
+
+  ~~~vue
+  <base-input ref="usernameInput"></base-input>
+  ~~~
+
+  现在在你已经定义了这个 `ref` 的组件里，你可以使用：
+
+  ```vue
+  this.$refs.usernameInput
+  ```
+
+用法2
+
+~~~vue
+<input ref="input">
+~~~
+
+甚至可以通过其父级组件定义方法：
+
+~~~vue
+methods: {
+  // 用来从父级组件聚焦输入框
+  focus: function () {
+    this.$refs.input.focus()
+  }
+}
+~~~
+
+**`$refs` 只会在组件渲染完成之后生效**
+
+用法3
+
+~~~vue
+<template>
+...
+  <el-form  ref="form">
+    
+  </el-form>
+...
+</template>
+<script>
+	data(){
+        return {
+          form:"formObj"  
+        };
+    },
+    method:{
+        clickQuery(){
+            //  返回一个form对象
+            let formObj=this.$ref[this.form];
+            // 或者可以这么写
+            let formObj2 = this.$ref["formObj"];
+        }
+    }
+</script>
+
+~~~
+
+**ref和v-for在一起的情况**
 
