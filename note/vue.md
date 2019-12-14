@@ -336,18 +336,77 @@ export default {
 
 ### router
 
+路由配置
+
+1 npm install vue-router --save-dev
+
+2 配置
+
+1. 在src里新建router/index.js
+2. 在src下面新建main.js 和 App.vue
+3. 在router/index.js 配置路由路径和对应的组件
+
+3 写路由
+
+~~~vue
+import Vue from 'vue';
+import VueRouter from 'vue-router';
+
+// 使用插件, 用use
+Vue.use(VueRouter); // 调用一个这个方法
+
+// 路由的数组
+const routes = [
+    {
+        // 访问路径
+        path: '/film',
+        component: () => import('@/views/film'),
+    },
+    {
+        // 访问路径
+        path: '/cinema',
+        component: () => import('@/views/cinema'),
+    },
+    {
+        // 访问路径
+        path: '/pintuan',
+        component: () => import('@/views/pintuan'),
+    },
+    {
+        // 访问路径
+        path: '/my',
+        component: () => import('@/views/my'),
+		children:[
+			...
+			name:'queryName'
+			...
+		]
+    },
+];
+
+const router = new VueRouter({
+    routes
+});
+export default router;
+~~~
+
+**注意:this.$router.push({name:'queryName',query:{paraId:1,para2:'1234456'}}),这个里的name属性指children里的name属性，例如上面的queryName**
+
+由于动态路由也是传递params的，所以在 this.$router.push() 方法中**path不能和params一起使用**，否则params将无效。**需要用name来指定页面**
+
 ```vue
 // 字符串
-router.push('home')
+this.$router.push('home')
 
 // 对象
-router.push({ path: 'home' })
+this.$router.push({ path: 'home' })
 
 // 命名的路由
-router.push({ name: 'user', params: { userId: '123' }})
+this.$router.push({ name: 'user', params: { userId: '123' }})
 
 // 带查询参数，变成 /register?plan=private
-router.push({ path: 'register', query: { plan: 'private' }})
+this.$router.push({ path: 'register', query: { plan: 'private' }})
+this.$router.push();
 ```
 
  **意：如果提供了 `path`，`params` 会被忽略，上述例子中的 `query` 并不属于这种情况。取而代之的是下面例子的做法，你需要提供路由的 `name` 或手写完整的带有参数的 `path`** 
@@ -359,6 +418,26 @@ router.push({ path: `/user/${userId}` }) // -> /user/123
 // 这里的 params 不生效
 router.push({ path: '/user', params: { userId }}) // -> /user
 ```
+
+#### 目标页面接收参数
+
+1 在目标页面通过this.$route.params获取参数
+
+```vue
+<p>提示：{{this.$route.params.alert}}</p>
+```
+
+2 在目标页面通过this.$route.query 获取参数
+
+```vue
+//传值
+this.$router.push({path:"/menLink",query:{alert:"页面跳转成功"}})
+
+//用query获取值
+<p>提示：{{this.$route.query.alert}}</p>
+```
+
+**两种方式的区别是query传参的参数会带在url后边展示在地址栏，params传参的参数不会展示到地址栏。需要注意的是接收参数的时候是route而不是router。两种方式一一对应，名字不能混用**
 
 ### $options
 
