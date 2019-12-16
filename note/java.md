@@ -1001,3 +1001,11 @@ https://blog.csdn.net/zhangyu_h321/article/details/55102085
 
 https://www.jianshu.com/p/73aaec23009d
 
+**Future只是一个接口，接受Callable的返回值**
+
+FutureTask是Future接口的一个实现类
+
+ForkJoinPool.commonPool()
+
+**CompletableFuture的回调方法，CompletableFuture.runAsync().thenAcceptAsync(),CompletableFuture.thenApplyAsync().thenAcceptAsync()**
+
