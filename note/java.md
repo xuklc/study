@@ -1009,3 +1009,26 @@ ForkJoinPool.commonPool()
 
 **CompletableFuture的回调方法，CompletableFuture.runAsync().thenAcceptAsync(),CompletableFuture.thenApplyAsync().thenAcceptAsync()**
 
+### rxJava
+
+| 名称       | 解释                               |
+| ---------- | ---------------------------------- |
+| create()   | 创建最简单的事件流                 |
+| from()     | 创建事件流，可发送不同类型的数据流 |
+| just()     | 创建事件流，可发送多个参数的数据流 |
+| defer()    | 创建事件流，可缓存可激活事件流     |
+| interval() | 创建延时重复的事件流               |
+| range()    | 创建事件流，可发送范围内的数据流   |
+| repeat()   | 创建可重复次数的事件流             |
+| timer()    | 创建一次延时的事件流               |
+
+***补充：interval()、timer()、delay()的区别***
+interval():用于创建事件流，周期性重复发送
+timer():用于创建事件流，延时发送一次
+delay():用于事件流中，可以延时某次事件流的发送
+
+*背压的概念是在平时业务开发时较为常见，大多数是针对高并发的业务，背压是必须考虑的因素之一。*
+在异步场景中，由于数据流的发射速度高于数据流的接收速度，就会导致数据不能及时处理，从而导致数据流的阻塞。**背压所要做的事情就是主动控制数据流发射的速度**
+
+https://blog.csdn.net/qq_35928566/article/details/86157107
+

@@ -408,5 +408,53 @@ com.netflix.client.ClientException: Load balancer does not have available server
 	at com.neo.controller.HelloController.firstFeign(HelloController.java:28) ~[classes/:na]
 ~~~
 
-**RxJavaHooks **
+**RxJavaHooks**
 
+调用类
+
+1 LoadBalanceFeignClient
+
+2 
+
+
+
+### 配置
+
+1 注解配置
+
+~~~java
+@Configuration
+public class MyConfig {
+    @Bean
+    public Request.Options options(){
+        Request.Options o = new Options(1000, 1000);
+        return o;
+    }
+}
+~~~
+
+然后在注解上@FeignClient指定
+
+```java
+@FeignClient(name="",url="",configuration= {MyConfig.class})
+```
+
+@EnableFeignClients来全局指定：
+
+```java
+@EnableFeignClients(defaultConfiguration=MyConfig.class)
+```
+
+2 yml文件配置
+
+~~~yml
+# 对所有的feignclient生效
+ribbon.ReadTimeout=10000
+ribbon.ConnectTimeout=2000
+
+# 对指定的feignclien生效
+[feignclientName].ribbon.ReadTimeout=10000
+[feignclientName].ribbon.ConnectTimeout=2000
+~~~
+
+https://www.jianshu.com/p/cd3557b1a474

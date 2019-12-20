@@ -392,6 +392,42 @@ export default router;
 
 **注意:this.$router.push({name:'queryName',query:{paraId:1,para2:'1234456'}}),这个里的name属性指children里的name属性，例如上面的queryName**
 
+个人例子:
+
+~~~vue
+this.$router.push({
+        name: "router33",
+        query: {
+          flag: "router",
+          flagId: 23
+        }
+      });
+
+...
+{
+    path: "/router1",
+    name: "router1",
+    component: Layout,
+    children: [
+      {
+        path: "router2",
+        component: () => import("@/app/views/router/routerTest"),
+        name: "router2",
+        meta: { title: "router2", icon: "dashboard", noCache: true },
+        children:[
+          {
+            path: "router3",
+            component:()=> import ("@/app/views/router/routerTest"),
+            name:"router33"
+          }
+        ]
+      }
+}
+...
+~~~
+
+
+
 由于动态路由也是传递params的，所以在 this.$router.push() 方法中**path不能和params一起使用**，否则params将无效。**需要用name来指定页面**
 
 ```vue
@@ -1281,4 +1317,3 @@ methods: {
 **ref和v-for在一起的情况**
 
 **ref只能调用子组件的方法和data里的属性，不能调用子组件的子组件的方法和data属性，想要调子组件的子组件的方法和data属性,需要在当前第一个子组件中定义ref属性的值，然后在第一个子组件里调用第二个子组件的方法，然后在父组件中调用封装了第二个子组件方法的方法**
-

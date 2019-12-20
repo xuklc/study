@@ -455,5 +455,16 @@ if(str==null||str==='undefined'||str===''){
    }
 ~~~
 
+### join
 
+join() 方法用于把数组中的所有元素放入一个字符串
+
+```javascript
+arrayObject.join(separator) //指定要使用的分隔符。如果省略该参数，则使用逗号作为分隔符
+// 例子
+let strJoin=["1234","87654"];
+let  str=strJoin.join();// str等于"1234,87654"等同于java中的String.join(数组,",")
+```
+
+### findIndex
 
