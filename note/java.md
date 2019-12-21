@@ -1032,3 +1032,39 @@ delay():用于事件流中，可以延时某次事件流的发送
 
 https://blog.csdn.net/qq_35928566/article/details/86157107
 
+#### 基本概念
+
+1 Observable--发出一系列事件，事件的生产者
+
+2 Subscriber--负责处理事件，事件的消费者
+
+3 Operator--对Observable发出的事件进行修改和变换
+
+**处理流程是Observable-->Operator(可以省略)-->Subscrible**
+
+区分回调动作
+
+RxJava 自身提供了精简回调方式，我们可以为 Subscriber 中的三种状态根据自身需要分别创建一个回调动**Action**
+
+我们可以根据当前需要，传入对应的 Action， RxJava 会相应的自动创建 Subscriber
+
+Action0 表示一个无回调参数的Action；
+
+Action1 表示一个含有一个回调参数的Action；
+
+当然，还有Action2 ~ Action9，分别对应2~9个参数的Action
+
+#### 线程控制
+
+
+
+#### 变换
+
+将发送的事件或事件序列，加工后转换成不同事件或事件序列
+
+1 map操作符
+
+2 flagMap操作符
+
+####　Retrofit
+
