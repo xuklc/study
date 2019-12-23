@@ -1302,7 +1302,7 @@ methods: {
           form:"formObj"  
         };
     },
-    method:{
+    methods:{
         clickQuery(){
             //  返回一个form对象
             let formObj=this.$ref[this.form];
@@ -1325,3 +1325,117 @@ methods: {
 ### vue cli3
 
 https://cli.vuejs.org/zh/
+
+### vue的基本语法
+
+3 关闭
+
+5 和props对象统计的model对象
+
+~~~vue
+model: {
+        prop: "showSelectPop",
+        event: "change",
+    },
+~~~
+
+
+
+~~~vue
+<template>
+// html
+</template>
+
+<script>
+import xxx from "path1";
+import xxxx from "path2";
+import xxxxx from "path3";
+// 注意:建议export default后面的大括号加一个空格
+export default {
+    //  导出默认模块的名称
+    name:"",
+    components:{
+        
+    },
+    //data是一个函数
+    data(){
+        
+    },
+    // props是对象
+    props:{
+        
+    },
+    beforeCreate(){
+        
+    },
+    create(){
+        
+    },
+    mounted(){
+        
+    },
+    beforeUpdate(){
+        
+    },
+    updated(){
+        
+    },
+    beforeDestroy(){
+        
+    },
+    destroyed(){
+        
+    },
+    beforeMount(){
+        
+    },
+    methods:{
+        
+    }
+}
+</script>
+
+<style>
+// css写在这里
+</style>
+~~~
+
+### async/await
+
+async/await用来发布异步请求，从服务端获取数据
+
+promise是异步编程的一种解决方案，比传统的回到和事件更好用，promise是一个容器，里面保存某个未来才会有结果的事件，从语法的角度是一个对象
+
+例子
+
+~~~vue
+<template>
+</template>
+<script>
+	...
+    methods:{
+        async syncFun(){
+            console.log("async eg");
+            let awaitResult = await  awaitFun();
+            ...
+        }
+        async syncFun2(){
+            try{
+                console.log("async eg2");
+           		let awaitResult2 = await  awaitFun();
+            }catch(e){
+                ...
+            }
+        }
+        
+    }
+    ...
+</script>
+~~~
+
+
+
+### model vs props
+
+https://blog.csdn.net/Qin_Shuo/article/details/82693919
+

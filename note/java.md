@@ -1032,6 +1032,8 @@ delay():用于事件流中，可以延时某次事件流的发送
 
 https://blog.csdn.net/qq_35928566/article/details/86157107
 
+https://www.imooc.com/article/68834
+
 #### 基本概念
 
 1 Observable--发出一系列事件，事件的生产者
@@ -1056,7 +1058,40 @@ Action1 表示一个含有一个回调参数的Action；
 
 #### 线程控制
 
+1. **`Schedulers.io()`**: I/O 操作（读写文件、数据库、网络请求等），与`newThread()`差不多，区别在于io() 的内部实现是是用一个无数量上限的线程池，可以重用空闲的线程，因此多数情况下 `io()` 效率比 `newThread()` 更高。值得注意的是，在 `io()` 下，不要进行大量的计算，以免产生不必要的线程；
+2. **`Schedulers.newThread()`**: 开启新线程操作；
+3. **`Schedulers.immediate()`**: 默认指定的线程，也就是当前线程；
+4. **`Schedulers.computation()`**:计算所使用的调度器。这个计算指的是 CPU 密集型计算，即不会被 I/O等操作限制性能的操作，例如图形的计算。这个 Scheduler 使用的固定的线程池，大小为 CPU 核数。值得注意的是，不要把 I/O 操作放在 `computation()` 中，否则 I/O 操作的等待时间会浪费 CPU；
+5. **`AndroidSchedulers.mainThread()`**: RxJava 扩展的 Android 主线程；
 
+我们可以通过 `subscribeOn()` 和 `observeOn()` 这两个方法来进行线程调度。举个栗子：
+
+~~~java
+final ImageView ivLogo = (ImageView) findViewById(R.id.ivLogo);
+
+Observable.create(new Observable.OnSubscribe<Drawable>() {    @Override
+    public void call(Subscriber<? super Drawable> subscriber) {        try {
+            Drawable drawable = Drawable.createFromStream(new URL("https://ss2.baidu.com/6ONYsjip0QIZ8tyhnq/it/u=2502144641,437990411&fm=80&w=179&h=119&img.JPEG").openStream(), "src");
+            subscriber.onNext(drawable);
+        } catch (IOException e) {
+            subscriber.onError(e);
+        }
+    }
+})        // 指定 subscribe() 所在的线程，也就是上面call()方法调用的线程
+        .subscribeOn(Schedulers.io())        // 指定 Subscriber 回调方法所在的线程，也就是onCompleted, onError, onNext回调的线程
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new Subscriber<Drawable>() {            @Override
+            public void onCompleted() {
+
+            }            @Override
+            public void onError(Throwable e) {
+                Log.e(TAG, e.toString());
+            }            @Override
+            public void onNext(Drawable drawable) {
+                ivLogo.setImageDrawable(drawable);
+            }
+        });
+~~~
 
 #### 变换
 
@@ -1067,4 +1102,3 @@ Action1 表示一个含有一个回调参数的Action；
 2 flagMap操作符
 
 ####　Retrofit
-
