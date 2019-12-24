@@ -1439,3 +1439,113 @@ promise是异步编程的一种解决方案，比传统的回到和事件更好�
 
 https://blog.csdn.net/Qin_Shuo/article/details/82693919
 
+
+
+### import
+
+**import在编译解析阶段就查找对应的路径，如果写的路径不存在就编译报错，并且没有提示，只是说编译报错**
+
+
+
+### 插槽
+
+#### 1 匿名插槽
+
+例子:
+
+父组件
+
+~~~vue
+<template>
+    <div>
+        <h3>我是一个父组件</h3>
+        <!--显示子组件，在child组件写入一个HTML模板，该模板会替换子组件的slot-->
+        <child>
+            <div>
+                有位非常漂亮的女同事，有天起晚了没有时间化妆便急忙冲到公司。结果那天她被记旷工了……
+            </div>
+        </child>
+    </div>
+</template>
+~~~
+
+子组件
+
+~~~vue
+<template>
+    <div>
+        <h5>我是子组件</h5>
+        <slot></slot>
+    </div>
+</template>
+~~~
+
+渲染结果
+
+~~~vue
+ <div>
+        <h3>我是一个父组件</h3>
+        <div>
+            <h5>我是子组件</h5>
+            <div>
+                有位非常漂亮的女同事，有天起晚了没有时间化妆便急忙冲到公司。结果那天她被记旷工了……
+            </div>
+        </div>
+ </div>
+~~~
+
+#### 2 具名插槽
+
+例子:
+
+父组件
+
+~~~vue
+<template>
+    <div>
+        <h3>我是一个父组件</h3>
+        <!--显示子组件-->
+        <child>
+            <div slot="zhang">老张</div>
+            <div slot="wang">老王</div>
+            <div>老李</div>
+        </child>
+    </div>
+</template>
+~~~
+
+子组件
+
+~~~vue
+<template>
+    <div>
+        <h5>我是子组件</h5>
+        <!--具名插槽-->
+        <slot name="zhang"></slot>
+        <!--具名插槽-->  
+        <slot name="wang"></slot>
+        <!--匿名插槽-->
+        <slot></slot>
+    </div>
+</template>
+~~~
+
+最终渲染的结果
+
+~~~vue
+<div>
+    <h3>我是一个父组件</h3>
+    <!--显示子组件-->
+    <div>
+        <h5>我是子组件</h5>
+        <div>老张</div>
+        <div>老王</div>
+        <div>老李</div>
+    </div>
+</div>
+~~~
+
+#### 3作用域插槽
+
+作用域插槽需要绑定数据
+
