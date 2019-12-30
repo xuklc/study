@@ -468,3 +468,9 @@ let  str=strJoin.join();// str等于"1234,87654"等同于java中的String.join(�
 
 ### findIndex
 
+
+
+### require
+
+**从理解上，require是赋值过程，import是解构过程，当然，require也可以将结果解构赋值给一组变量，但是import在遇到default时，和require则完全不同**
+

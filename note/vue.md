@@ -477,7 +477,9 @@ this.$router.push({path:"/menLink",query:{alert:"页面跳转成功"}})
 
 ### $options
 
+- **类型**：`Object`
 
+用于当前 Vue 实例的初始化选项。需要在选项中包含自定义属性时会有用处
 
 ### 导入组件
 

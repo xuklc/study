@@ -1038,7 +1038,9 @@ https://www.imooc.com/article/68834
 
 #### 基本概念
 
-1 Observable--发出一系列事件，事件的生产者
+ObserverSubscriber
+
+1 Observable--发出一系列事件，事件的生产者  
 
 2 Subscriber--负责处理事件，事件的消费者
 
