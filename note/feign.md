@@ -458,3 +458,181 @@ ribbon.ConnectTimeout=2000
 ~~~
 
 https://www.jianshu.com/p/cd3557b1a474
+
+
+
+### 梳理流程
+
+https://blog.csdn.net/woshilijiuyi/article/details/82959041
+
+1 HystrixCommand.queue()
+
+2 AbstractCommand.toObservable()
+
+~~~java
+final Func0<Observable<R>> applyHystrixSemantics = new Func0<Observable<R>>() {
+            @Override
+            public Observable<R> call() {
+                if (commandState.get().equals(CommandState.UNSUBSCRIBED)) {
+                    return Observable.never();
+                }
+                return applyHystrixSemantics(_cmd);
+            }
+        };
+...
+Observable<R> hystrixObservable =
+                        Observable.defer(applyHystrixSemantics)
+                                .map(wrapWithAllOnNextHooks);
+...
+~~~
+
+3 AbstractCommand.applyHystrixSemantics()
+
+  ~~~java
+if (executionSemaphore.tryAcquire()) {
+                try {
+                    /* used to track userThreadExecutionTime */
+                    executionResult = executionResult.setInvocationStartTime(System.currentTimeMillis());
+                    //
+                    return executeCommandAndObserve(_cmd)
+                            .doOnError(markExceptionThrown)
+                            .doOnTerminate(singleSemaphoreRelease)
+                            .doOnUnsubscribe(singleSemaphoreRelease);
+                } catch (RuntimeException e) {
+                    return Observable.error(e);
+                }
+            } else {
+                return handleSemaphoreRejectionViaFallback();
+            }
+  ~~~
+
+
+
+4  AbstractCommand.executeCommandAndObserve()
+
+~~~java
+if (properties.executionTimeoutEnabled().get()) {
+            execution = executeCommandWithSpecifiedIsolation(_cmd)
+                    .lift(new HystrixObservableTimeoutOperator<R>(_cmd));
+        } else {
+            execution = executeCommandWithSpecifiedIsolation(_cmd);
+        }
+~~~
+
+5 AbstractCommand.executeCommandWithSpecifiedIsolation()
+
+~~~java
+try {
+                            executionHook.onThreadStart(_cmd);
+                            executionHook.onRunStart(_cmd);
+                            executionHook.onExecutionStart(_cmd);
+                            return getUserExecutionObservable(_cmd);
+                        } catch (Throwable ex) {
+                            return Observable.error(ex);
+                        }
+~~~
+
+6 AbstractCommand.getUserExecutionObservable()
+
+~~~java
+try {
+            userObservable = getExecutionObservable();
+        } catch (Throwable ex) {
+            // the run() method is a user provided implementation so can throw instead of using Observable.onError
+            // so we catch it here and turn it into Observable.error
+            userObservable = Observable.error(ex);
+        }
+~~~
+
+7 HystrixCommand.getExecutionObservable()
+
+~~~java
+return Observable.defer(new Func0<Observable<R>>() {
+            @Override
+            public Observable<R> call() {
+                try {
+                    return Observable.just(run());
+                } catch (Throwable ex) {
+                    return Observable.error(ex);
+                }
+            }
+        }).doOnSubscribe(new Action0() {
+            @Override
+            public void call() {
+                // Save thread on which we get subscribed so that we can interrupt it later if needed
+                executionThread.set(Thread.currentThread());
+            }
+        });
+~~~
+
+8 HystrixInvocationHandler.invoke()-->run
+
+```java
+HystrixCommand<Object> hystrixCommand = new HystrixCommand<Object>(setterMethodMap.get(method)) {
+      @Override
+      protected Object run() throws Exception {
+        try {
+          return HystrixInvocationHandler.this.dispatch.get(method).invoke(args);
+        } catch (Exception e) {
+          throw e;
+        } catch (Throwable t) {
+          throw (Error) t;
+        }
+      }
+```
+
+9 SynchronousMethodHandler.invoke()
+
+~~~java
+public Object invoke(Object[] argv) throws Throwable {
+    RequestTemplate template = buildTemplateFromArgs.create(argv);
+    Retryer retryer = this.retryer.clone();
+    while (true) {
+      try {
+        return executeAndDecode(template);
+      } catch (RetryableException e) {
+        retryer.continueOrPropagate(e);
+        if (logLevel != Logger.Level.NONE) {
+          logger.logRetry(metadata.configKey(), logLevel);
+        }
+        continue;
+      }
+    }
+  }
+~~~
+
+10 重试机制
+
+~~~java
+public void continueOrPropagate(RetryableException e) {
+      if (attempt++ >= maxAttempts) {
+        throw e;
+      }
+
+      long interval;
+      if (e.retryAfter() != null) {
+        interval = e.retryAfter().getTime() - currentTimeMillis();
+        if (interval > maxPeriod) {
+          interval = maxPeriod;
+        }
+        if (interval < 0) {
+          return;
+        }
+      } else {
+        interval = nextMaxInterval();
+      }
+      try {
+        Thread.sleep(interval);
+      } catch (InterruptedException ignored) {
+        Thread.currentThread().interrupt();
+        throw e;
+      }
+      sleptForMillis += interval;
+    }
+~~~
+
+
+
+1 报错回调
+
+2 负责均衡
