@@ -1,6 +1,6 @@
 ### feign 服务调用源码流程
 
-每个都一样，不可能一行一行代码的讲解出来的，只能讲出重点，关键点，先列出重点
+学习链接:https://blog.csdn.net/alex_xfboy/article/details/88167400
 
 #### 1 HystrixInvocationHandler
 
@@ -465,6 +465,31 @@ https://www.jianshu.com/p/cd3557b1a474
 
 https://blog.csdn.net/woshilijiuyi/article/details/82959041
 
+
+
+#### 1feign调用
+
+#### feign的拦截器
+
+**feign.RequestInterceptor**
+
+拦截器的实现原理
+
+SynchronousMethodHandler.targetRequest()执行RequestInterceptor拦截器的业务代码
+
+~~~java
+Object executeAndDecode(RequestTemplate template) throws Throwable {
+    Request request = targetRequest(template);
+    ...
+}
+Request targetRequest(RequestTemplate template) {
+    for (RequestInterceptor interceptor : requestInterceptors) {
+      interceptor.apply(template);
+    }
+    return target.apply(new RequestTemplate(template));
+  }
+~~~
+
 1 HystrixCommand.queue()
 
 2 AbstractCommand.toObservable()
@@ -631,8 +656,313 @@ public void continueOrPropagate(RetryableException e) {
     }
 ~~~
 
+#### 2ribbon负载均衡
+
+**RetryTemplate**
+
+1 SynchronousMethodHandler.invoke()
+
+~~~java
+public Object invoke(Object[] argv) throws Throwable {
+    RequestTemplate template = buildTemplateFromArgs.create(argv);
+    Retryer retryer = this.retryer.clone();
+    while (true) {
+      try {
+        return executeAndDecode(template);
+      } catch (RetryableException e) {
+        retryer.continueOrPropagate(e);
+        if (logLevel != Logger.Level.NONE) {
+          logger.logRetry(metadata.configKey(), logLevel);
+        }
+        continue;
+      }
+    }
+  }
+~~~
+
+2 LoadBalancerFeignClient.execute()
+
+~~~java
+URI asUri = URI.create(request.url());
+			String clientName = asUri.getHost();
+			URI uriWithoutHost = cleanUrl(request.url(), clientName);
+			FeignLoadBalancer.RibbonRequest ribbonRequest = new FeignLoadBalancer.RibbonRequest(
+					this.delegate, request, uriWithoutHost);
+
+			IClientConfig requestConfig = getClientConfig(options, clientName);
+			return lbClient(clientName).executeWithLoadBalancer(ribbonRequest,
+					requestConfig).toResponse();
+~~~
+
+2.2 AbstractLoadBalancerAwareClient.executeWithLoadBalancer()
+
+~~~java
+public T executeWithLoadBalancer(final S request, final IClientConfig requestConfig) throws ClientException {
+        LoadBalancerCommand<T> command = buildLoadBalancerCommand(request, requestConfig);
+
+        try {
+            return command.submit(
+                new ServerOperation<T>() {
+                    @Override
+                    public Observable<T> call(Server server) {
+                        URI finalUri = reconstructURIWithServer(server, request.getUri());
+                        S requestForServer = (S) request.replaceUri(finalUri);
+                        try {
+                            return Observable.just(AbstractLoadBalancerAwareClient.this.execute(requestForServer, requestConfig));
+                        } 
+                        catch (Exception e) {
+                            return Observable.error(e);
+                        }
+                    }
+                })
+                .toBlocking()
+                .single();
+        } catch (Exception e) {
+            Throwable t = e.getCause();
+            if (t instanceof ClientException) {
+                throw (ClientException) t;
+            } else {
+                throw new ClientException(e);
+            }
+        }
+        
+    }
+~~~
+
+3 RetryableFeignLoadBalancer.executeWithLoadBalancer()
+
+4 RetryableFeignLoadBalancer.execute()
+
+~~~java
+public RibbonResponse execute(final RibbonRequest request, IClientConfig configOverride){
+    // ribbon的连接超时时间和读取时间生效的代码
+    options = new Request.Options(
+					ribbon.connectTimeout(this.connectTimeout),
+					ribbon.readTimeout(this.readTimeout));
+    // 负载均衡重试策略
+    final LoadBalancedRetryPolicy retryPolicy = loadBalancedRetryFactory.createRetryPolicy(this.getClientName(), this);
+    // 回调策略
+    BackOffPolicy backOffPolicy = loadBalancedRetryFactory.createBackOffPolicy(this.getClientName());
+    
+    return retryTemplate.execute(new RetryCallback<RibbonResponse, IOException>() {
+			@Override
+			public RibbonResponse doWithRetry(RetryContext retryContext) throws IOException {
+				Request feignRequest = null;
+				//on retries the policy will choose the server and set it in the context
+				//extract the server and update the request being made
+				if (retryContext instanceof LoadBalancedRetryContext) {
+					ServiceInstance service = ((LoadBalancedRetryContext) retryContext).getServiceInstance();
+					if (service != null) {
+						feignRequest = ((RibbonRequest) request.replaceUri(reconstructURIWithServer(new Server(service.getHost(), service.getPort()), request.getUri()))).toRequest();
+					}
+				}
+				if (feignRequest == null) {
+					feignRequest = request.toRequest();
+				}
+				Response response = request.client().execute(feignRequest, options);
+				if (retryPolicy.retryableStatusCode(response.status())) {
+					byte[] byteArray = response.body() == null ? new byte[]{} : StreamUtils.copyToByteArray(response.body().asInputStream());
+					response.close();
+					throw new RibbonResponseStatusCodeException(RetryableFeignLoadBalancer.this.clientName, response,
+							byteArray, request.getUri());
+				}
+				return new RibbonResponse(request.getUri(), response);
+			}
+		}, new LoadBalancedRecoveryCallback<RibbonResponse, Response>() {
+			@Override
+			protected RibbonResponse createResponse(Response response, URI uri) {
+				return new RibbonResponse(uri, response);
+			}
+		});
+}
+~~~
 
 
-1 报错回调
 
-2 负责均衡
+
+
+5  feign.Client.execute()
+
+~~~java
+@Override
+    public Response execute(Request request, Options options) throws IOException {
+      HttpURLConnection connection = convertAndSend(request, options);
+      return convertResponse(connection).toBuilder().request(request).build();
+    }
+~~~
+
+6 feign.Client.convertAndSend()
+
+~~~java
+HttpURLConnection convertAndSend(Request request, Options options) throws IOException {
+     final HttpURLConnection
+          connection =
+          (HttpURLConnection) new URL(request.url()).openConnection();
+    ... 
+        connection.setDoOutput(true);
+        OutputStream out = connection.getOutputStream();
+        if (gzipEncodedRequest) {
+          out = new GZIPOutputStream(out);
+        } else if (deflateEncodedRequest) {
+          out = new DeflaterOutputStream(out);
+        }
+        try {
+          out.write(request.body());
+        } finally {
+          try {
+            out.close();
+          } catch (IOException suppressed) { // NOPMD
+          }
+        }
+}
+~~~
+
+
+
+
+
+#### 3 Hystrix回调
+
+
+
+### 注解和配置的解析
+
+~~~java
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@Documented
+@Import(FeignClientsRegistrar.class)
+public @interface EnableFeignClients {
+    
+}
+~~~
+
+
+
+1 FeignClientsRegistrar
+
+**FeignClientsRegistrar类实现了ImportBeanDefinitionRegistrar接口**
+
+```java
+private void registerDefaultConfiguration(AnnotationMetadata metadata,
+			BeanDefinitionRegistry registry) {
+		Map<String, Object> defaultAttrs = metadata
+				.getAnnotationAttributes(EnableFeignClients.class.getName(), true);
+
+		if (defaultAttrs != null && defaultAttrs.containsKey("defaultConfiguration")) {
+			String name;
+			if (metadata.hasEnclosingClass()) {
+				name = "default." + metadata.getEnclosingClassName();
+			}
+			else {
+				name = "default." + metadata.getClassName();
+			}
+			registerClientConfiguration(registry, name,
+					defaultAttrs.get("defaultConfiguration"));
+		}
+	}
+
+public void registerFeignClients(AnnotationMetadata metadata,
+			BeanDefinitionRegistry registry) {
+		ClassPathScanningCandidateComponentProvider scanner = getScanner();
+		scanner.setResourceLoader(this.resourceLoader);
+
+		Set<String> basePackages;
+
+		Map<String, Object> attrs = metadata
+				.getAnnotationAttributes(EnableFeignClients.class.getName());
+		AnnotationTypeFilter annotationTypeFilter = new AnnotationTypeFilter(
+				FeignClient.class);
+		final Class<?>[] clients = attrs == null ? null
+				: (Class<?>[]) attrs.get("clients");
+		if (clients == null || clients.length == 0) {
+			scanner.addIncludeFilter(annotationTypeFilter);
+			basePackages = getBasePackages(metadata);
+		}
+		else {
+			final Set<String> clientClasses = new HashSet<>();
+			basePackages = new HashSet<>();
+			for (Class<?> clazz : clients) {
+				basePackages.add(ClassUtils.getPackageName(clazz));
+				clientClasses.add(clazz.getCanonicalName());
+			}
+			AbstractClassTestingTypeFilter filter = new AbstractClassTestingTypeFilter() {
+				@Override
+				protected boolean match(ClassMetadata metadata) {
+					String cleaned = metadata.getClassName().replaceAll("\\$", ".");
+					return clientClasses.contains(cleaned);
+				}
+			};
+			scanner.addIncludeFilter(
+					new AllTypeFilter(Arrays.asList(filter, annotationTypeFilter)));
+		}
+
+		for (String basePackage : basePackages) {
+			Set<BeanDefinition> candidateComponents = scanner
+					.findCandidateComponents(basePackage);
+			for (BeanDefinition candidateComponent : candidateComponents) {
+				if (candidateComponent instanceof AnnotatedBeanDefinition) {
+					// verify annotated class is an interface
+					AnnotatedBeanDefinition beanDefinition = (AnnotatedBeanDefinition) candidateComponent;
+					AnnotationMetadata annotationMetadata = beanDefinition.getMetadata();
+					Assert.isTrue(annotationMetadata.isInterface(),
+							"@FeignClient can only be specified on an interface");
+
+					Map<String, Object> attributes = annotationMetadata
+							.getAnnotationAttributes(
+									FeignClient.class.getCanonicalName());
+
+					String name = getClientName(attributes);
+					registerClientConfiguration(registry, name,
+							attributes.get("configuration"));
+
+					registerFeignClient(registry, annotationMetadata, attributes);
+				}
+			}
+		}
+	}
+// 
+private void registerFeignClient(BeanDefinitionRegistry registry,
+			AnnotationMetadata annotationMetadata, Map<String, Object> attributes) {
+		String className = annotationMetadata.getClassName();
+		BeanDefinitionBuilder definition = BeanDefinitionBuilder
+				.genericBeanDefinition(FeignClientFactoryBean.class);
+		validate(attributes);
+		definition.addPropertyValue("url", getUrl(attributes));
+		definition.addPropertyValue("path", getPath(attributes));
+		String name = getName(attributes);
+		definition.addPropertyValue("name", name);
+		definition.addPropertyValue("type", className);
+		definition.addPropertyValue("decode404", attributes.get("decode404"));
+		definition.addPropertyValue("fallback", attributes.get("fallback"));
+		definition.addPropertyValue("fallbackFactory", attributes.get("fallbackFactory"));
+		definition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
+
+		String alias = name + "FeignClient";
+		AbstractBeanDefinition beanDefinition = definition.getBeanDefinition();
+
+		boolean primary = (Boolean)attributes.get("primary"); // has a default, won't be null
+
+		beanDefinition.setPrimary(primary);
+
+		String qualifier = getQualifier(attributes);
+		if (StringUtils.hasText(qualifier)) {
+			alias = qualifier;
+		}
+
+		BeanDefinitionHolder holder = new BeanDefinitionHolder(beanDefinition, className,
+				new String[] { alias });
+		BeanDefinitionReaderUtils.registerBeanDefinition(holder, registry);
+	}
+```
+
+2 FeignClientBuilder
+
+
+
+### HystrixFeign
+
+
+
+
+

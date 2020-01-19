@@ -2,6 +2,8 @@
 
 https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
 
+**在js中，函数也可以作为形参**
+
 ### ES6
 
 #### 函数参数
@@ -474,3 +476,145 @@ let  str=strJoin.join();// str等于"1234,87654"等同于java中的String.join(�
 
 **从理解上，require是赋值过程，import是解构过程，当然，require也可以将结果解构赋值给一组变量，但是import在遇到default时，和require则完全不同**
 
+
+
+### splice()
+
+```javascript
+arrayObject.splice(index,howmany,item1,.....,itemX)
+```
+
+| 参数              | 描述                                                         |
+| :---------------- | :----------------------------------------------------------- |
+| index             | 必需。整数，规定添加/删除项目的位置，使用负数可从数组结尾处规定位置。 |
+| howmany           | 必需。要删除的项目数量。如果设置为 0，则不会删除项目。       |
+| item1, ..., itemX | 可选。向数组添加的新项目。                                   |
+
+### event
+
+event对象代表事件的状态，比如事件在其中发生的元素、键盘按键的状态，鼠标的位置， 鼠标按钮的状态
+
+#### 事件流
+
+例如用户单击了一个元素，该元素拥有click事件，那么同样的事件也会被它的祖先触发，这个事件从该元素一直冒泡到DOM树的最上层，这一过程称为冒泡事件
+
+![](js.assets/%E5%86%92%E6%B3%A1.png)
+
+冒泡的属性
+
+![](js.assets/%E5%86%92%E6%B3%A12.png)
+
+#### 捕获
+
+事件捕获和事件冒泡是相反的，当用户触发一个事件的时候，这个事件是从DOM树的最上层开始触发一直到捕获事件源
+
+#### 事件流的写法和实现方式
+
+element.addEventListener(eventType,fn,false)--dom对象.addEventLinstener(事件类型，回调函数和事件机制)，这里的事件类型表示你要使用哪种类型比如click，回调函数里面写触发此事件你要做什么，事件机制分为冒泡和捕获，false--事件冒泡，true--事件捕获
+
+IE写法:
+
+dom对象.attachEvent(eventType,fn)第一个参数表示事件类型，第二个是回调，IE没有事件捕获
+
+event对象属性
+
+| 属性          | 描述                                         |
+| ------------- | -------------------------------------------- |
+| altKey        | 返回当事件被触发时，”ALT” 是否被按下。       |
+| button        | 返回当事件被触发时，哪个鼠标按钮被点击。     |
+| clientX       | 返回当事件被触发时，鼠标指针的水平坐标。     |
+| clientY       | 返回当事件被触发时，鼠标指针的垂直坐标。     |
+| ctrlKey       | 返回当事件被触发时，”CTRL” 键是否被按下。    |
+| metaKey       | 返回当事件被触发时，”meta” 键是否被按下。    |
+| relatedTarget | 返回与事件的目标节点相关的节点。             |
+| screenX       | 返回当某个事件被触发时，鼠标指针的水平坐标。 |
+| screenY       | 返回当某个事件被触发时，鼠标指针的垂直坐标。 |
+| shiftKey      | 返回当事件被触发时，”SHIFT” 键是否被按下。   |
+
+IE对象的属性
+
+| `cancelBubble`  | 如果事件句柄想阻止事件传播到包容对象，必须把该属性设为 true。 |
+| --------------- | ------------------------------------------------------------ |
+| fromElement     | 对于 mouseover 和 mouseout 事件，fromElement 引用移出鼠标的元素。 |
+| keyCode         | 对于 keypress 事件，该属性声明了被敲击的键生成的 Unicode 字符码。对于 keydown 和 keyup |
+| offsetX,offsetY | 发生事件的地点在事件源元素的坐标系统中的 x 坐标和 y 坐标。   |
+| `returnValue`   | 如果设置了该属性，它的值比事件句柄的返回值优先级高。把这个属性设置为 |
+| `srcElement`    | 对于生成事件的 Window 对象、Document 对象或 Element 对象的引用。 |
+| toElement       | 对于 mouseover 和 mouseout 事件，该属性引用移入鼠标的元素。  |
+| x,y             | 事件发生的位置的 x 坐标和 y 坐标，它们相对于用CSS动态定位的最内层包容元素。 |
+
+标准 Event 属性 下面列出了 2 级 DOM 事件标准定义的属性
+
+| **属性和方法**         | **描述**                                           |
+| ---------------------- | -------------------------------------------------- |
+| **bubbles**            | **返回布尔值，指示事件是否是起泡事件类型。**       |
+| **`cancelable`**       | **返回布尔值，指示事件是否可拥可取消的默认动作。** |
+| **`currentTarget`**    | **返回其事件监听器触发该事件的元素。**             |
+| **eventPhase**         | **返回事件传播的当前阶段。**                       |
+| **`target`**           | **返回触发此事件的元素（事件的目标节点）。**       |
+| **timeStamp**          | **返回事件生成的日期和时间。**                     |
+| **`type`**             | **返回当前 Event 对象表示的事件的名称。**          |
+| **initEvent()**        | **初始化新创建的 Event 对象的属性。**              |
+| **`preventDefault()`** | **通知浏览器不要执行与事件关联的默认动作。**       |
+| `stopPropagation()`    | 不再派发事件。                                     |
+
+#### Event对象的一些兼容写法
+
+~~~javascript
+获得event对象兼容性写法 
+event || (event = window.event);
+获得target兼容型写法 
+event.target||event.srcElement
+阻止浏览器默认行为兼容性写法 
+event.preventDefault ? event.preventDefault() : (event.returnValue = false);
+阻止冒泡写法 
+event.stopPropagation ? event.stopPropagation() : (event.cancelBubble = true);
+~~~
+
+事件绑定和取消事件绑定方法的形式
+
+~~~javascript
+//事件绑定
+function on(dom, eventType, fn) {
+    if(dom.addEventListener) {
+        dom.addEventListener(eventType, fn);
+    } else {
+        if(dom.attachEvent) {
+            dom.attachEvent('on' + eventType, fn);
+        }
+}
+//取消事件绑定
+function un(dom, eventType, fn) {
+     if(dom.removeEventListener) {
+         dom.removeEventListener(eventType, fn, false);
+     } else {
+         if(dom.detachEvent) {
+             dom.detachEvent("on" + eventType, fn)
+         }
+     }
+ 
+ }
+~~~
+
+### Promise
+
+在JavaScript的世界中，所有代码都是单线程执行的
+
+JavaScript的所有网络操作，浏览器事件，都必须是异步执行
+
+**在js中，函数也可以作为形参**
+
+promise的状态
+
+1、pending[待定]初始状态
+2、fulfilled[实现]操作成功
+3、rejected[被否决]操作失败
+
+Promise对象的状态改变，只有两种可能：
+从pending变为fulfilled
+从pending变为rejected
+
+#### resovle/reject
+
+resolve作用是，将Promise对象的状态从“未完成”变为“成功”（即从 pending 变为 resolved），在异步操作成功时调用，并将异步操作的结果，作为参数传递出去；
+ reject作用是，将Promise对象的状态从“未完成”变为“失败”（即从 pending 变为 rejected），在异步操作失败时调用，并将异步操作报出的错误，作为参数传递出去
