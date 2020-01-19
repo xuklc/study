@@ -72,7 +72,7 @@ https://blog.csdn.net/mr_javascript/article/details/80888681
 
 ### :的作用
 
-element ui组件:就会把属性当做一个变量或者一个函数来处理
+element ui组件:就会把属性当做一个变量来处理
 
 例子:
 

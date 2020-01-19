@@ -527,11 +527,10 @@ if (executionSemaphore.tryAcquire()) {
                     return Observable.error(e);
                 }
             } else {
+    			// 报错回调这里
                 return handleSemaphoreRejectionViaFallback();
             }
   ~~~
-
-
 
 4  AbstractCommand.executeCommandAndObserve()
 
@@ -817,31 +816,15 @@ HttpURLConnection convertAndSend(Request request, Options options) throws IOExce
 }
 ~~~
 
-
-
-
-
-#### 3 Hystrix回调
-
-
-
 ### 注解和配置的解析
-
-~~~java
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-@Documented
-@Import(FeignClientsRegistrar.class)
-public @interface EnableFeignClients {
-    
-}
-~~~
-
-
 
 1 FeignClientsRegistrar
 
 **FeignClientsRegistrar类实现了ImportBeanDefinitionRegistrar接口**
+
+// 1 扫描EnableFeignClients注解得到basePackages
+
+// 2 通过basePackages扫描FeignClient客户端，并解析类中的url,fallback等信息
 
 ```java
 private void registerDefaultConfiguration(AnnotationMetadata metadata,
@@ -956,11 +939,174 @@ private void registerFeignClient(BeanDefinitionRegistry registry,
 	}
 ```
 
-2 FeignClientBuilder
+2 配置如何起解析起作用
 
+2.1 AbstractApplicationContext.invokeBeanFactoryPostProcessors()
 
+2.2 ConfigurationClassBeanDefinitionReader.loadBeanDefinitionsForConfigurationClass()
+
+~~~java
+private void loadBeanDefinitionsForConfigurationClass(
+			ConfigurationClass configClass, TrackedConditionEvaluator trackedConditionEvaluator) {
+    // 解析继承ImportBeanDefinitionRegistrar接口的配置
+	loadBeanDefinitionsFromRegistrars(configClass.getImportBeanDefinitionRegistrars());   
+}
+
+~~~
+
+2.3 
 
 ### HystrixFeign
+
+
+
+### feign结合ribbon
+
+1 AbstractLoadBalancerAwareClient.executeWithLoadBalancer()
+
+~~~java
+public T executeWithLoadBalancer(final S request, final IClientConfig requestConfig) throws ClientException {
+        LoadBalancerCommand<T> command = buildLoadBalancerCommand(request, requestConfig);
+
+        try {
+            return command.submit(
+                new ServerOperation<T>() {
+                    @Override
+                    public Observable<T> call(Server server) {
+                        URI finalUri = reconstructURIWithServer(server, request.getUri());
+                        S requestForServer = (S) request.replaceUri(finalUri);
+                        try {
+                            return Observable.just(AbstractLoadBalancerAwareClient.this.execute(requestForServer, requestConfig));
+                        } 
+                        catch (Exception e) {
+                            return Observable.error(e);
+                        }
+                    }
+                })
+                .toBlocking()
+                .single();
+        } catch (Exception e) {
+            Throwable t = e.getCause();
+            if (t instanceof ClientException) {
+                throw (ClientException) t;
+            } else {
+                throw new ClientException(e);
+            }
+        }
+        
+    }
+~~~
+
+2 LoadBalancerCommand.submit()
+
+~~~java
+public Observable<T> submit(final ServerOperation<T> operation) {
+    ...
+      Observable<T> o = 
+        // 在这里开始进行客户端的负载均衡selectServer()
+                (server == null ? selectServer() : Observable.just(server))
+                .concatMap(new Func1<Server, Observable<T>>() {
+                    @Override
+                    // Called for each server being selected
+                    public Observable<T> call(Server server) {
+                        context.setServer(server);
+                        final ServerStats stats = loadBalancerContext.getServerStats(server);
+                        
+                        // Called for each attempt and retry
+                        Observable<T> o = Observable
+                                .just(server)
+                                .concatMap(new Func1<Server, Observable<T>>() {
+                                    @Override
+                                    public Observable<T> call(final Server server) {
+                                        context.incAttemptCount();
+                                        loadBalancerContext.noteOpenConnection(stats);
+                                        
+                                        if (listenerInvoker != null) {
+                                            try {
+                                                listenerInvoker.onStartWithServer(context.toExecutionInfo());
+                                            } catch (AbortExecutionException e) {
+                                                return Observable.error(e);
+                                            }
+                                        }
+                                        
+                                        final Stopwatch tracer = loadBalancerContext.getExecuteTracer().start();
+                                        
+                                        return operation.call(server).doOnEach(new Observer<T>() {
+                                            private T entity;
+                                            @Override
+                                            public void onCompleted() {
+                                                recordStats(tracer, stats, entity, null);
+                                                // TODO: What to do if onNext or onError are never called?
+                                            }
+
+                                            @Override
+                                            public void onError(Throwable e) {
+                                                recordStats(tracer, stats, null, e);
+                                                logger.debug("Got error {} when executed on server {}", e, server);
+                                                if (listenerInvoker != null) {
+                                                    listenerInvoker.onExceptionWithServer(e, context.toExecutionInfo());
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onNext(T entity) {
+                                                this.entity = entity;
+                                                if (listenerInvoker != null) {
+                                                    listenerInvoker.onExecutionSuccess(entity, context.toExecutionInfo());
+                                                }
+                                            }                            
+                                            
+                                            private void recordStats(Stopwatch tracer, ServerStats stats, Object entity, Throwable exception) {
+                                                tracer.stop();
+                                                loadBalancerContext.noteRequestCompletion(stats, entity, exception, tracer.getDuration(TimeUnit.MILLISECONDS), retryHandler);
+                                            }
+                                        });
+                                    }
+                                });
+                        
+                        if (maxRetrysSame > 0) 
+                            o = o.retry(retryPolicy(maxRetrysSame, true));
+                        return o;
+                    }
+                });
+    ...
+}
+~~~
+
+
+
+3 LoadBalancerCommand.selectServer()
+
+~~~java
+private Observable<Server> selectServer() {
+        return Observable.create(new OnSubscribe<Server>() {
+            @Override
+            public void call(Subscriber<? super Server> next) {
+                try {
+                    Server server = loadBalancerContext.getServerFromLoadBalancer(loadBalancerURI, loadBalancerKey);   
+                    next.onNext(server);
+                    next.onCompleted();
+                } catch (Exception e) {
+                    next.onError(e);
+                }
+            }
+        });
+    }
+~~~
+
+4 PredicateBasedRule.choose()
+
+~~~java
+public Server choose(Object key) {
+        ILoadBalancer lb = getLoadBalancer();
+        Optional<Server> server = getPredicate().chooseRoundRobinAfterFiltering(lb.getAllServers(), key);
+        if (server.isPresent()) {
+            return server.get();
+        } else {
+            return null;
+        }       
+    }
+~~~
 
 
 

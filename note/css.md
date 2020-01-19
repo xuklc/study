@@ -1,4 +1,4 @@
-*当已经设定了width和height值的时候，padding和border不被包含在你定义的width和height之内，也就是说，你定义的width只负责content区域的宽度，如果想得到整个盒子宽度，需要再加上padding和border的厚度**
+**当已经设定了width和height值的时候，padding和border不被包含在你定义的width和height之内，也就是说，你定义的width只负责content区域的宽度，如果想得到整个盒子宽度，需要再加上padding和border的厚度**
 
 ![](css.assets/%E5%85%83%E7%B4%A0%E8%BE%B9%E6%A1%86.png)
 
