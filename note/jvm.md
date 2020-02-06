@@ -1,6 +1,4 @@
-
-
-
+**classLoader可以作为GCRoot**
 
 ### 内存结构
 
@@ -8,7 +6,7 @@
 
 堆内存细分
 
-![heap细分](D:\resources\study\note\images\heap细分.png)
+![](F:\workspace\idea\study\study\note\jvm.assets\heap细分.png)
 
 新生代和老年代默认是1:2
 
@@ -48,7 +46,7 @@
 
 **多个jvm参数使用空格隔开**
 
-![多个jvm参数](D:\resources\study\note\images\多个jvm参数.png)
+![](F:\workspace\idea\study\study\note\jvm.assets\多个jvm参数.png)
 
 #### 1 标配参数
 
@@ -66,11 +64,11 @@
 
 **-Xss的用法: -Xss128k**
 
-![Xss](D:\resources\study\note\images\Xss.png)
+![](F:\workspace\idea\study\study\note\jvm.assets\Xss.png)
 
 Xss官网解释
 
-#### ![Xss的官网参数](D:\resources\study\note\images\Xss的官网参数.png)
+![](F:\workspace\idea\study\study\note\jvm.assets\Xss的官网参数.png)
 
 ##### -Xmn
 
@@ -114,6 +112,10 @@ jinfo举例,如何查看当前运行程序的配置
 
 **重要命令:jinfo -flags pid**
 
+#### jinfo实时修改jvm参数(java -XX:+PrintFlagsFinal命令打印出来是manageable才能实时修改)
+
+**jinfo -flag name=value pid**
+
 jinfo的使用
 
 公式;jinfo -flag  属性名  pid
@@ -142,25 +144,29 @@ java -XX:+PrintFlagsInitial -- 查看初始默认值，即没有被人为修改�
 
 java -XX:+PrintFlagsFinal  --主要查看修改更新之后的参数
 
-![PrintFlagsFinal](D:\resources\study\note\images\PrintFlagsFinal.png)
+![](F:\workspace\idea\study\study\note\jvm.assets\PrintFlagsFinal.png)
 
 ##### 说明
 
 没有冒号说明是初始值，即没有被人为修改过，有冒号说明被人为修改过
 
-![printFlagFinal说明](D:\resources\study\note\images\printFlagFinal说明.png)
+打印出来的堆内存大小的单位是byte
+
+1 Byte= 8 bit
+
+1 KB=1024Byte
+
+![](F:\workspace\idea\study\study\note\jvm.assets\printFlagFinal说明.png)
 
 ### jvm参数查看第三办法
 
 java -XX:+PrintCommandLineFlags  --- 第三方办法
 
-![PrintCommandLineFlags](D:\resources\study\note\images\PrintCommandLineFlags.png)
-
-
+![](F:\workspace\idea\study\study\note\jvm.assets\PrintCommandLineFlags.png)
 
 ### printGCDetails
 
-![printGCDetails](D:\resources\study\note\images\printGCDetails.png)
+![](F:\workspace\idea\study\study\note\jvm.assets\printGCDetails.png)
 
 #### GC和Full GC
 
@@ -186,9 +192,7 @@ Heap
 
 -XX:survivorRatio=8   ---设置eden区和survivorRatio From survivorRatio to 的比例,默认是8:1:1
 
-![survivorRatio](D:\resources\study\note\images\survivorRatio.png)
-
-
+![](F:\workspace\idea\study\study\note\jvm.assets\survivorRatio.png)
 
 ### -XX:MaxTenuringThreshold
 
@@ -278,7 +282,13 @@ G1是一种服务端垃圾收集器，在实现高吞吐量 的同时，尽可�
 
 **主要改变是Eden、suvivor和Tenured等内存区域不再是连续，而是变成了一个个大小一样的region，每个region从1M到32M不等，一个region可能是Eden、Suvivor或Tenured**
 
+调优官方建议
 
+1 调整Xmn和-XX:NewRatio的比例
+
+2 Pause Time Goals:
+
+3 Taming Mixed Garbage Collections:
 
 ### 对象进入老年代参数
 
@@ -349,3 +359,125 @@ FGC 从应用程序启动到采样时old代(全gc)gc次数
 FGCT 从应用程序启动到采样时old代(全gc)gc所用时间(s)
 
 GCT 从应用程序启动到采样时gc用的总时间(s)
+
+### 设置jvm参数
+
+1 idea、eclipse
+
+2 java -XX:+UseG1GC xxx.jar
+
+**3 tomcat --->bin-->xxx.sh/catalina.sh**
+
+4 jinfo
+
+5 设置环境变量JAVA_OPTS
+
+### jstat
+
+打印加载的类的信息
+
+例如:
+
+~~~shell
+jstat -class pid 1000 10 //1000毫秒总共打印10次
+~~~
+
+打印gc收集的信息
+
+~~~shell
+jstat - gc pid 1000 10 //1000毫秒总共打印10次
+~~~
+
+
+
+### jstack
+
+查看线程的堆栈信息
+
+jstack PID
+
+如果线程出现问题，方便排查那个线程出了什么问题
+
+**分析死锁很有用**
+
+### jmap
+
+查看堆内存的信息
+
+jmap -heap PID
+
+获取dump文件
+
+jmap dump:format=b,file=heap.hprof  PID
+
+自动生成dump文件的参数
+
+-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=heap.hprof
+
+### 运行模式的修改
+
+1 java -Xint  -version
+
+​    解析执行
+
+2 java -Xcomp  -version
+
+   编译模式
+
+3 java -Xmixed -version
+
+   混合模式
+
+### dump文件
+
+jvisualvm可以打开dump文件
+
+### 打印GC回收时间
+
+**GC日志和dump文件不一样，GC日志是gc回收对象的信息**
+
+-XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps
+
+工具
+
+### GC类型
+
+Minor GC:年轻代满了
+
+Major GC触发条件：回收老年代，通常至少经历过一次Minor GC
+
+Full GC:回收整个堆
+
+https://blog.csdn.net/qq_38384440/article/details/81710887
+
+### 调优案例
+
+1 调大堆内存--停顿时间变长，gc次数减少
+
+2 设置GC的最大停顿时间
+
+3 调整堆的使用比例触发堆内存的GC
+
+### G1 VS CMS
+
+1 
+
+ CMS --标记清除算法--产生碎片
+
+ G1-- 标记整理算法--整理空间碎片
+
+2 
+
+ G1 拆分成很多区域--首先收集垃圾比较多的区域
+
+3 
+
+G1要求内存空间是6G以上
+
+4 
+
+RSet
+
+ 5
+
+CSet,存活对象移动到另外分区 CSet  <1%

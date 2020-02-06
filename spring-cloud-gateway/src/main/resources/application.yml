@@ -5,7 +5,7 @@ eureka.client.serviceUrl.defaultZone: http://localhost:8000/eureka/
 
 
 # 网关配置
-spring:
+  spring:
   cloud:
     gateway:
       routes:
