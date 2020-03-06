@@ -158,7 +158,9 @@ async:顾名思义，异步。async函数对 Generator 函数的改进，async �
 - 更广的适用性
 - 返回值是 Promise
 
-await:顾名思义，等待。正常情况下，await命令后面是一个 Promise 对象，返回该对象的结果。如果不是 Promise 对象，就直接返回对应的值。另一种情况是，await命令后面是一个thenable对象（即定义then方法的对象），那么await会将其等同于 Promise 对象
+await:顾名思义，等待。正常情况下，await命令后面是一个 Promise 对象，返回该对象的结果。如果不是 Promise 对象，就直接返回对应的值。另一种情况是，await命令后面是一个thenable对象（即定义then方法的对象），那么await会将其等同于 Promise 对象，即await 命令后的函数需要使用new Promise(function(resole,reject)){
+
+}的方式编写函数,**否则函数返回的是undefined对象**
 
 ##### async/await和 promise混合使用
 
@@ -172,6 +174,54 @@ async function handle(){
     console.log("AAA")
     await sleep(5000)
     console.log("BBB")
+}
+// 例子2 ，注意async 和 await的使用，resole的使用
+wsInfo(){
+return new Promise(async (resolve, reject) => {
+      let qp=[getProfile().__orgCode];
+        let xxxCode = "";
+        let orgData;
+        try{
+            xxxData = await getInfo("xxx", qp);
+        }catch(e){
+            reject(e);
+            return;
+        }
+        if (xxxData != null && xxxData.length > 0) {
+          xxxCode = xxxData[0].attr11;
+        }
+        if (
+          xxxCode == null ||
+          xxxCode === "" ||
+          xxxCode == undefined
+        ) {
+          console.log("xxxCode:", xxxCode);
+          resolve('');
+          return;
+        }
+        let xxP = {
+          xxxCode: xxxCode,
+          dCode: getUser().dCode
+        };
+        entInfo(xxP)
+          .then(enData => {
+            if (enData == null || enData.length <= 0) {
+                resolve("");
+              return "";
+            }
+            console.log("enData", enData);
+            let iData = enData[0].info;
+            if (iData == null || iData == undefined) {
+                   resolve("");
+                return "";
+            } else {
+               resolve(iData.xxxType);
+            }
+          })
+          .catch(e => {
+              reject(e);
+            return "error";
+          });
 }
 ~~~
 
