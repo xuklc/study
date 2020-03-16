@@ -1160,48 +1160,66 @@ delCurrentRow(index,tableData{
 **Vue.js 有一个方法 watch，它可以用来监测Vue实例上的数据变动**
 
 ~~~vue
-<template>
-  <div>
-    <el-input v-model="demo"></el-input>
-    {{value}}
-  </div>
-</template>
-<script>
-  export default {
-    name: 'index',
-    props:{
-      prop1:{
-          type:Boolean,
-          default:function(){
-              return false;
-          }
-      },
-      prop2:{
-          type:Object,
-          default:function(){
-              return null;
-          }
+var vm = new Vue({
+  data: {
+    a: 1,
+    b: 2,
+    c: 3,
+    d: 4,
+    e: {
+      f: {
+        g: 5
       }
-    },
-    data() {
-      return {
-        demo: '',
-        value: ''
-      };
-    },
-    watch: {
-       // 监听data函数李的变量
-      demo(val) {
-        this.value = this.demo;
-      },
-        // 可以监听props里定义的变量
-      prop1:function(){
-          
-      }
-       
     }
-  };
-</script>
+  },
+  watch: {
+    a: function (val, oldVal) {
+      console.log('new: %s, old: %s', val, oldVal)
+    },
+    // 方法名
+    b: 'someMethod',
+    // 该回调会在任何被侦听的对象的 property 改变时被调用，不论其被嵌套多深
+    c: {
+      handler: function (val, oldVal) { /* ... */ },
+      deep: true
+    },
+    // 该回调将会在侦听开始之后被立即调用
+    d: {
+      handler: 'someMethod',
+      immediate: true
+    },
+    e: [
+      'handle1',
+      function handle2 (val, oldVal) { /* ... */ },
+      {
+        handler: function handle3 (val, oldVal) { /* ... */ },
+        /* ... */
+      }
+    ],
+    // watch vm.e.f's value: {g: 5}
+    'e.f': function (val, oldVal) { /* ... */ }
+  }
+})
+vm.a = 2 // => new: 2, old: 1
+~~~
+
+~~~js
+data:{
+     a:1,
+     b:{
+         c:1
+     }
+ },
+ watch:{
+     a(val, oldVal){//普通的watch监听
+         console.log("a: "+val, oldVal);
+     },
+     b:{//深度监听，可监听到对象、数组的变化
+         handler(val, oldVal){
+             console.log("b.c: "+val.c, oldVal.c);
+         },
+         deep:true //true 深度监听
+     }
 ~~~
 
 ### v-model
