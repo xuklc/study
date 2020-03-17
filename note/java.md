@@ -1112,3 +1112,23 @@ Observable.create(new Observable.OnSubscribe<Drawable>() {    @Override
 2 flagMap操作符
 
 ####　Retrofit
+
+
+
+
+
+### CallerSensitive
+
+```rust
+这个注解是为了堵住漏洞用的。曾经有黑客通过构造双重反射来提升权限，
+原理是当时反射只检查固定深度的调用者的类，看它有没有特权，
+例如固定看两层的调用者（getCallerClass(2)）。如果我的类本来没足够
+权限群访问某些信息，那我就可以通过双重反射去达到目的：反射相关
+的类是有很高权限的，而在 我->反射1->反射2 这样的调用链上，反射2
+检查权限时看到的是反射1的类，这就被欺骗了，导致安全漏洞。
+使用CallerSensitive后，getCallerClass不再用固定深度去寻找
+actual caller（“我”），而是把所有跟反射相关的接口方法都标注上
+CallerSensitive，搜索时凡看到该注解都直接跳过，这样就有效解决了
+前面举例的问题
+```
+

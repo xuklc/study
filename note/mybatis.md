@@ -1,4 +1,4 @@
-1 运行流程
+### 1 运行流程
 
 ~~~java
 List<E> list = (List<E>) tcm.getObject(cache, key);
@@ -44,13 +44,36 @@ public Executor newExecutor(Transaction transaction, ExecutorType executorType) 
 
 
 
-
-
-
-
 CacheKey.update()
 
 
 
-2 拦截流程
+### 2 拦截流程
+
+拦截代码实现原理的关键是
+
+1 SqlSessionTemplate.selectList()
+
+~~~java
+@Override
+  public <E> List<E> selectList(String statement) {
+      //当调用这个方法时,会跳转到拦截器执行拦截器的代码
+    return this.sqlSessionProxy.<E> selectList(statement);
+  }
+// 拦截器被执行的原因
+public SqlSessionTemplate(SqlSessionFactory sqlSessionFactory, ExecutorType executorType,
+      PersistenceExceptionTranslator exceptionTranslator) {
+    this.sqlSessionFactory = sqlSessionFactory;
+    this.executorType = executorType;
+    this.exceptionTranslator = exceptionTranslator;
+    // 生成代理对象
+    this.sqlSessionProxy = (SqlSession) newProxyInstance(
+        SqlSessionFactory.class.getClassLoader(),
+        new Class[] { SqlSession.class },
+        new SqlSessionInterceptor());
+  }
+private class SqlSessionInterceptor implements InvocationHandler {}
+~~~
+
+![image-20200317181429226](mybatis.assets/image-20200317181429226.png)
 
