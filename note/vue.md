@@ -1628,3 +1628,135 @@ Vue.js 为 `v-on` 提供了**事件修饰符**。之前提过，修饰符是由�
 <input v-on:keyup.enter="submit">
 ~~~
 
+### $nextTick
+
+- 在Vue生命周期的`created()`钩子函数进行的DOM操作一定要放在`Vue.nextTick()`的回调函数中
+
+在`created()`钩子函数执行的时候DOM 其实并未进行任何渲染，而此时进行DOM操作无异于徒劳，所以此处一定要将DOM操作的js代码放进`Vue.nextTick()`的回调函数中。与之对应的就是`mounted()`钩子函数，因为该钩子函数执行时所有的DOM挂载和渲染都已完成，此时在该钩子函数中进行任何DOM操作都不会有问题 。
+
+- 在数据变化后要执行的某个操作，而这个操作需要使用随数据改变而改变的DOM结构的时候，这个操作都应该放进`Vue.nextTick()`的回调函数中
+
+具体原因在Vue的官方文档中详细解释：
+
+Vue 异步执行 DOM 更新。只要观察到数据变化，Vue 将开启一个队列，并缓冲在同一事件循环中发生的所有数据改变。如果同一个 watcher 被多次触发，只会被推入到队列中一次。这种在缓冲时去除重复数据对于避免不必要的计算和 DOM 操作上非常重要。然后，在下一个的事件循环“tick”中，Vue 刷新队列并执行实际 (已去重的) 工作。Vue 在内部尝试对异步队列使用原生的 `Promise.then` 和`MessageChannel`，如果执行环境不支持，会采用 `setTimeout(fn, 0)`代替。
+
+例子
+
+~~~vue
+<template>
+    <div >
+            <el-tabs v-model="activeTab" type="card" class="outside-tabs">
+                <el-tab-pane :label="item.title" :name="item.name" v-for="item in tabs" :key="item.name" />
+            </el-tabs>
+            <a  :params="tabs[0].params" v-if="activeTab === 'a'" />
+            <b :params="tabs[1].params" v-if="activeTab === 'b'" />
+    </div>
+</template>
+<script>
+import a from "./abc";
+import b from "./cde";
+export default {
+  name: "nextClik",
+  components: {
+      a,
+      b
+  },
+  data() {
+    return {
+      activeTab: "a",
+      tabs : [
+      {
+        title: this.$t("msg.Title1"),
+        name: "a",
+        component: a,
+        closable: false,
+        params:{lovs:{},switch:this.switch.bind(this),change:this.change.bind(this)}
+      },
+      {
+        title: this.$t('msg.Title2'),
+        name: "b",
+        component: b,
+        closable: false,
+        params: {lovs: {},firstpag: this.firstpag.bind(this)}
+      }
+    ],
+    };
+  },
+  methods: {
+    switch(i){
+        this.activeTab = 'a';
+    },
+    firstpag(i){
+        this.activeTab = 'b';
+    },
+    change(i){
+    }
+  },
+  created(){
+    try{
+      const lang=this.$i18n.locale;
+      let compomentName = this.$options.name;
+      let newCompomentName= compomentName+"_"+lang;
+      console.log('newCompomentName',newCompomentName);
+      const locals = require("./next/"+newCompomentName);
+      this.$i18n.mergeLocaleMessage(lang, locals);
+      //重点在这里，$nextTick函数，只有将tabs的初始化放在nextTick，tabs的title属性的this.$t("msg.Title1")才生效
+      this.$nextTick(()=>{
+        this.tabs =
+          [
+          {
+            title: this.$t("msg.Title1"),
+            name: "a",
+            component: a,
+            closable: false,
+            params:{lovs:{},switch:this.switch.bind(this),change:this.change.bind(this)}
+          },
+          {
+            title: this.$t('msg.Title2'),
+            name: "b",
+            component: b,
+            closable: false,
+            params: {lovs: {},firstpag: this.firstpag.bind(this)}
+          }];
+      })
+
+    }catch(e){
+      console.log('----------------------------------------error',e);
+      debugger;
+    }
+  }
+};
+</script>
+<style lang="scss">
+</style>
+
+~~~
+
+### created
+
+在实例创建完成后被立即调用。在这一步，实例已完成以下的配置：**数据观测 (data observer)**，属性和方法的运算，watch/event 事件回调。然而，挂载阶段还没开始，$el 属性目前不可见。---官方贴的
+
+### beforeCreate
+
+在实例初始化之后，数据观测 (data observer) 和 event/watcher 事件配置之前被调用。---官方贴的
+
+
+
+### props
+
+**props里的属性的可以是一个数组**
+
+例子
+
+~~~vue
+...
+props:{
+	prop1:{
+		// 类型可以是Array,Object,Function
+		type:[Array,Object,Function],
+		require:true
+	}
+}
+...
+~~~
+

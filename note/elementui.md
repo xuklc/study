@@ -89,3 +89,29 @@ element ui组件:就会把属性当做一个变量来处理
 ### div/img的宽度自适应
 
 设置width的值是百分比，div的高度作为父级元素，高度由子元素撑开
+
+
+
+### <el-select
+
+在element-ui中，需求可输入下拉。
+
+设置filterable为true，设置为可搜索，但是当鼠标离开的时候输入框会被置空。
+
+因为没有找到匹配项。可通过blur事件重设当前值
+
+~~~vue
+<el-select v-model="value" filterable placeholder="请选择" @blur="selectBlur"></el-select>
+
+data() {
+	return {
+		value: ''
+	}
+},
+methods: {
+	searchBlur(e) {
+		this.value = e.target.value
+	}
+}
+~~~
+
