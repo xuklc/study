@@ -6,6 +6,10 @@ https://www.mysql.com/cn/why-mysql/performance/
 
 https://dev.mysql.com/doc/refman/8.0/en/server-system-variable-reference.html
 
+// 红黑树
+
+https://blog.csdn.net/v_july_v/article/details/6105630
+
 ### 注意
 
 **SQLyog这个工具，一个连接就只是一个事务，这点PLSQL Developer不一样，PLSQL Developer是新开一个SQL窗口就是一个新的事务，但是SQLyog在一个连接之内，多少个SQL执行窗口都是同一个事务**
