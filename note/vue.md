@@ -1855,3 +1855,15 @@ export default {
 }
 </script>
 ~~~
+
+3 如果是数组，第二个参数是下标
+
+例子
+
+~~~vue
+arrayData.forEach((arrayRow,index)=>{
+	arrayRow.num = 5;
+	this.$set(this.arrayData,index,arrayRow);
+})
+~~~
+
