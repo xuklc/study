@@ -738,6 +738,16 @@ function un(dom, eventType, fn) {
  }
 ~~~
 
+### async/await
+
+async表示函数异步，定义的函数会返回一个promise对象，可以使用then方法添加回调函数
+
+await: 是等待的意思，那么它在等待什么呢，它后面跟着什么呢？其实它后面可以放任何表达式，不过我们更多放的是一个promise对象的表达式。注意await关键字，只能放在async函数里面,不能单独使用。
+
+**await 修饰调用的函数会返回一个promise对象，它最主要的意图是用来等待 Promise 对象的状态被 resolved**
+
+
+
 ### Promise
 
 在JavaScript的世界中，所有代码都是单线程执行的
@@ -760,3 +770,44 @@ Promise对象的状态改变，只有两种可能：
 
 resolve作用是，将Promise对象的状态从“未完成”变为“成功”（即从 pending 变为 resolved），在异步操作成功时调用，并将异步操作的结果，作为参数传递出去；
  reject作用是，将Promise对象的状态从“未完成”变为“失败”（即从 pending 变为 rejected），在异步操作失败时调用，并将异步操作报出的错误，作为参数传递出去
+
+### 数组的复制
+
+当我们在需要复制数组的时候一定需要注意，**数组是复合的数据类型，直接复制的话，只是复制了指向底层数据结构的指针，而不是克隆一个全新的数组。**我们来看例子
+
+~~~js
+var arr1 = [1, 2, 3]
+var arr2 = arr1
+arr1[0] = 5
+
+console.log(arr2) // [5, 2, 3]
+~~~
+
+上面代码中，`arr2` 并不是 `arr1` 的克隆，而是指向同一份数据的另一个指针。修改 `arr2`，会直接导致 `arr1` 的变化。
+
+那么如果正确的复制数组呢？可以使用 [concat()](http://www.w3school.com.cn/jsref/jsref_concat_array.asp) 用于连接两个或多个数组。该方法不会改变现有的数组，而仅仅会返回被连接数组的一个**副本**。看例子：
+
+~~~javas
+var arr1 = [1, 2, 3]
+var arr2 = arr1.concat()
+arr1[0] = 5
+
+console.log(arr2) // [1, 2, 3]
+~~~
+
+因为 `concat()` 返回的是一个副本，所以这个时候改变 `arr1` 就不会导致 `arr2` 改变了。
+
+**还可以利用 ES6 中的扩展运算符来复制数组**
+
+~~~javascript
+var  arr1 = [1, 2];
+// 写法一
+var  arr2 = [...arr1];
+// 写法二
+var [...arr2] = arr1;
+~~~
+
+### ECMAScript 6
+
+https://es6.ruanyifeng.com/#docs/intro
+

@@ -1,5 +1,6 @@
 package com.neo.controller;
 
+import com.neo.design.proxy.aop.Person;
 import com.neo.feign.FeignInterface2;
 import com.netflix.discovery.converters.Auto;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class HelloController {
     @Autowired
     private FeignInterface2 feignInterface2;
+    @Autowired
+    private Person person;
     @GetMapping("/hello")
     public String index(@RequestParam String name) {
+        person.say();
         return "hello " + name + "，this is two messge";
     }
 

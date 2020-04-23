@@ -24,7 +24,7 @@ public class HelloController {
 
     @Autowired
     FeignInterface feignInterface;
-    @RequestMapping("/hello")
+    @GetMapping("/hello")
     public String index(@RequestParam String name) {
 //        ThreadPoolExecutor executor = new ThreadPoolExecutor(1,2,0, TimeUnit.MILLISECONDS,new LinkedBlockingQueue<>(1));
 //        executor.execute(()->{
