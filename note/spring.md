@@ -809,7 +809,38 @@ protected Object getSingleton(String beanName, boolean allowEarlyReference) {
 
 
 
-
-
 ### DisposableBean
 
+
+
+### AOP
+
+
+
+### @Transactional 
+
+注解只能应用到 public 可见度的方法上。 如果应用在protected、private或者 package可见度的方法上，也不会报错，不过事务设置不会起作用
+
+1 如果Transactional注解应用在非public 修饰的方法上，Transactional将会失效
+
+之所以会失效是因为在Spring AOP 代理时，如上图所示 TransactionInterceptor （事务拦截器）在目标方法执行前后进行拦截，DynamicAdvisedInterceptor（CglibAopProxy 的内部类）的 intercept 方法或 JdkDynamicAopProxy 的 invoke 方法会间接调用 AbstractFallbackTransactionAttributeSource的 computeTransactionAttribute 方法，获取Transactional 注解的事务配置信息。
+
+protected TransactionAttribute computeTransactionAttribute(Method method, Class<?> targetClass) { // Don't allow no-public methods as required. if (allowPublicMethodsOnly() && !Modifier.isPublic(method.getModifiers())) { return null;}此方法会检查目标方法的修饰符是否为 public，不是 public则不会获取@Transactional 的属性配置信息
+
+2、@Transactional 注解属性 propagation 设置错误
+
+
+
+3、@Transactional 注解属性 rollbackFor 设置错误
+
+rollbackFor 可以指定能够触发事务回滚的异常类型。Spring默认抛出了未检查unchecked异常（继承自 RuntimeException 的异常）或者 Error才回滚事务；其他异常不会触发回滚事务。如果在事务中抛出其他类型的异常，但却期望 Spring 能够回滚事务，就需要指定 **rollbackFor**属性
+
+![img](spring.assets/ac6eddc451da81cb350c30a2b704b2100824315b.jpeg)
+
+4 
+
+注意:
+
+开发中避免不了会对同一个类里面的方法调用，比如有一个类Test，它的一个方法A，A再调用本类的方法B（不论方法B是用public还是private修饰），但方法A没有声明注解事务，而B方法有。则外部调用方法A之后，方法B的事务是不会起作用的。这也是经常犯错误的一个地方
+
+5 异常被你的 catch“吃了”导致@Transactional失效
