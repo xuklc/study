@@ -813,9 +813,17 @@ protected Object getSingleton(String beanName, boolean allowEarlyReference) {
 
 
 
+### InitializingBean
+
+
+
 ### AOP
 
+#### 事务托管
 
+
+
+https://my.oschina.net/wuzb/blog/861397
 
 ### @Transactional 
 
@@ -837,7 +845,74 @@ rollbackFor 可以指定能够触发事务回滚的异常类型。Spring默认�
 
 ![img](spring.assets/ac6eddc451da81cb350c30a2b704b2100824315b.jpeg)
 
-4 
+spring默认只有RuntimeException或error才会触发回滚的原因
+
+~~~java
+//TransactionAspectSupport.invokeWithinTransaction
+@Nullable
+	protected Object invokeWithinTransaction(Method method, @Nullable Class<?> targetClass,
+			final InvocationCallback invocation) throws Throwable {
+
+		// If the transaction attribute is null, the method is non-transactional.
+		TransactionAttributeSource tas = getTransactionAttributeSource();
+		final TransactionAttribute txAttr = (tas != null ? tas.getTransactionAttribute(method, targetClass) : null);
+		final PlatformTransactionManager tm = determineTransactionManager(txAttr);
+		final String joinpointIdentification = methodIdentification(method, targetClass, txAttr);
+
+		if (txAttr == null || !(tm instanceof CallbackPreferringPlatformTransactionManager)) {
+			// Standard transaction demarcation with getTransaction and commit/rollback calls.
+			TransactionInfo txInfo = createTransactionIfNecessary(tm, txAttr, joinpointIdentification);
+			Object retVal = null;
+			try {
+				// This is an around advice: Invoke the next interceptor in the chain.
+				// This will normally result in a target object being invoked.
+				retVal = invocation.proceedWithInvocation();
+			}
+			catch (Throwable ex) {
+				// target invocation exception
+                // 原因在这里
+				completeTransactionAfterThrowing(txInfo, ex);
+				throw ex;
+			}
+            ....
+        }
+        
+        protected void completeTransactionAfterThrowing(@Nullable TransactionInfo txInfo, Throwable ex) {
+		if (txInfo != null && txInfo.getTransactionStatus() != null) {
+			if (logger.isTraceEnabled()) {
+				logger.trace("Completing transaction for [" + txInfo.getJoinpointIdentification() +
+						"] after exception: " + ex);
+			}
+			if (txInfo.transactionAttribute != null && 
+                // 原因在这里
+                txInfo.transactionAttribute.rollbackOn(ex)) {
+				try {
+					txInfo.getTransactionManager().rollback(txInfo.getTransactionStatus());
+				}
+				catch (TransactionSystemException ex2) {
+					logger.error("Application exception overridden by rollback exception", ex);
+					ex2.initApplicationException(ex);
+					throw ex2;
+				}
+				catch (RuntimeException | Error ex2) {
+					logger.error("Application exception overridden by rollback exception", ex);
+					throw ex2;
+				}
+			}
+            ....
+        }
+          
+// DefaultTransactionAttribute.rollbackOn
+            @Override
+	public boolean rollbackOn(Throwable ex) {
+        // 只有RuntimeException 或error才会返回true
+		return (ex instanceof RuntimeException || ex instanceof Error);
+	}
+~~~
+
+
+
+4 同一个类中方法调用，导致@Transactional失效
 
 注意:
 

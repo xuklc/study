@@ -115,3 +115,22 @@ methods: {
 }
 ~~~
 
+### <el-table
+
+锁定列的实现
+
+~~~xml
+<!-- 在el-table-column增加fixed即可锁定列  -->
+<el-table-column
+                        fixed
+                        prop="collumn1"
+                        :label="collumn1"
+                        width="200"
+                        header-align="left"
+                        align="left"
+                        >
+                    </el-table-column>
+~~~
+
+
+

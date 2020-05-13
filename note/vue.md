@@ -1906,3 +1906,44 @@ arrayData.forEach((arrayRow,index)=>{
 
 ### store
 
+
+
+### computed
+
+
+
+### el-table
+
+行点击切换选中效果实现
+
+~~~vue
+<-- html 里面是: -->
+ <el-table
+   :data="tableData"
+    border
+    height="315"
+    style="width: 100%"
+    highlight-current-row
+    @current-change="handleCurrentChange"//这个只会触发一次, 所以弃用
+    @selection-change="handleSelectionChange"
+    @row-click = "btn"//点击当前行就会触发
+    ref="eltableCurrentRow"//必须有ref 这个实例,才能去掉用toggleRowSelection 这个方法
+  >
+</el-table>
+ //data 里面去定义一个flag:false;
+
+method 的里面去写:
+ btn(row,col,event){
+      this.flag = !this.flag;  
+      this.$refs.eltableCurrentRow.toggleRowSelection(row,this.flag);      
+  }
+btn(row,col,event){
+ //把这个flag 变成当前的行的私有物,这样一来,每次变化的时候, 变化的都是你当前行的布尔值, 
+      row.flag = !row.flag;  
+    
+      this.$refs.eltableCurrentRow.toggleRowSelection(row,row.flag);      
+    // 或者简单的写也可以
+    this.$refs.eltableCurrentRow.toggleRowSelection(row);      
+    },
+~~~
+

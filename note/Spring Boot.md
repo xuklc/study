@@ -665,6 +665,8 @@ person.dog.age=15
 
 ## 5、Profile
 
+**在日常的开发工作中，我们经常需要将程序部署到不同的环境，比如Dev开发环境，QA测试环境，Prod生产环境，这些环境下的一些配置肯定是不一样的，比如数据库配置，Redis配置，RabbitMQ配置**
+
 ### 1、多Profile文件
 
 我们在主配置文件编写的时候，文件名可以是   application-{profile}.properties/yml
@@ -820,7 +822,7 @@ java -jar spring-boot-02-config-02-0.0.1-SNAPSHOT.jar --server.port=8087  --serv
 
     ```
 
-    ​
+    
 
 **==将 类路径下  META-INF/spring.factories 里面配置的所有EnableAutoConfiguration的值加入到了容器中；==**
 
@@ -1329,7 +1331,7 @@ logback.xml：直接就被日志框架识别了；
 
 
 
-如果使用logback.xml作为日志配置文件，还要使用profile功能，会有以下错误
+**如果使用logback.xml作为日志配置文件，还要使用profile功能，会有以下错误**
 
  `no applicable action for [springProfile]`
 
@@ -1718,7 +1720,7 @@ Spring Boot 自动配置好了SpringMVC
 
 - Custom `Favicon` support (see below).  favicon.ico
 
-  ​
+  
 
 - 自动注册了 of `Converter`, `GenericConverter`, `Formatter` beans.
 
@@ -1743,7 +1745,7 @@ Spring Boot 自动配置好了SpringMVC
 
     ==自己给容器中添加HttpMessageConverter，只需要将自己的组件注册容器中（@Bean,@Component）==
 
-    ​
+    
 
 - Automatic registration of `MessageCodesResolver` (see below).定义错误代码生成规则
 
