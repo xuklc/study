@@ -120,7 +120,8 @@ methods: {
 锁定列的实现
 
 ~~~xml
-<!-- 在el-table-column增加fixed即可锁定列  -->
+<!-- 在el-table-column增加fixed即可锁定列,同时设置height为100%  -->
+<el-table height="100%" >
 <el-table-column
                         fixed
                         prop="collumn1"

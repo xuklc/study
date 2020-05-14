@@ -1773,6 +1773,19 @@ export default {
 
 ### props
 
+**props传参不是立马传参，而是一个任务队列传参，如果需要在传参之后就做下一步的操作，解决办法是setTimeout和$nextTick**
+
+例子
+
+~~~vue
+this.id = 2;
+this.$nextTick(()=>{
+	// do something
+});
+~~~
+
+
+
 **props里的属性的可以是一个数组**
 
 例子
@@ -1914,7 +1927,7 @@ arrayData.forEach((arrayRow,index)=>{
 
 ### el-table
 
-行点击切换选中效果实现
+1 行点击切换选中效果实现
 
 ~~~vue
 <-- html 里面是: -->
@@ -1946,4 +1959,6 @@ btn(row,col,event){
     this.$refs.eltableCurrentRow.toggleRowSelection(row);      
     },
 ~~~
+
+2 实现锁定列的效果
 
