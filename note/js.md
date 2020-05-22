@@ -811,3 +811,21 @@ var [...arr2] = arr1;
 
 https://es6.ruanyifeng.com/#docs/intro
 
+### ! vs !!!
+
+常常用来做类型判断，在第一步!（变量）之后再做逻辑取反运算，在js中新手常常会写这样臃肿的代码：
+判断变量a为非空，未定义或者非空串才能执行方法体的内容
+
+例子
+
+~~~javascript
+var a;
+if(a!=null&&typeof(a)!=undefined&&a!=''){
+    //a有内容才执行的代码  
+}
+// 两者等价
+if(!!a){
+    //a有内容才执行的代码...  
+}
+~~~
+

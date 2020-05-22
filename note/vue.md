@@ -1962,3 +1962,59 @@ btn(row,col,event){
 
 2 实现锁定列的效果
 
+
+
+### watch
+
+#### immediate
+
+**immediate和handler**这样使用watch时有一个特点，就是**当值第一次绑定的时候**，**不会执行监听函数**，只有值发生改变才会执行。如果我们需要在最初绑定值的时候也执行函数，则就需要用到immediate属性
+
+#### handler
+
+普通的watch方法无法监听到对象内部属性的改变，只有data中的数据才能够监听到变化，此时就需要deep属性对对象进行深度监听
+
+例子1 
+
+~~~vue
+props:{
+	list:{
+		type:Array,
+		default:funciton(){
+			return [];
+		}
+	},
+	flag:{
+		type:Boolean,
+		default:function(){
+			return false;
+		}
+	}	
+},
+watch:{
+	// 对象属性
+	list:{
+		handler:function(val){
+			// do something
+		},
+		// 深度监听
+		deep:true
+	},
+	flag:function(val){
+		// val是flag新的值
+		if(val){
+			// dosomething
+		}
+	}
+	// 增加immediate的写法
+	flag:{
+		handler:function(val){
+			if(val){
+				
+			}
+		},
+		immediate:true
+	}
+}
+~~~
+

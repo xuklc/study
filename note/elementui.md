@@ -117,7 +117,7 @@ methods: {
 
 ### <el-table
 
-锁定列的实现
+1 锁定列的实现
 
 ~~~xml
 <!-- 在el-table-column增加fixed即可锁定列,同时设置height为100%  -->
@@ -133,5 +133,12 @@ methods: {
                     </el-table-column>
 ~~~
 
+2 滚动条的出现
 
+**滚动条的出现需要设置高度,注意高度的设置方式**
+
+~~~vue
+<!-- 注意:style="height:100%" 和heght="100%"效果是不一样的-->
+<el-table border :data="list" style="width: 100%"  height="100%">
+~~~
 
