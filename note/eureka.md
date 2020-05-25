@@ -197,7 +197,9 @@ public int getRegistryFetchIntervalSeconds() {
 
 
 
+### 配置
 
+EurekaClientAutoConfiguration
 
 
 
