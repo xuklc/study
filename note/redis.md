@@ -678,6 +678,8 @@ https://mp.weixin.qq.com/s/fRtxp-ivEqWfa3kN0EZ3MQ
 
 https://www.cnblogs.com/wdliu/p/9407179.html
 
+https://www.jianshu.com/p/532149db7650
+
 1 redis使用异步复制
 
 2 master和slave是一对多的关系
@@ -714,3 +716,24 @@ https://www.cnblogs.com/wdliu/p/9407179.html
 
 http://blog.itpub.net/15498/viewspace-2644200/
 
+###  集群模式
+
+#### 1 一主多从
+
+​	过程
+
+​		1 每个master都有一个replication ID和offset
+
+​		 2 当slave连接到master,先是向主服务器发送ping 命令，主服务器回应pong
+
+​			使用psync命令发送上一次同步的replication ID和offset，当切换master的时候，replication ID不一致，从开始全量同步，否则根据偏移量进行同步
+
+​		全量同步
+
+​		
+
+#### 2 sentinel模式
+
+
+
+#### 3 cluster模式
