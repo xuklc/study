@@ -720,6 +720,10 @@ http://blog.itpub.net/15498/viewspace-2644200/
 
 #### 1 一主多从
 
+问题点
+
+修改怎么办
+
 ​	过程
 
 ​		1 每个master都有一个replication ID和offset
@@ -730,7 +734,17 @@ http://blog.itpub.net/15498/viewspace-2644200/
 
 ​		全量同步
 
-​		
+​		master开启一个后台进程生成RDB文件，在保存完成后master会将数据集文件传给slave,slave接收并保存在硬盘上，slave再从硬盘中加载到内存，在保存RDB文件同时mater会将新接收到的写入命令缓存起来，在发送完RDB文件之后发送缓存起来的写入命令，同时master会将本次的偏移量发送给slave,slave将本次同步的偏移量记录下来，下次同步是发送偏移量给master，master通过比较当前的偏移量和slave的偏移量的差值进行增量同步
+
+
+
+在服务器正在做一些工作的同时连接到 Redis 端口并发出 [SYNC](https://redis.io/commands/sync) 命令。你将会看到一个批量传输，并且之后每一个 master 接收到的命令都将在 telnet 回话中被重新发出。事实上 SYNC 是一个旧协议，在新的 Redis 实例中已经不再被使用，但是其仍然向后兼容：但它不允许部分重同步，所以现在 **PSYNC** 被用来替代 SYNC
+
+**全量同步过程也可以没有磁盘的参与，即slave不保存文件到硬盘，直接加载到内存**
+
+​		增量同步
+
+全量同步完成后，master默认10秒(通过repl-ping-slave-period修改默认值)想salve发送PING命令判断slave命令是否在线，slave默认是1秒向master发送REPLCONF ACK(REPLCONF ACK {offset})上一次的同步的偏移量和replication ID
 
 #### 2 sentinel模式
 
