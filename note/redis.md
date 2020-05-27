@@ -746,6 +746,20 @@ http://blog.itpub.net/15498/viewspace-2644200/
 
 全量同步完成后，master默认10秒(通过repl-ping-slave-period修改默认值)想salve发送PING命令判断slave命令是否在线，slave默认是1秒向master发送REPLCONF ACK(REPLCONF ACK {offset})上一次的同步的偏移量和replication ID
 
+**从2.6版本开始，slave支持只读模式且默认开启，在redis.conf文件修改slave-read-only配置来设置是否只是只读，只读模式下拒绝所有写入命令**
+
+####  redis没有开启持久化的危险性
+
+1 设置节点A为master,节点B、C为slave,节点A关闭持久化
+
+2 节点A崩溃，然后自动重启，因为没有持久化，节点A的数据被清空
+
+3 节点B和节点C从节点Amaster(sentinel模式下节点A下线后，会被切换为slave)复制数据，节点A发送一个空数据集，节点B、C同样被清空
+
+#### 主从复制过期key的处理
+
+Redis处理key过期有惰性删除和定期删除两种机制，而在配置主从复制后，slave服务器就没有权限处理过期的`key`，这样的话，对于在master上过期的key，在slave服务器就可能被读取，所以master会累积过期的key，积累一定的量之后，发送del命令到slave，删除slave上的key
+
 #### 2 sentinel模式
 
 

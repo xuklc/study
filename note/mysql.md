@@ -303,7 +303,7 @@ set global profiling = 1;
 show profiles;
 ```
 
-####使用案例
+#### 使用案例
 
 ![show_profiles](D:\resources\study\note\images\show_profiles.png)
 
@@ -718,3 +718,54 @@ t1表更新前
 
 ![串行化](F:\workspace\idea\study\study\note\images\串行化.png)
 
+### SQL提示
+
+常用的SQL提示(SQL HiNT)
+
+USE INDEX:使用USE INDEX是希望MySQL去参考索引列表，就可以让MySQL不需要考虑其他可用索引，其实也就是possible_keys属性下参考的索引值
+
+~~~sql
+select* from user_info use index(id_index,ind_name_id) where user_id>0;
+~~~
+
+FORCE INDEX:强制索引，比如where user_id > 0，但是user_id在表中都是大于0的，自然就会进行ALL全表搜索，但是使用FORCE INDEX虽然执行效率不是最高（where user_id > 0条件决定的）但MySQL还是使用索引。
+
+~~~sql
+mysql> explain select* from user_info where user_id>0;
++----+-------------+-----------+------------+------+----------------------+------+---------+------+------+----------+-------------+
+| id | select_type | table     | partitions | type | possible_keys        | key  | key_len | ref  | rows | filtered | Extra       |
++----+-------------+-----------+------------+------+----------------------+------+---------+------+------+----------+-------------+
+|  1 | SIMPLE      | user_info | NULL       | ALL  | ind_name_id,id_index | NULL | NULL    | NULL |    4 |      100 | Using where |
++----+-------------+-----------+------------+------+----------------------+------+---------+------+------+----------+-------------+
+1 row in set
+~~~
+
+之后强制使用独立索引id_index(user_id)：
+
+~~~sql
+mysql> explain select* from user_info force index(id_index) where user_id>0;
++----+-------------+-----------+------------+-------+---------------+----------+---------+------+------+----------+-----------------------+
+| id | select_type | table     | partitions | type  | possible_keys | key      | key_len | ref  | rows | filtered | Extra                 |
++----+-------------+-----------+------------+-------+---------------+----------+---------+------+------+----------+-----------------------+
+|  1 | SIMPLE      | user_info | NULL       | range | id_index      | id_index | 4       | NULL |    4 |      100 | Using index condition |
++----+-------------+-----------+------------+-------+---------------+----------+---------+------+------+----------+-----------------------+
+1 row in set
+~~~
+
+### group by 
+
+MySQL中的GROUP BY语句会对其后出现的字段进行默认排序,**使用ORDER BY NULL禁止排序**
+
+### 大批量插入数据优化
+
+（1）对于MyISAM存储引擎的表，可以使用：DISABLE KEYS 和 ENABLE KEYS 用来打开或者关闭 MyISAM 表非唯一索引的更新。
+
+~~~sql
+ALTER TABLE tbl_name DISABLE KEYS;
+loading the data
+ALTER TABLE tbl_name ENABLE KEYS;
+~~~
+
+② 导入数据前执行SET UNIQUE_CHECKS=0，关闭唯一性校验，带导入之后再打开设置为1：校验会消耗时间，在数据量大的情况下需要考虑。
+
+③ 导入前设置SET AUTOCOMMIT=0，关闭自动提交，导入后结束再设置为1：这是因为自动提交会消耗部分时间与资源，虽然消耗不是很大，但是在数据量大的情况下还是得考虑
