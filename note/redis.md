@@ -740,7 +740,9 @@ http://blog.itpub.net/15498/viewspace-2644200/
 
 在服务器正在做一些工作的同时连接到 Redis 端口并发出 [SYNC](https://redis.io/commands/sync) 命令。你将会看到一个批量传输，并且之后每一个 master 接收到的命令都将在 telnet 回话中被重新发出。事实上 SYNC 是一个旧协议，在新的 Redis 实例中已经不再被使用，但是其仍然向后兼容：但它不允许部分重同步，所以现在 **PSYNC** 被用来替代 SYNC
 
-**全量同步过程也可以没有磁盘的参与，即slave不保存文件到硬盘，直接加载到内存**
+**全量同步过程也可以没有磁盘的参与，即slave不保存文件到硬盘，直接加载到内存,在redis.conf配置文件中的repl-diskless-sync参数设置是否把接收到的RDB文件保存到硬盘**
+
+**repl-diskless-sync-delay 参数可以延迟启动数据传输，目的可以在第一个 slave就绪后，等待更多的 slave就绪**
 
 ​		增量同步
 
@@ -748,7 +750,7 @@ http://blog.itpub.net/15498/viewspace-2644200/
 
 **从2.6版本开始，slave支持只读模式且默认开启，在redis.conf文件修改slave-read-only配置来设置是否只是只读，只读模式下拒绝所有写入命令**
 
-####  redis没有开启持久化的危险性
+##### redis没有开启持久化的危险性
 
 1 设置节点A为master,节点B、C为slave,节点A关闭持久化
 
@@ -756,12 +758,113 @@ http://blog.itpub.net/15498/viewspace-2644200/
 
 3 节点B和节点C从节点Amaster(sentinel模式下节点A下线后，会被切换为slave)复制数据，节点A发送一个空数据集，节点B、C同样被清空
 
-#### 主从复制过期key的处理
+##### 主从复制过期key的处理
 
 Redis处理key过期有惰性删除和定期删除两种机制，而在配置主从复制后，slave服务器就没有权限处理过期的`key`，这样的话，对于在master上过期的key，在slave服务器就可能被读取，所以master会累积过期的key，积累一定的量之后，发送del命令到slave，删除slave上的key
 
+##### 复制积压缓冲区
+
+**.replication backlog buffer（复制积压缓冲区）：**
+
+　　复制积压缓冲区是一个固定长度的FIFO队列，大小由配置参数repl-backlog-size指定，默认大小1MB。需要注意的是该缓冲区由master维护并且有且只有一个，所有slave共享此缓冲区，其作用在于备份最近主库发送给从库的数据。
+
+　　在主从命令传播阶段，主节点除了将写命令发送给从节点外，还会发送一份到复制积压缓冲区，作为写命令的备份。除了存储最近的写命令，复制积压缓冲区中还存储了每个字节相应的复制偏移量（如下图），由于复制积压缓冲区固定大小先进先出的队列，所以它总是保存的是最近redis执行的命令
+
 #### 2 sentinel模式
 
+#### 运行Sentinel
 
+运行sentinel有两种方式：
+
+- 第一种
+
+  ```
+  redis-sentinel /path/to/sentinel.conf
+  ```
+
+- 第二种
+
+  ```
+  redis-server /path/to/sentinel.conf --sentinel
+  ```
+
+  以上两种方式，都必须指定一个sentinel的配置文件sentinel.conf，如果不指定，将无法启动sentinel。sentinel默认监听26379端口，所以运行前必须确定该端口没有被别的进程占用
+
+#### 2.1 sentinel3个定时任务
+
+1 每10秒每个sentinel节点对master节点和slave节点执行info操作
+
+![img](redis.assets/285763-20200327102019867-1171306256.png)
+
+2  每2秒每个sentinel节点通过master节点的channel（**sentinel**:hello）交换信息
+
+![img](redis.assets/285763-20200327102227517-610385403.png)
+
+3 每1秒每个sentintel节点对master节点和slave节点以及其余的sentinel节点执行ping操作
+
+![img](redis.assets/285763-20200327102255937-1676014308.png)
+
+#### 2.2 故障转移
+
+一次故障转移操作由以下步骤组成：
+
+- 发现主服务器已经进入客观下线状态。
+- 对我们的当前纪元进行自增（详情请参考 Raft leader election ）， 并尝试在这个纪元中当选。
+- 如果当选失败， 那么在设定的故障迁移超时时间的两倍之后， 重新尝试当选。 如果当选成功， 那么执行以下步骤。
+- 选出一个从服务器，并将它升级为主服务器。
+- 向被选中的从服务器发送 `SLAVEOF NO ONE` 命令，让它转变为主服务器。
+- 通过发布与订阅功能， 将更新后的配置传播给所有其他 Sentinel ， 其他 Sentinel 对它们自己的配置进行更新。
+- 向已下线主服务器的从服务器发送 [SLAVEOF](http://www.redis.cn/commands/slaveof.html) 命令， 让它们去复制新的主服务器。
+- 当所有从服务器都已经开始复制新的主服务器时， 领头 Sentinel 终止这次故障迁移操作。
+
+每当一个 Redis 实例被重新配置（reconfigured） —— 无论是被设置成主服务器、从服务器、又或者被设置成其他主服务器的从服务器 —— Sentinel 都会向被重新配置的实例发送一个 CONFIG REWRITE 命令， 从而确保这些配置会持久化在硬盘里
+
+#### 2.3 sentinel选举
+
+1 被标记为主观下线、已断线、或最后一次回复ping命令的时间大于5秒的从服务器都被淘汰
+
+2 与失效主服务器连接断开的时长超过down-after-milliseconds指定的时长超过10倍的都被淘汰
+
+3 从1，2剩下的从服务中选择偏移量最大的，如果偏移量不可用或偏移量相同，最新运行ID的成为新的主服务器
+
+4 选取出主服务器后，sentinel向被选举的从服务器发送slave no one ,让它转变为从服务器
+
+5 通过发布与订阅功能，将更新后的配置传播给所有其他的sentinel
+
+6 向其他服务器发送slave of ,让它复制新的主服务器
+
+
+
+选举规则
+
+1. sentinel首先会根据slaves的优先级来进行排序，优先级越小排名越靠前（？）。
+2. 如果优先级相同，则查看复制的下标，哪个从master接收的复制数据多，哪个就靠前。
+3. 如果优先级和下标都相同，就选择进程ID较小的那个
+
+####  2.4 sentinel持久化
+
+
+
+####  TILT 模式
+
+Redis Sentinel 严重依赖计算机的时间功能： 比如说， 为了判断一个实例是否可用， Sentinel 会记录这个实例最后一次相应 PING 命令的时间， 并将这个时间和当前时间进行对比， 从而知道这个实例有多长时间没有和 Sentinel 进行任何成功通讯。
+
+不过， 一旦计算机的时间功能出现故障， 或者计算机非常忙碌， 又或者进程因为某些原因而被阻塞时， Sentinel 可能也会跟着出现故障。
+
+TILT 模式是一种特殊的保护模式： 当 Sentinel 发现系统有些不对劲时， Sentinel 就会进入 TILT 模式
+
+因为 Sentinel 的时间中断器默认每秒执行 10 次， 所以我们预期时间中断器的两次执行之间的间隔为 100 毫秒左右。 Sentinel 的做法是， 记录上一次时间中断器执行时的时间， 并将它和这一次时间中断器执行的时间进行对比：
+
+- 如果两次调用时间之间的差距为负值， 或者非常大（超过 2 秒钟）， 那么 Sentinel 进入 TILT 模式。
+- 如果 Sentinel 已经进入 TILT 模式， 那么 Sentinel 延迟退出 TILT 模式的时间
+
+#### 2.5 Sentinel API
+
+Sentinel默认运行在26379端口上，sentinel支持redis协议，所以可以使用redis-cli客户端或者其他可用的客户端来与sentinel通信。
+
+有两种方式能够与sentinel通信：
+
+- 一种是直接使用客户端向它发消息
+- 另外一种是使用发布/订阅模式来订阅sentinel事件，比如说failover，或者某个redis实例运行出错
 
 #### 3 cluster模式
