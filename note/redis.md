@@ -867,4 +867,13 @@ Sentinel默认运行在26379端口上，sentinel支持redis协议，所以可以
 - 一种是直接使用客户端向它发消息
 - 另外一种是使用发布/订阅模式来订阅sentinel事件，比如说failover，或者某个redis实例运行出错
 
+#### 2.6 sentinel failover-timeout
+
+failover-timeout通常被解释成故障转移超时时间，但实际上它作用于故
+障转移的各个阶段：
+a）选出合适从节点。
+b）晋升选出的从节点为主节点。
+c）命令其余从节点复制新的主节点。
+d）等待原主节点恢复后命令它去复制新的主节点
+
 #### 3 cluster模式
