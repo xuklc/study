@@ -575,3 +575,8 @@ SELECT
         AND c.id IN (SELECT notify_id FROM  submit_unit_account WHERE user_account    IN('yuanling@gz.csg.cn'))
 ~~~
 
+~~~sql
+EXPLAIN  SELECT * FROM notification n WHERE  EXISTS 
+( SELECT record_id FROM submit_browser b WHERE b.table_name='notification' AND b.is_browser=0 AND n.id=b.record_id )
+~~~
+
