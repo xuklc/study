@@ -148,11 +148,17 @@ long_query_time=5中的**5表示查询超过五秒才记录**
 
 ![filesort](D:\resources\study\note\images\filesort.png)
 
-##explain
+## explain
 
 <https://www.jianshu.com/p/73f2c8448722>
 
-###id
+https://www.cnblogs.com/galengao/p/5780958.html
+
+http://www.cnitblog.com/aliyiyi08/archive/2008/09/09/48878.html
+
+https://www.cnblogs.com/xiaoqiang-code/p/11404149.html
+
+### id
 
 id相同，从上往下执行，id不同，如果是子查询，则序号会递增，id值越大优先级越高，越先被执行
 
@@ -212,6 +218,17 @@ Full Table Scan，全表扫描
 
 在select或where中包含子查询
 
+primary：复杂查询中最外层的select
+subquery：包含在select中的子查询（不在from子句中）
+derived：包含在from子句中的子查询。MySQL会将结果存放在一个临时表中，也称为派生表
+
+~~~sql
+explain select (select 1 from actor where id = 1) from (select * from film
+where id = 1) der;
+~~~
+
+![derived](F:\workspace\idea\study\study\note\mysql.assets\1771943-20190824115601832-2143902727.jpg)
+
 #### 4 derived
 
 在from列表中包含子查询被标记为derived(衍生)，mysql会递归执行子查询，把结果放在临时表
@@ -225,6 +242,12 @@ DERIVED：用于 from 子句里有子查询的情况。MySQL 会递归执行这�
 #### 6 union result
 
 UNION RESULT：UNION 的结果
+
+#### 7 Materialization
+
+MySQL引入了Materialization（物化）这一关键特性用于子查询（比如在IN/NOT IN子查询以及 FROM 子查询）优化。 具体实现方式是：在SQL执行过程中，第一次需要子查询结果时执行子查询并将子查询的结果保存为临时表 ，后续对子查询结果集的访问将直接通过临时表获得。 与此同时，优化器还具有延迟物化子查询的能力，先通过其它条件判断子查询是否真的需要执行。物化子查询优化SQL执行的关键点在于对子查询只需要执行一次。 与之相对的执行方式是对外表的每一行都对子查询进行调用，其执行计划中的查询类型为“DEPENDENT SUBQUERY”
+
+
 
 ### 索引
 
@@ -471,6 +494,14 @@ https://www.csdn.net/gather_20/MtTaIgzsMTAwMC1ibG9n.html
 http://ju.outofmemory.cn/entry/370625
 
 InnoDB会为自增的列维护一个计数器，这个计数器的值维护在内存中，而不是数据文件中
+
+#### 数据库重启后恢复自增值
+
+InnoDB 引擎的自增值，其实是保存在了内存里，并且到了 MySQL 8.0 版本后，才有了“自增值持久化”的能力，也就是才实现了“如果发生重启，表的自增值可以恢复为 MySQL 重启前的值”，具体情况是：
+在 MySQL 5.7 及之前的版本，自增值保存在内存里，并没有持久化。每次重启后，第一次打开表的时候，都会去找自增值的最大值 max(id)，然后将 max(id)+1 作为这个表当前的自增值。
+举例来说，如果一个表当前数据行里最大的 id 是 10，AUTO_INCREMENT=11。这时候，我们删除 id=10 的行，AUTO_INCREMENT 还是 11。但如果马上重启实例，重启后这个表的 AUTO_INCREMENT 就会变成 10。
+也就是说，MySQL 重启可能会修改一个表的 AUTO_INCREMENT 的值。
+在 MySQL 8.0 版本，将自增值的变更记录在了 redo log 中，重启的时候依靠 redo log 恢复重启之前的值
 
 MyISAM存入数据文件中
 
@@ -781,5 +812,8 @@ SHOW ENGINES
 SHOW VARIABLES LIKE '%storage_engine%'
 // 查看某个表的存储引擎
 SHOW CREATE TABLE notification
+2、设置InnoDB为默认引擎：
+在配置文件my.cnf中的 [mysqld] 下面加入
+default-storage-engine=INNODB 
 ~~~
 
