@@ -142,3 +142,17 @@ methods: {
 <el-table border :data="list" style="width: 100%"  height="100%">
 ~~~
 
+### <el-tab 修改字体样式
+
+el-tabs 的选项卡字体默认大小为 14px ，想修改它的大小，一般的方法就是重写 el-tabs__item 该类的样式，在加个**！important** ，它的样式就会被重写
+
+~~~css
+.el-tab__item{
+    font-size:16px !important;
+    color:#00000;
+    margin-left:-14px;
+}
+~~~
+
+但发现它的样式并没有覆盖，字体的样式还是原来的样式，百思不得其解，废了好多精力，终于找到了罪归祸首，那就是 scope，我在我的style标签里加入了这个标签属性，无论怎么重写，样式都没有被改变，把其去掉了之后，重写的样式终于起效了，其中的深意我也不得其解，如果你们也有类似的问题，希望能帮助到你们
+![img](elementui.assets/20180822100009188.png)

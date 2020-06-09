@@ -115,3 +115,22 @@ https://blog.csdn.net/qq_26780317/article/details/80736514
 
 一个框的outline是一个看起来像是边界但又不属于框模型的东西。它的行为和边界差不多，但是并不改变框的尺寸（更准确的说，轮廓被勾画于在框边界之外，外边距区域之内）
 
+
+
+### {*rule !important}
+
+
+
+### float
+
+~~~css
+.clearfix:after {
+    visibility: hidden;
+    display: block;
+    font-size: 0;
+    content: " ";
+    clear: both;
+    height: 0;
+}
+~~~
+

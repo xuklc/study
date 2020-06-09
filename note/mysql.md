@@ -22,7 +22,11 @@ https://blog.csdn.net/v_july_v/article/details/6105630
 
 **like只有右边匹配才用索引,LIKE 'ptd_%'**
 
-##2 索引
+## 2 索引
+
+https://www.cnblogs.com/nickchen121/p/11152523.html
+
+
 
 **MySQL只能使用B-Tree索引做覆盖索引**
 
@@ -150,13 +154,15 @@ long_query_time=5中的**5表示查询超过五秒才记录**
 
 ## explain
 
-<https://www.jianshu.com/p/73f2c8448722>
+https://www.jianshu.com/p/73f2c8448722
 
 https://www.cnblogs.com/galengao/p/5780958.html
 
 http://www.cnitblog.com/aliyiyi08/archive/2008/09/09/48878.html
 
 https://www.cnblogs.com/xiaoqiang-code/p/11404149.html
+
+https://blog.csdn.net/kk185800961/article/details/49179619
 
 ### id
 
@@ -817,3 +823,36 @@ SHOW CREATE TABLE notification
 default-storage-engine=INNODB 
 ~~~
 
+### MySQL临时表
+
+MySQL临时表分为外部临时表和内部临时表
+
+外部临时表对当前会话的当前用户可见
+
+内部临时表对用户不可见
+
+MySQL内部临时表是一种特殊轻量级的临时表，用来进行性能优化。
+
+内部临时表有两种类型：一种是HEAP临时表，这种临时表的所有数据都会存在内存中，对于这种表的操作不需要IO操作。另一种是OnDisk临时表，顾名思义，这种临时表会将数据存储在磁盘上。OnDisk临时表用来处理中间结果比较大的操作。如果HEAP临时表存储的数据大于MAX_HEAP_TABLE_SIZE（详情请参考MySQL手册中系统变量部分），HEAP临时表将会被自动转换成OnDisk临时表。OnDisk临时表在5.7中可以通过INTERNAL_TMP_DISK_STORAGE_ENGINE系统变量选择使用MyISAM引擎或者InnoDB引擎
+
+~~~sql
+SHOW VARIABLES LIKE  '%MAX_HEAP_TABLE_SIZE%';
+~~~
+
+![image-20200609155544484](mysql.assets/image-20200609155544484.png)
+
+### 日志
+
+MySQL日志管理 ========================================================
+
+ 错误日志: 记录 MySQL 服务器启动、关闭及运行错误等信息
+
+ 二进制日志: 又称binlog日志，以二进制文件的方式记录数据库中除 SELECT 以外的操作 
+
+查询日志: 记录查询的信息 慢查询日志: 记录执行时间超过指定时间的操作 
+
+中继日志： 备库将主库的二进制日志复制到自己的中继日志中，从而在本地进行重放 
+
+通用日志： 审计哪个账号、在哪个时段、做了哪些事件 
+
+事务日志或称redo日志： 记录Innodb事务相关的如事务执行时间、检查点等
