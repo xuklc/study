@@ -73,7 +73,7 @@ INSTR(STR,SUBSTR)
 
 
 
-##find_in_set
+## find_in_set
 
 **注意 find_in_set 是全表扫描的**
 
@@ -126,9 +126,9 @@ SELECT * from test where FIND_IN_SET('15',btype)
 
 **驱动表的概念，mysql中指定了连接条件时，满足查询条件的记录行数少的表为驱动表；如未指定查询条件，则扫描行数少的为驱动表。mysql优化器就是这么粗暴以小表驱动大表的方式来决定执行顺序的**
 
-##慢查询
+## 慢查询
 
-###慢查询日志开启
+### 慢查询日志开启
 
 在配置文件my.cnf或my.ini中在[mysqld]一行下面加入两个配置参数
 
@@ -142,7 +142,7 @@ long_query_time=5中的**5表示查询超过五秒才记录**
 
 还可以在my.cnf或者my.ini中添加log-queries-not-using-indexes参数，表示记录下没有使用索引的查询
 
-##order by
+## order by
 
 要尽可能的保证排序字段在驱动表中
 
@@ -176,6 +176,8 @@ id相同，从上往下执行，id不同，如果是子查询，则序号会递�
 
 rows：MYSQL认为必须检查的用来返回请求数据的行数
 
+**这里是执行计划中估算的扫描行数，不是精确值**
+
 ### key
 
 实际使用的索引，如果为空表示没有使用索引
@@ -203,6 +205,8 @@ rows：MYSQL认为必须检查的用来返回请求数据的行数
 #### index
 
 Full Index Scan ,index和All区别为index类型只遍历索引树
+
+**索引全表扫描，把索引从头到尾扫一遍，常见于使用索引列就可以处理不需要读取数据文件的查询、可以使用索引排序或者分组的查询**
 
 #### All
 
@@ -233,7 +237,7 @@ explain select (select 1 from actor where id = 1) from (select * from film
 where id = 1) der;
 ~~~
 
-![derived](F:\workspace\idea\study\study\note\mysql.assets\1771943-20190824115601832-2143902727.jpg)
+![derived](.\mysql.assets\1771943-20190824115601832-2143902727.jpg)
 
 #### 4 derived
 
@@ -401,7 +405,7 @@ DATE_FORMAT(date,format)
 
 date_format(date,'%Y-%m-%d %H:%i:%s')
 
-##TIMESTAMPDIFF
+## TIMESTAMPDIFF
 
 TIMESTAMPDIFF(unit,datetime_expr1,datetime_expr2)
 
@@ -409,7 +413,7 @@ unit值如下:
 
 FRAC_SECOND (microseconds), SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, YEAR
 
-###例子
+### 例子
 
 \#计算两日期之间相差多少周
 
