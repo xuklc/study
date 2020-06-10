@@ -580,3 +580,77 @@ EXPLAIN  SELECT * FROM notification n WHERE  EXISTS
 ( SELECT record_id FROM submit_browser b WHERE b.table_name='notification' AND b.is_browser=0 AND n.id=b.record_id )
 ~~~
 
+
+
+### 例子2
+
+原始sql
+
+~~~sql
+EXPLAIN SELECT 
+  t.* 
+FROM
+  (SELECT 
+    h.*,
+    bt.outin_type_name_local out_bill_type_name_local,
+    st.business_type_name_local refer_type_name_local 
+  FROM
+    spm_out_bill_head h,
+    spm_inv_bill_type bt,
+    spm_business_type st 
+  WHERE 1 = 1 
+    AND h.out_bill_type_code = bt.outin_type_code 
+    AND h.division_code = bt.division_code 
+    AND h.refer_type_code = st.business_type_code 
+    AND h.division_code = st.division_code 
+    AND (
+      h.org_code IN (
+        'O00001444',
+        'O00001443',
+        'O00001442',
+        'O00001438',
+        'O00001430',
+        'O00001424',
+        'O00001423',
+        'O00001422',
+        'O00001420'
+      )
+    )) t 
+WHERE 1 = 1 
+  AND t.division_code = 'O00000085'
+  AND t.org_code = 'O00000085'
+ORDER BY t.head_id DESC 
+LIMIT 0, 15 
+~~~
+
+![image-20200610150324162](optimizeSql.assets/image-20200610150324162.png)
+
+
+
+第一步先解决 using filesort
+
+~~~sql
+EXPLAIN
+SELECT h.* FROM out_bill_head h ,
+		spm_inv_bill_type bt,
+		spm_business_type st
+		WHERE  h.type_code = bt.type_code 
+			AND h.country_code = bt.country_code 
+			AND h.source_code = st.source_code 
+			AND h.country_code = st.country_code 
+			AND h.id IN (
+ SELECT id FROM out_bill_head t WHERE  t.org_code IN (
+        'O00000085',
+        'O00001447',
+        'O00001446',
+        'O00001445',
+        'O00001444',
+        'O00001443',
+        'O00001430',
+        'O00001424',
+        'O00001423',
+        'O00001422')
+     ORDER BY t.id DESC 
+     )
+~~~
+

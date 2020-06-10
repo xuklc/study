@@ -119,7 +119,7 @@ https://blog.csdn.net/qq_26780317/article/details/80736514
 
 ### {*rule !important}
 
-
+使用!important的css定义是拥有最高的优先级的
 
 ### float
 
@@ -134,3 +134,8 @@ https://blog.csdn.net/qq_26780317/article/details/80736514
 }
 ~~~
 
+### clear
+
+**对于CSS的清除浮动(clear)，一定要牢记：这个规则只能影响使用清除的元素本身，不能影响其他元素**
+
+https://blog.csdn.net/qq_36595013/article/details/81810219
