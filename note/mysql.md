@@ -188,6 +188,21 @@ rows：MYSQL认为必须检查的用来返回请求数据的行数
 
 这是重要的列，显示连接的类型，从最好到最差是 **ALL, index,  range, ref, eq_ref, const, system, NULL**
 
+#### const
+
+```mysql
+表最多只有一个匹配行，在查询开始时被读取。因为只有一个值，优化器将该列值视为常量。当在`*`primarykey`*`或者`*`unique`*`索引作为常量比较时被使用
+```
+
+![image-20200609233358754](mysql.assets/image-20200609233358754.png)
+
+产生“ Impossible WHERE noticed after reading const tables”的原因是这样的，当在查询语句中存在满足如下条件的 WHERE 语句时，MySQL在 EXPLAIN 之前会优先根据这一条件查找出对应的记录，并用记录的实际值替换查询中所有使用到的该表属性。这是因为满足以下四个条件时，就会使得针对该表的查询最多只能产生一条命中结果。**在该表无法命中数据的情况下就会提示“在 const table 表中没有找到匹配的行”**，而这个 “const table”就指的是满足下面四个条件的表。这是 MySQL 的一个优化策略。
+
+当查询条件中包含了某个表的主键或者非空的唯一索引列
+该列的判定条件为等值条件
+目标值的类型与该列的类型一致
+目标值为一个确定的常量
+
 #### eq_ref
 
 唯一性索引扫描，对于每个索引建，表中只有一条记录与之匹配，常见于主键或者唯一性扫描
@@ -196,19 +211,79 @@ rows：MYSQL认为必须检查的用来返回请求数据的行数
 
 非唯一性索引扫描，返回匹配某个单独值的所有行，本质上也是一种索引访问，它返回所有匹配某个单独值的行，然而它可能会找到多个符合条件的行
 
+~~~sql
+explain select * from tabname where tid=2
+~~~
+
+![image-20200610000604761](mysql.assets/image-20200610000604761.png)
+
+####  ref_or_null
+
+~~~sql
+explain select id,tid from tabname where tid=2 or tid is null
+~~~
+
+![image-20200610000854637](mysql.assets/image-20200610000854637.png)
+
+#### fulltext
+
+~~~sql
+// 创建全文索引
+ALTER TABLE tabname2 ADD FULLTEXT(NAME)
+EXPLAIN SELECT * FROM tabname2 WHERE MATCH(NAME) AGAINST('love');
+~~~
+
+![image-20200610001252417](mysql.assets/image-20200610001252417.png)
+
 #### range
 
 只检索给定范围的行，使用一个索引来选择行，key列显示使用了哪个索引
 
+~~~sql
+EXPLAIN SELECT * FROM tabname WHERE id>1
+~~~
+
+​	![image-20200610001711674](mysql.assets/image-20200610001711674.png)
+
 #### index
 
 Full Index Scan ,index和All区别为index类型只遍历索引树
+
+~~~sql
+EXPLAIN SELECT tid FROM tabname
+~~~
+
+![image-20200610001928232](mysql.assets/image-20200610001928232.png)
 
 #### All
 
 Full Table Scan，全表扫描
 
 ### select_type
+
+~~~sql
+// 建表语句
+create table tabname (
+id int auto_increment not null primary key,
+name varchar(10) null,
+indate datetime null,
+tid int null,
+key(tid),
+key(indate)
+)engine=innodb;
+
+
+create table tabname2 (
+id int auto_increment not null primary key,
+name varchar(10) null,
+indate datetime null,
+tid int null,
+key(tid),
+key(indate)
+)
+~~~
+
+
 
 1 simple 2 primary 3 subquery 4 derived  5 union 6 union result
 
@@ -218,7 +293,7 @@ Full Table Scan，全表扫描
 
 #### 2 primary
 
-查询包含任何复杂的子部分，最外层被标记为primary
+查询不包含任何复杂的子部分，最外层被标记为primary
 
 #### 3 subquery
 
@@ -235,7 +310,11 @@ where id = 1) der;
 
 ![derived](F:\workspace\idea\study\study\note\mysql.assets\1771943-20190824115601832-2143902727.jpg)
 
+![image-20200609230645306](mysql.assets/image-20200609230645306.png)
+
 #### 4 derived
+
+**from子句的查询 例如select  * from (select * from a ) b**
 
 在from列表中包含子查询被标记为derived(衍生)，mysql会递归执行子查询，把结果放在临时表
 
@@ -245,6 +324,14 @@ DERIVED：用于 from 子句里有子查询的情况。MySQL 会递归执行这�
 
 若第二个select出现在union之后，则被标记为union,若union包含在from子句的子查询中，外层select将被标记为derived
 
+例如下图，id为null, union result 就是对两个查询结果排序去重，id为null是最后执行，即在两个结果查询完之后对结果集合并去重
+
+![image-20200609231039070](mysql.assets/image-20200609231039070.png)
+
+下图是没有union result的情况
+
+![image-20200609231928875](mysql.assets/image-20200609231928875.png)
+
 #### 6 union result
 
 UNION RESULT：UNION 的结果
@@ -253,7 +340,21 @@ UNION RESULT：UNION 的结果
 
 MySQL引入了Materialization（物化）这一关键特性用于子查询（比如在IN/NOT IN子查询以及 FROM 子查询）优化。 具体实现方式是：在SQL执行过程中，第一次需要子查询结果时执行子查询并将子查询的结果保存为临时表 ，后续对子查询结果集的访问将直接通过临时表获得。 与此同时，优化器还具有延迟物化子查询的能力，先通过其它条件判断子查询是否真的需要执行。物化子查询优化SQL执行的关键点在于对子查询只需要执行一次。 与之相对的执行方式是对外表的每一行都对子查询进行调用，其执行计划中的查询类型为“DEPENDENT SUBQUERY”
 
+#### 8 DEPENDENT SUBQUERY
 
+~~~sql
+explain select *,(select name from tabname b where a.id=b.id) from tabname a;
+~~~
+
+![image-20200609230404544](.\mysql.assets\image-20200609230404544.png)
+
+#### 9 PRIMARY / DEPENDENT UNION / DEPENDENT SUBQUERY / UNION RESULT
+
+~~~sql
+EXPLAIN SELECT * FROM tabname c WHERE c.id IN (SELECT id FROM tabname a UNION SELECT id FROM tabname b );
+~~~
+
+![image-20200609234423148](mysql.assets/image-20200609234423148.png)
 
 ### 索引
 
