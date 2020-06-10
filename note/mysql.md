@@ -259,6 +259,8 @@ EXPLAIN SELECT tid FROM tabname
 
 ![image-20200610001928232](mysql.assets/image-20200610001928232.png)
 
+**索引全表扫描，把索引从头到尾扫一遍，常见于使用索引列就可以处理不需要读取数据文件的查询、可以使用索引排序或者分组的查询**
+
 #### All
 
 Full Table Scan，全表扫描
@@ -616,7 +618,7 @@ InnoDB 引擎的自增值，其实是保存在了内存里，并且到了 MySQL 
 
 MyISAM存入数据文件中
 
-![auto_increment](F:\workspace\idea\study\study\note\images\auto_increment.png)
+![auto_increment](mysql.assets/auto_increment.png)
 
 ### 事务的实现原理
 
@@ -754,7 +756,7 @@ set session transaction isolation level serializable;
 
 #### 2 设置session隔离级别
 
-![session_isolation](F:\workspace\idea\study\study\note\images\session_isolation.png)
+![session_isolation](mysql.assets/session_isolation.png)
 
 
 
@@ -788,7 +790,7 @@ https://blog.csdn.net/weishuai528/article/details/90676316
 
 3 使用begin开启事务，并读取表t1的数据
 
-![不可重复读1](F:\workspace\idea\study\study\note\images\不可重复读1.png)
+![不可重复读1](mysql.assets/不可重复读1-1591807611833.png)
 
 事务2
 
@@ -798,15 +800,15 @@ https://blog.csdn.net/weishuai528/article/details/90676316
 
 3 使用begin开启事务，并读取表t1的数据
 
-![不可重复读2](F:\workspace\idea\study\study\note\images\不可重复读2.png)
+![不可重复读2](mysql.assets/不可重复读2.png)
 
 4 修改数据，并提交
 
-![不可重复读3](F:\workspace\idea\study\study\note\images\不可重复读3.png)
+![不可重复读3](mysql.assets/不可重复读3.png)
 
 
 
-![不可重复读4](F:\workspace\idea\study\study\note\images\不可重复读4.png)
+![不可重复读4](mysql.assets/不可重复读4.png)
 
 
 
@@ -814,7 +816,7 @@ https://blog.csdn.net/weishuai528/article/details/90676316
 
 t1表更新前
 
-![不可重复读1](F:\workspace\idea\study\study\note\images\不可重复读1.png)
+![不可重复读1](mysql.assets/不可重复读1.png)
 
 更新后
 
@@ -822,7 +824,7 @@ t1表更新前
 
 
 
-![不可重复读5](F:\workspace\idea\study\study\note\images\不可重复读5.png)
+![不可重复读5](mysql.assets/不可重复读5.png)
 
 以上的例子就是同一个事务同一SQL在不同的时间查询得到的结果不一致，就是不可重复读
 
@@ -836,13 +838,13 @@ t1表更新前
 
 例子，如下图
 
-![可重复读](F:\workspace\idea\study\study\note\images\可重复读.png)
+![可重复读](mysql.assets/可重复读.png)
 
 ##### 幻读
 
 幻读主要是针对新增和删除的，就是在同一个事务中，执行更新时会多出几条数据
 
-![幻读](F:\workspace\idea\study\study\note\images\幻读.png)
+![幻读](mysql.assets/幻读.png)
 
 
 
@@ -852,13 +854,13 @@ t1表更新前
 
 事务的隔离是由锁实现的，在执行update、insert、delete操作时，会加上写锁，但是其他事务仍然可以读取被加锁的数据，这是因为InnoDB采用了"一致性非锁定读"的机制来提高并发性，即在需要被读取的数据行被加排它锁之后，不会等待排它锁的释放，而是读取一个快照的数据，如下图
 
-![读取快照数据](F:\workspace\idea\study\study\note\images\读取快照数据.png)
+![读取快照数据](mysql.assets/读取快照数据.png)
 
 #### 4 串行化
 
 串行化就是写和读操作不能并行执行
 
-![串行化](F:\workspace\idea\study\study\note\images\串行化.png)
+![串行化](mysql.assets/串行化.png)
 
 ### SQL提示
 
