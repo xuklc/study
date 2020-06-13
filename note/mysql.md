@@ -243,6 +243,8 @@ EXPLAIN SELECT * FROM tabname2 WHERE MATCH(NAME) AGAINST('love');
 
 ~~~sql
 EXPLAIN SELECT * FROM tabname WHERE id>1
+/*在主键列使用in查询type类型就是range*/
+explain select * from tabname where id in(1,2,3)
 ~~~
 
 ​	![image-20200610001711674](mysql.assets/image-20200610001711674.png)
