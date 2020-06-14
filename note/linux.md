@@ -63,7 +63,7 @@ CV7T2-6WY5Q-48EWP-ZXY7X-QGUWD
 
 1 检查vmware的网络服务启动了没有
 
-![](D:\softpackage\note\note\images\linux\vmware网络服务.jpg)
+![](linux.assets/vmware网络服务.jpg)
 
 ### 网卡信息
 

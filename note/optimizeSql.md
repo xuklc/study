@@ -654,3 +654,33 @@ SELECT h.* FROM out_bill_head h ,
      )
 ~~~
 
+第二步
+
+**in子查询索引失效，解决办法两种1 用临时表 2 先查询结果再单独列出来**
+
+~~~sql
+EXPLAIN
+// 1
+SELECT id FROM out_bill_head t WHERE  t.org_code IN (
+        'O00000085',
+        'O00001447',
+        'O00001446',
+        'O00001445',
+        'O00001444',
+        'O00001443',
+        'O00001430',
+        'O00001424',
+        'O00001423',
+        'O00001422')
+ //2       
+SELECT h.* FROM out_bill_head h ,
+		spm_inv_bill_type bt,
+		spm_business_type st
+		WHERE  h.type_code = bt.type_code 
+			AND h.country_code = bt.country_code 
+			AND h.source_code = st.source_code 
+			AND h.country_code = st.country_code 
+			AND h.id IN (1,2,3)
+	          ORDER BY t.id DESC 
+~~~
+
