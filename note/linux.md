@@ -65,6 +65,16 @@ CV7T2-6WY5Q-48EWP-ZXY7X-QGUWD
 
 ![](linux.assets/vmware网络服务.jpg)
 
+2 检查网卡是否启动
+
+~~~shell
+vi /etc/sysconfig/network-scripts/ifcfg-ens33
+~~~
+
+​	然后修改IPV6INIT=no，ONBOOT=yes
+
+​	![24507183af2d44800777b8479e55d02.png](linux.assets/1584603798764824.png)	
+
 ### 网卡信息
 
 ~~~shell
