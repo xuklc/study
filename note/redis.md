@@ -720,6 +720,48 @@ http://blog.itpub.net/15498/viewspace-2644200/
 
 #### 1 一主多从
 
+##### 搭建步骤
+
+1  创建两个文件夹
+
+~~~shell
+mkdir  {logs,dbfile}
+~~~
+
+2 将redis.conf文件拷贝三份
+
+~~~shell
+cp  ./redis.conf  ./config/redis6380.conf
+cp  ./redis.conf  ./config/redis6381.conf
+cp  ./redis.conf  ./config/redis6382.conf
+~~~
+
+3 修改配置文件
+
+**注意：这里的路径需要注意的指定的文件路径要从src/redis-server起算，例如日志文件在src同级别的config目录下的logs文件夹，则日志的文件的路径应该写"../config/logs/6380.log",数据文件的路径也是类似,最后一点，当bind的ip和真实ip不一致则启动不了，并且没有日志没有提示**
+
+参考下图
+
+![](redis.assets/image-20200615231728632.png)
+
+![image-20200616000234400](redis.assets/image-20200616000234400.png)
+
+~~~shell
+daemonize yes   #修改redis为后台运行模式
+
+pidfile /var/run/redis_6379.pid  #修改运行的redis实例的pid，不能重复
+
+logfile "/opt/db/redis6379/6379.log"  #指明日志文件，注意：这里的路径需要注意的指定的文件路径要从src/redis-server起算，例如日志文件在src同级别的config目录下的logs文件夹，则日志的文件的路径应该写"../config/logs/6380.log"
+
+dir "/opt/db/redis6379"   #工作目录，存放持久化数据的目录
+
+bind 10.1.210.69   #监听地址，如果是单机多个示例可以不用修改
+
+port 6379         #监听端口，保持和配置文件名称端口一致
+~~~
+
+4 设置主从关系、验证主从同步
+
 问题点
 
 修改怎么办
@@ -941,3 +983,7 @@ Redis 并不能保证数据的**强一致性**. 这意味这在实际中集群�
 
 
 #### 删除一个节点
+
+
+
+### 配置文件

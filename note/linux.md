@@ -63,7 +63,17 @@ CV7T2-6WY5Q-48EWP-ZXY7X-QGUWD
 
 1 检查vmware的网络服务启动了没有
 
-![](D:\softpackage\note\note\images\linux\vmware网络服务.jpg)
+![](linux.assets/vmware网络服务.jpg)
+
+2 检查网卡是否启动
+
+~~~shell
+vi /etc/sysconfig/network-scripts/ifcfg-ens33
+~~~
+
+​	然后修改IPV6INIT=no，ONBOOT=yes
+
+​	![24507183af2d44800777b8479e55d02.png](linux.assets/1584603798764824.png)	
 
 ### 网卡信息
 
@@ -121,6 +131,31 @@ cp /soft/redis-5.0.5/sentinel.conf  .  -- 最后面的表示当前目录
 
 #### ps
 
+ps命令是**Process Status**的缩写
+
+```xml
+命令参数：
+a  显示所有进程
+-a 显示同一终端下的所有程序
+-A 显示所有进程
+c  显示进程的真实名称
+-N 反向选择
+-e 等于“-A”
+e  显示环境变量
+f  显示程序间的关系
+-H 显示树状结构
+r  显示当前终端的进程
+T  显示当前终端的所有程序
+u  指定用户的所有进程
+-au 显示较详细的资讯
+-aux 显示所有包含其他使用者的行程 
+-C<命令> 列出指定命令的状况
+--lines<行数> 每页显示的行数
+--width<字符数> 每页显示的字符数
+--help 显示帮助信息
+--version 显示版本显示
+```
+
 例子
 
 ~~~shell
@@ -135,29 +170,11 @@ ls -a
 
 ls -a 可以查看隐藏的文件
 
-### gcc
-
-### 安装
-
-1 yum install gcc
-
-2 下载安装
-
-  1http://mirrors.nju.edu.cn/gnu/gcc/
-
-  2 http://mirrors.ustc.edu.cn/gnu/gcc/
-
- 3 https://mirrors.tuna.tsinghua.edu.cn/gnu/gcc/
-
-// 教程
-
-https://cloud.tencent.com/developer/article/1424725
-
-### cat
+#### cat
 
 
 
-### tail
+#### tail
 
 语法
 
@@ -181,6 +198,100 @@ tail [参数] [文件]
 ~~~shell
 tail -f 1000 xxx.log
 ~~~
+
+#### tar
+
+-A, --catenate  　　　　　 追加 tar 文件至归档
+-c, --create       　　　　 创建一个新归档
+-r, --append       　　　　 追加文件至归档结尾
+-u, --update       　　　  仅追加比归档中副本更新的文件
+-x, --extract, --get   　　 　 从归档中解出文件
+-t, --list         　　 　　列出归档内容
+-z, --gzip, --gunzip, --ungzip  通过 gzip 压缩归档
+-j, --bzip2         　　   通过 bzip2 压缩归档
+-J, --xz          　　　　通过 xz 过滤归档
+--lzip         　　　　　 通过 lzip 过滤归档
+--lzma         　　　    通过 lzma 过滤归档
+-Z, --compress, --uncompress  通过 compress 压缩归档
+-v, --verbose        　   详细地列出处理的文件过程
+-k, --keep-old-files  　　　保留源文件不覆盖
+-m, --touch      　　      不要解压文件的修改时间
+-W, --verify        　　　在写入以后尝试校验归档
+f, --file=ARCHIVE     　 使用归档文件或 ARCHIVE 设备，这个参数是最后一个，后面只接文件名
+-b, --blocking-factor=BLOCKS  设置每个记录 BLOCKS x 512 字节
+-C, --directory=DIR    　 改变至目录 DIR
+--help  　 　　　　　　  显示帮助信息
+--version 　 　　　　　  显示版本信息
+
+例子1
+
+将 1.txt 2.txt 3.txt 4.txt 文件打包并压缩为 test.tar.gz
+
+~~~shell
+tar -zcvf test.tar.gz *.txt
+~~~
+
+例子2 
+
+ 将 test.tar.gz 解压
+
+~~~shell
+tar -zxvf test.tar.gz
+~~~
+
+#### touch
+
+Linux touch命令用于修改文件或者目录的时间属性，包括存取时间和更改时间。若文件不存在，系统会建立一个新的文件。
+
+ls -l 可以显示档案的时间记录
+
+- **参数说明**：
+- a 改变档案的读取时间记录。
+- m 改变档案的修改时间记录。
+- c 假如目的档案不存在，不会建立新的档案。与 --no-create 的效果一样。
+- f 不使用，是为了与其他 unix 系统的相容性而保留。
+- r 使用参考档的时间记录，与 --file 的效果一样。
+- d 设定时间与日期，可以使用各种不同的格式。
+- t 设定档案的时间记录，格式与 date 指令相同。
+- --no-create 不会建立新档案。
+- --help 列出指令格式。
+- --version 列出版本讯息。
+
+### 查看文件属性
+
+ls -a 查看所有文件
+  ls -l 查看详细的属性
+ 
+2,lsattr
+  查看文件的扩展属性,
+  如果文件被　chattr +i  添加了写保护,
+  用lsattr可以看到添加的属性
+
+3,file
+　查看文件的类型
+
+4,stat
+  查看文件的状态
+
+
+
+### gcc
+
+### 安装
+
+1 yum install gcc
+
+2 下载安装
+
+  1http://mirrors.nju.edu.cn/gnu/gcc/
+
+  2 http://mirrors.ustc.edu.cn/gnu/gcc/
+
+ 3 https://mirrors.tuna.tsinghua.edu.cn/gnu/gcc/
+
+// 教程
+
+https://cloud.tencent.com/developer/article/1424725
 
 ### 网卡设置
 
@@ -239,3 +350,17 @@ Ip  [选项]  操作对象{link|addr|route...}
 ### 网络配置
 
 https://blog.csdn.net/chinaltx/article/details/86497165
+
+### 查找指定端口
+
+~~~shell
+netstat -tnlp|grep 6379
+~~~
+
+![image-20200615172807797](linux.assets/image-20200615172807797.png)
+
+~~~shell
+lsof -i:6379
+~~~
+
+![image-20200615172839772](linux.assets/image-20200615172839772.png)
