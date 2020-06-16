@@ -100,11 +100,13 @@ ens33是网卡的名称
 
 ### 关闭防火墙
 
-#### centos8
+#### centos8/centos7
 
 ~~~shell
 systemctl stop firewalld
 ~~~
+
+
 
 ### 命令
 
@@ -261,7 +263,7 @@ ls -l 可以显示档案的时间记录
 
 ls -a 查看所有文件
   ls -l 查看详细的属性
- 
+
 2,lsattr
   查看文件的扩展属性,
   如果文件被　chattr +i  添加了写保护,
