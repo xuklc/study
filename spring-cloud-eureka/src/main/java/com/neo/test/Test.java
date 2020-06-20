@@ -8,7 +8,7 @@ package com.neo.test;
  */
 
 public class Test {
-    static int[]a =new int[10240];
+
     public static void main(String[] args) {
 
     }
