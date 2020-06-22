@@ -148,7 +148,14 @@ jinfo举例,如何查看当前运行程序的配置
 
 jinfo的使用
 
+**查看某个参数**
+
 公式;jinfo -flag  属性名  pid
+
+~~~properties
+// 查看 MetaspaceSize的大小
+jinfo  -flag MetaspaceSize 16656
+~~~
 
 ![jinfo](\jvm.assets\jinfo.png)
 
@@ -218,9 +225,10 @@ java -XX:+PrintCommandLineFlags  --- 第三方办法
 
 **[PSYoungGen: 504K->504K(2560K)] 2311K->2367K(9728K):PSYoungGen区GC前是504k,GC后是504k，总大小是2560k, 2311K->2367K(9728K):堆内存在GC前是2311k,GC后是2367K,堆的总大小是9728k**
 
-![FullGC](D:\resources\study\note\images\FullGC.png)
+![FullGC](jvm.assets\FullGC.png)
 
 ~~~ shell
+// 表明本次引起GC的原因是因为在年轻代中没有足够的空间能够存储新的数据了
 [GC (Allocation Failure) [PSYoungGen: 2048K->504K(2560K)] 2048K->1020K(9728K), 0.0027086 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
 [GC (Allocation Failure) [PSYoungGen: 2552K->504K(2560K)] 3068K->1339K(9728K), 0.0006765 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
 [GC (Allocation Failure) [PSYoungGen: 2552K->504K(2560K)] 3387K->1971K(9728K), 0.0009407 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
@@ -742,3 +750,21 @@ SoftRefLRUPolicyMSPerMB：每1M空闲空间可保持的SoftReference对象生存
 查看了一下我们系统的JVM参数配置，发现我们把SoftRefLRUPolicyMSPerMB设置为0了，这样就导致软引用对象很快就被回收了。进而导致需要频繁重新生成这些动态类。
 
 为了验证这个猜测，我把SoftRefLRUPolicyMSPerMB改成了6000进行观察，发现果然猜得没错。系统启动后不久Metaspace的使用空间基本保持不变了，运行几天后也没再出现因为Metaspace大小达到阈值而触发FGC。至此问题解决。
+
+### 个人优化记录
+
+#### 1
+
+-Xms2048m -Xmn11400m
+
+1服务在启动的时候GC日志
+
+~~~properties
+[GC (Allocation Failure) [PSYoungGen: 65536K->6358K(76288K)] 65536K->6374K(251392K), 0.0052862 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+[GC (Allocation Failure) [PSYoungGen: 71894K->7191K(76288K)] 71910K->7215K(251392K), 0.0046049 secs] [Times: user=0.00 sys=0.00, real=0.01 secs] 
+[GC (Allocation Failure) [PSYoungGen: 72727K->9076K(76288K)] 72751K->9172K(251392K), 0.0056289 secs] [Times: user=0.00 sys=0.00, real=0.01 secs] 
+[GC (GCLocker Initiated GC) [PSYoungGen: 13983K->5935K(141824K)] 14079K->6039K(316928K), 0.0035536 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+[GC (Metadata GC Threshold) [PSYoungGen: 11884K->6159K(141824K)] 11988K->6271K(316928K), 0.0043844 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+[Full GC (Metadata GC Threshold) [PSYoungGen: 6159K->0K(141824K)] [ParOldGen: 112K->6060K(81408K)] 6271K->6060K(223232K), [Metaspace: 20902K->20902K(1069056K)], 0.0298114 secs] [Times: user=0.08 sys=0.02, real=0.03 secs]
+~~~
+
