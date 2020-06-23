@@ -368,7 +368,7 @@ cas是一种系统原语，原语属于操作系统用语范畴，是由若干�
 
 **CAS是一条CPU的原子指令**
 
-![CAS原理](F:\workspace\idea\study\study\note\images\CAS原理.png)
+![CAS原理](\images\CAS原理.png)
 
 
 
@@ -415,6 +415,14 @@ FGC 从应用程序启动到采样时old代(全gc)gc次数
 FGCT 从应用程序启动到采样时old代(全gc)gc所用时间(s)
 
 GCT 从应用程序启动到采样时gc用的总时间(s)
+
+```shell
+jstat -gc 10365
+ S0C    S1C    S0U    S1U      EC       EU        OC         OU       MC     MU    CCSC   CCSU   YGC     YGCT    FGC    FGCT     GCT   
+10752.0 10752.0  0.0   4340.5 65536.0  23922.5   175104.0    144.0    17152.0 16426.6 2048.0 1907.5      1    0.004   0      0.000    0.004
+```
+
+SOC、S1C、S0U、S1U S0和S1的总量与使用量  EC、EU Eden区的总量与使用量  OC、OU Old区的总量与使用量  MC、MU Metaspace的总量与使用量  CCSC、CCSU 压缩类空间总量与使用量  YGC、YGCT YoungGC的次数与时间  GGC、FGCT FullGC的次数与时间  GCT 总的GC时间
 
 ### 设置jvm参数
 
@@ -471,6 +479,8 @@ jmap -heap PID
 获取dump文件
 
 jmap dump:format=b,file=heap.hprof  PID
+
+**format=b指定为二进制格式文件**
 
 自动生成dump文件的参数
 
@@ -766,5 +776,80 @@ SoftRefLRUPolicyMSPerMB：每1M空闲空间可保持的SoftReference对象生存
 [GC (GCLocker Initiated GC) [PSYoungGen: 13983K->5935K(141824K)] 14079K->6039K(316928K), 0.0035536 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
 [GC (Metadata GC Threshold) [PSYoungGen: 11884K->6159K(141824K)] 11988K->6271K(316928K), 0.0043844 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
 [Full GC (Metadata GC Threshold) [PSYoungGen: 6159K->0K(141824K)] [ParOldGen: 112K->6060K(81408K)] 6271K->6060K(223232K), [Metaspace: 20902K->20902K(1069056K)], 0.0298114 secs] [Times: user=0.08 sys=0.02, real=0.03 secs]
+~~~
+
+  首先看到启动后发生GC，且GC的内存区域是PSYoungGen,即年轻代中，使用jmap命令查看堆内存的使用情况
+
+~~~shell
+E:\workspace\code\iService_iService3.0_V01R01_20190618\java\iservice>jps
+11424 Jps
+16656 ServiceBootstrap
+4180 Launcher
+6932
+
+E:\workspace\code\iService_iService3.0_V01R01_20190618\java\iservice>jmap -heap  16656
+Attaching to process ID 16656, please wait...
+Debugger attached successfully.
+Server compiler detected.
+JVM version is 25.212-b10
+
+using thread-local object allocation.
+Parallel GC with 6 thread(s)
+
+Heap Configuration:
+   MinHeapFreeRatio         = 0
+   MaxHeapFreeRatio         = 100
+   MaxHeapSize              = 4265607168 (4068.0MB)
+   ## 新生代的初始内存是85M,启动就发生GC的原因
+   NewSize                  = 89128960 (85.0MB) 
+   ## 新生代最大内存是1356M
+   MaxNewSize               = 1421869056 (1356.0MB)
+   ## 老年代的初始内存是171M
+   OldSize                  = 179306496 (171.0MB)
+   ## 老年代和新生代的比例是2:1
+   NewRatio                 = 2
+   SurvivorRatio            = 8
+   ## 元空间初始大小是20M
+   MetaspaceSize            = 21807104 (20.796875MB)
+   CompressedClassSpaceSize = 1073741824 (1024.0MB)
+   MaxMetaspaceSize         = 17592186044415 MB
+   G1HeapRegionSize         = 0 (0.0MB)
+
+Heap Usage:
+PS Young Generation
+Eden Space:
+   capacity = 254803968 (243.0MB)
+   used     = 161790384 (154.2953338623047MB)
+   free     = 93013584 (88.70466613769531MB)
+   63.496022165557484% used
+From Space:
+   capacity = 34603008 (33.0MB)
+   used     = 18792392 (17.92182159423828MB)
+   free     = 15810616 (15.078178405761719MB)
+   54.30855028557055% used
+To Space:
+   capacity = 44564480 (42.5MB)
+   used     = 0 (0.0MB)
+   free     = 44564480 (42.5MB)
+   0.0% used
+PS Old Generation
+   capacity = 391643136 (373.5MB)
+   used     = 350079384 (333.8617172241211MB)
+   free     = 41563752 (39.638282775878906MB)
+   89.38734062225464% used
+
+59125 interned Strings occupying 6565752 bytes
+~~~
+
+可以看到年轻代、老年代、元空间初始大小比较小，所以服务启动的时候启动是内存不够首先触发minor GC，然后触发元空间的GC，最后FULL GC,调整初始值大小
+
+~~~shell
+-Xmn1400m -Xms2048m -XX:MetaspaceSize=1024M
+~~~
+
+调整完之后启动还是触发了minor GC
+
+~~~properties
+[GC (Allocation Failure) [PSYoungGen: 1075200K->35290K(1254400K)] 1075200K->35410K(1917952K), 0.0210644 secs] [Times: user=0.05 sys=0.03, real=0.02 secs] 
 ~~~
 
