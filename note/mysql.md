@@ -1001,3 +1001,40 @@ MySQL日志管理 ========================================================
 通用日志： 审计哪个账号、在哪个时段、做了哪些事件 
 
 事务日志或称redo日志： 记录Innodb事务相关的如事务执行时间、检查点等
+
+
+
+### 系统参数
+
+innodb_log_file_size 
+
+innodb_flush_log_at_trx_commit
+
+bulk_insert_buffer_size
+
+Max_allowed_packet
+
+Net_buffer_length
+
+sync_binlog
+
+
+
+### 前缀索引
+
+我们要学会巧妙的使用 前缀索引，避免索引值过大。
+
+例如有一个字段是 addr varchar(255)，但是如果一整个建立索引 [ index(addr) ]，会很浪费磁盘空间，所以会选择建立前缀索引 [ index(addr(64)) ]。
+
+建立前缀索引，一定要关注字段的区分度。例如像身份证号码这种字段的区分度很低，只要出生地一样，前面好多个字符都是一样的；这样的话，最不理想时，可能会扫描全表。
+
+前缀索引避免不了回表，即无法使用覆盖索引这个优化点，因为索引值只是字段的前 n 个字符，需要回表才能判断查询值是否和字段值是一致的。
+
+怎么解决？
+
+倒序存储：像身份证这种，后面的几位区分度就非常的高了；我们可以这么查询：
+
+~~~sql
+select field_list from t where id_card = reverse('input_id_card_string');
+~~~
+
