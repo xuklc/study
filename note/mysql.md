@@ -1006,11 +1006,36 @@ MySQL日志管理 ========================================================
 
 ### 系统参数
 
+官网介绍
+
+https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html
+
+[`bulk_insert_buffer_size`](https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_bulk_insert_buffer_size)
+
+| Property                                                     | Value                         |
+| ------------------------------------------------------------ | ----------------------------- |
+| Command-Line Format                                          | `--bulk-insert-buffer-size=#` |
+| System Variable                                              | `bulk_insert_buffer_size`     |
+| Scope                                                        | Global, Session               |
+| Dynamic                                                      | Yes                           |
+| [`SET_VAR`](https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html#optimizer-hints-set-var) Hint Applies | Yes                           |
+| Type                                                         | Integer                       |
+| Default Value                                                | `8388608`                     |
+| Minimum Value                                                | `0`                           |
+| Maximum Value (64-bit platforms)                             | `18446744073709551615`        |
+| Maximum Value (32-bit platforms)                             | `4294967295`                  |
+
+`MyISAM` uses a special tree-like cache to make bulk inserts faster for [`INSERT ... SELECT`](https://dev.mysql.com/doc/refman/8.0/en/insert-select.html), `INSERT ... VALUES (...), (...), ...`, and [`LOAD DATA`](https://dev.mysql.com/doc/refman/8.0/en/load-data.html) when adding data to nonempty tables. This variable limits the size of the cache tree in bytes per thread. Setting it to 0 disables this optimization. The default value is 8MB.
+
+As of MySQL 8.0.14, setting the session value of this system variable is a restricted operation. The session user must have privileges sufficient to set restricted session variables.
+
+innodb_buffer_pool_size
+
 innodb_log_file_size 
 
-innodb_flush_log_at_trx_commit
+**innodb_log_buffer_size** 
 
-bulk_insert_buffer_size
+innodb_flush_log_at_trx_commit
 
 Max_allowed_packet
 
@@ -1018,7 +1043,72 @@ Net_buffer_length
 
 sync_binlog
 
+#### Doublewrite Buffer
 
+https://blog.csdn.net/liuxiao723846/article/details/103509226
+
+~~~sql
+// 查看页的大小
+show global variables like '%innodb_page_size%';
+~~~
+
+**在os级别写文件是以4KB作为单位的**
+
+![img](mysql.assets/aHR0cHM6Ly9tbWJpei5xcGljLmNuL3N6X21tYml6X3BuZy9ZcmV6eGNraFlPeGlicmlhY0lpY1hoaGZ6MW1vQ0Q3SFlUcjB5c2trYW5OYmhHaWM3cUkxWXhDVFdpYXM5aElpY3dyS3d0ZkdjbXJpYkp2ak9Mb1NtNXpBM001UXcvNjQw.jpg)
+
+如上图所示，MySQL内page=1的页准备刷入磁盘，才刷了3个文件系统里的页，掉电了，则会出现：重启后，page=1的页，物理上对应磁盘上的1+2+3+4四个格，数据完整性被破坏。
+
+*画外音：**redo无法修复这类“页数据损坏”的异常，修复的前提是“页数据正确”并且redo日志正常*
+
+Double Write Buffer，但它与传统的buffer又不同，它分为**内存**和**磁盘**的两层架构。
+
+*画外音：**传统的buffer，大部分是内存存储；**而DWB里的数据，是需要落地的*
+
+如上图所示，当有页数据要刷盘时：
+
+**第一步**：页数据先memcopy到DWB的内存里；
+
+**第二步**：DWB的内存里，会先刷到DWB的磁盘上；
+
+**第三步**：DWB的内存里，再刷到数据磁盘存储上；
+
+*画外音：**DWB由128个页构成，容量只有2M**
+
+**DWB为什么能解决“页数据损坏”问题呢？**
+
+假设步骤2掉电，磁盘里依然是1+2+3+4的完整数据。
+
+*画外音：**只要有页数据完整，就能通过redo还原数据。*
+
+假如步骤3掉电，DWB里存储着完整的数据。
+
+所以，一定不会出现“页数据损坏”问题。
+
+*画外音：**写了2次，总有一个地方的数据是OK的**
+
+
+
+自己实验了几十次，仍没能复现“页数据损坏”，在网上找了一个“页数据损坏”时，MySQL重启过程利用DWB修复页数据的图
+
+![img](mysql.assets/aHR0cHM6Ly9tbWJpei5xcGljLmNuL3N6X21tYml6X3BuZy9ZcmV6eGNraFlPeGlicmlhY0lpY1hoaGZ6MW1vQ0Q3SFlUcm95eG85a1pIdkdiRDZscEd1RU5pY2taWFVBdTB3eWIxeWljZ2libTNCT0Z3YlBua0FRcGZSWVN4dy82NDA.jpg)
+
+可以看到，启动过程中：
+
+（1）InnoDB检测到上一次为异常关闭；
+
+（2）尝试恢复ibd数据，失败；
+
+（3）从DWB中恢复写了一半的页；
+
+分析DWB执行的三个步骤：
+
+（1）第一步，页数据memcopy到DWB的内存，速度很快；
+
+（2）第二步，DWB的内存fsync刷到DWB的磁盘，属于顺序追加写，速度也很快；
+
+（3）第三步，刷磁盘，随机写，本来就需要进行，不属于额外操作；
+
+**在主从复制架构中，从库可以关闭二次写**
 
 ### 前缀索引
 
@@ -1037,4 +1127,44 @@ sync_binlog
 ~~~sql
 select field_list from t where id_card = reverse('input_id_card_string');
 ~~~
+
+### 事务实现
+
+#### redo log
+
+mysql 为了提升性能不会把每次的修改都实时同步到磁盘，而是会先存到Boffer Pool(缓冲池)里头，把这个当作缓存来用。然后使用后台线程去做缓冲池和磁盘之间的同步。
+
+那么问题来了，如果还没来的同步的时候宕机或断电了怎么办？还没来得及执行上面图中红色的操作。这样会导致丢部分已提交事务的修改信息！
+
+所以引入了redo log来记录已成功提交事务的修改信息，并且会把redo log持久化到磁盘，系统重启之后在读取redo log恢复最新数据。
+
+总结：
+
+redo log是用来恢复数据的 用于保障已提交事务的持久化特性
+
+#### undo log
+
+undo log 叫做回滚日志，用于记录数据被修改前的信息。他正好跟前面所说的重做日志所记录的相反，重做日志记录数据被修改后的信息。undo log主要记录的是数据的逻辑变化，为了在发生错误时回滚之前的操作，需要将之前的操作都记录下来，然后在发生错误时才可以回滚
+
+#### 读写锁
+
+\1. mysql锁技术
+
+当有多个请求来读取表中的数据时可以不采取任何操作，但是多个请求里有读请求，又有修改请求时必须有一种措施来进行并发控制。不然很有可能会造成不一致。
+
+读写锁
+
+解决上述问题很简单，只需用两种锁的组合来对读写请求进行控制即可，这两种锁被称为：
+
+共享锁(shared lock),又叫做"读锁"
+
+读锁是可以共享的，或者说多个读请求可以共享一把锁读数据，不会造成阻塞。
+
+排他锁(exclusive lock),又叫做"写锁"
+
+写锁会排斥其他所有获取锁的请求，一直阻塞，直到写入完成释放锁。
+
+![img](mysql.assets/640.webp)
+
+#### MVCC基础
 
