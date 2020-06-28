@@ -864,7 +864,7 @@ t1表更新前
 
 ![不可重复读5](mysql.assets/不可重复读5.png)
 
-以上的例子就是同一个事务同一SQL在不同的时间查询得到的结果不一致，就是不可重复读
+以上的例子就是**同一个事务*同一SQL*在不同的时间**查询得到的**结果不一致**，就是**不可重复读**
 
 ，解决办法就是将隔离级别设置成可重复读(repeatable read)
 
@@ -879,6 +879,8 @@ t1表更新前
 ![可重复读](mysql.assets/可重复读.png)
 
 ##### 幻读
+
+https://segmentfault.com/a/1190000016566788?utm_source=tag-newest
 
 幻读主要是针对新增和删除的，就是在同一个事务中，执行更新时会多出几条数据
 
@@ -1002,6 +1004,41 @@ MySQL日志管理 ========================================================
 
 事务日志或称redo日志： 记录Innodb事务相关的如事务执行时间、检查点等
 
+![img](mysql.assets/11512754-1478bc80d668c2f8.webp)
+
+#### binglog
+
+~~~sql
+// 查看binlog日志位置
+show binlog events
+//获取binlog文件列表
+show binary logs
+
+2、用mysqlbinlog工具查看
+基于开始/结束时间
+[root@hd3 ~]# mysqlbinlog --start-datetime='2016-08-02 00:00:00' --stop-datetime='2016-08-03 23:01:01' -d hadoop /var/lib/mysql/mysql-bin.000001
+//如果需要查询2017-09-17 07:21:09到2017-09-19 07:59:50 数据库为geeRunner 的操作日志，输入如下命令将数据写入到一个备用的txt即可
+mysqlbinlog --no-defaults --database=geeRunner --start-datetime="2017-09-17 07:21:09" --stop-datetime="2017-09-19 07:59:50" binlogs.000080 > sanjiaomao.txt
+//如果需要过滤，只查询insert，update，delete的语句，可以这样写
+mysqlbinlog --no-defaults --database=raceEnroll  binlogs.000078 |grep update |more
+~~~
+
+#### redo log
+
+Redo log的存储都是以 **块(block)** 为单位进行存储的，每个块的大小为512字节。同磁盘扇区大小一致，可以保证块的写入是原子操作。
+
+块由三部分所构成，分别是 **日志块头(log block header)**，**日志块尾(log block tailer)**，**日志本身**
+
+通用的头部格式由一下3部分组成
+
+redo_log_type 重做日志类型
+
+space: 表空间ID
+
+page_no 页的偏移量
+
+之后是redo log body
+
 
 
 ### 系统参数
@@ -1035,13 +1072,34 @@ innodb_log_file_size
 
 **innodb_log_buffer_size** 
 
-innodb_flush_log_at_trx_commit
+#### innodb_flush_log_at_trx_commit
+
+提交事务的时候将 redo 日志写入磁盘中，所谓的 redo 日志，就是记录下来你对数据做了什么修改，比如对 “id=10 这行记录修改了 name 字段的值为 xxx”，这就是一个日志。如果我们想要提交一个事务了，此时就会根据一定的策略把 redo 日志从 redo log buffer 里刷入到磁盘文件里去。此时这个策略是通过 innodb_flush_log_at_trx_commit 来配置的，他有几个选项。
+值为0 : 提交事务的时候，不立即把 redo log buffer 里的数据刷入磁盘文件的，而是依靠 InnoDB 的主线程每秒执行一次刷新到磁盘。此时可能你提交事务了，结果 mysql 宕机了，然后此时内存里的数据全部丢失。
+值为1 : 提交事务的时候，就必须把 redo log 从内存刷入到磁盘文件里去，只要事务提交成功，那么 redo log 就必然在磁盘里了。注意，因为操作系统的“延迟写”特性，此时的刷入只是写到了操作系统的缓冲区中，因此执行同步操作才能保证一定持久化到了硬盘中。
+值为2 : 提交事务的时候，把 redo 日志写入磁盘文件对应的 os cache 缓存里去，而不是直接进入磁盘文件，可能 1 秒后才会把 os cache 里的数据写入到磁盘文件里去。
+可以看到，只有1才能真正地保证事务的持久性，但是由于刷新操作 fsync() 是阻塞的，直到完成后才返回，我们知道写磁盘的速度是很慢的，因此 MySQL 的性能会明显地下降。如果不在乎事务丢失，0和2能获得更高的性能
+
+![img](mysql.assets/1334255-20200414103201088-1760773510.png)
 
 Max_allowed_packet
 
 Net_buffer_length
 
-sync_binlog
+#### sync_binlog
+
+该参数控制着二进制日志写入磁盘的过程。
+
+该参数的有效值为0 、1、N：
+
+0：默认值。事务提交后，将二进制日志从缓冲写入磁盘，但是不进行刷新操作（fsync()），此时只是写入了操作系统缓冲，若操作系统宕机则会丢失部分二进制日志。
+
+1：事务提交后，将二进制文件写入磁盘并立即执行刷新操作，相当于是同步写入磁盘，不经过操作系统的缓存。
+
+N：每写N次操作系统缓冲就执行一次刷新操作。
+
+将这个参数设为1以上的数值会提高数据库的性能，但同时会伴随数据丢失的风险。
+二进制日志文件涉及到数据的恢复，以及想在主从之间获得最大的一致性，那么应该将该参数设置为1，但同时也会造成一定的性能损耗。
 
 #### Doublewrite Buffer
 
@@ -1062,7 +1120,9 @@ show global variables like '%innodb_page_size%';
 
 Double Write Buffer，但它与传统的buffer又不同，它分为**内存**和**磁盘**的两层架构。
 
-*画外音：**传统的buffer，大部分是内存存储；**而DWB里的数据，是需要落地的*
+*画外音：**传统的buffer，大部分是内存存储；**而DWB里的数据，是需要落地的**
+
+![img](mysql.assets/aHR0cHM6Ly9tbWJpei5xcGljLmNuL3N6X21tYml6X3BuZy9ZcmV6eGNraFlPeGlicmlhY0lpY1hoaGZ6MW1vQ0Q3SFlUckVPVnJNdGljSmc3UVFkRDFlT1Jvb2ZBdTNBUUJHeFVoOHQ4MkRqRVZmQXZkaFRIZ1UwVDE0N0EvNjQw.jpg)
 
 如上图所示，当有页数据要刷盘时：
 
@@ -1076,11 +1136,11 @@ Double Write Buffer，但它与传统的buffer又不同，它分为**内存**和
 
 **DWB为什么能解决“页数据损坏”问题呢？**
 
-假设步骤2掉电，磁盘里依然是1+2+3+4的完整数据。
+假设**步骤2**掉电，磁盘里依然是1+2+3+4的完整数据。
 
 *画外音：**只要有页数据完整，就能通过redo还原数据。*
 
-假如步骤3掉电，DWB里存储着完整的数据。
+假如**步骤3**掉电，DWB里存储着完整的数据。
 
 所以，一定不会出现“页数据损坏”问题。
 
@@ -1148,7 +1208,7 @@ undo log 叫做回滚日志，用于记录数据被修改前的信息。他正�
 
 #### 读写锁
 
-\1. mysql锁技术
+1. mysql锁技术
 
 当有多个请求来读取表中的数据时可以不采取任何操作，但是多个请求里有读请求，又有修改请求时必须有一种措施来进行并发控制。不然很有可能会造成不一致。
 
@@ -1167,4 +1227,3 @@ undo log 叫做回滚日志，用于记录数据被修改前的信息。他正�
 ![img](mysql.assets/640.webp)
 
 #### MVCC基础
-
