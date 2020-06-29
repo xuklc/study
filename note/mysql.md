@@ -564,6 +564,11 @@ processlist命令的输出结果**显示了有哪些线程在运行**，不仅�
 
 ### 索引
 
+#### B+树性质
+
+1. **索引字段要尽量的小：**通过上面的分析，我们知道IO次数取决于b+数的高度h，假设当前数据表的数据为N，每个磁盘块的数据项的数量是m，则有h=㏒(m+1)N，当数据量N一定的情况下，m越大，h越小；而m = 磁盘块的大小(4K) / 数据项的大小，磁盘块的大小也就是一个数据页的大小，是固定的，如果数据项占的空间越小，数据项的数量越多，树的高度越低。这就是为什么每个数据项，即索引字段要尽量的小，比如int占4字节，要比bigint8字节少一半。这也是为什么b+树要求把真实的数据放到叶子节点而不是内层节点，一旦放到内层节点，磁盘块的数据项会大幅度下降，导致树增高。当数据项等于1时将会退化成线性表。
+2. **索引的最左匹配特性：**当b+树的数据项是复合的数据结构，比如(name,age,sex)的时候，b+数是按照从左到右的顺序来建立搜索树的，比如当(张三,20,F)这样的数据来检索的时候，b+树会优先比较name来确定下一步的所搜方向，如果name相同再依次比较age和sex，最后得到检索的数据；但当(20,F)这样的没有name的数据来的时候，b+树就不知道下一步该查哪个节点，因为建立搜索树的时候name就是第一个比较因子，必须要先根据name来搜索才能知道下一步去哪里查询。比如当(张三,F)这样的数据来检索时，b+树可以用name来指定搜索方向，但下一个字段age的缺失，所以只能把名字等于张三的数据都找到，然后再匹配性别是F的数据了， 这个是非常重要的性质，即索引的最左匹配特性
+
 #### 聚集索引
 
 InnoDB存储引擎表是索引组织表，即表中数据按照主键顺序存放。
@@ -1025,19 +1030,155 @@ mysqlbinlog --no-defaults --database=raceEnroll  binlogs.000078 |grep update |mo
 
 #### redo log
 
+https://cloud.tencent.com/developer/article/1533847
+
+https://www.cnblogs.com/f-ck-need-u/archive/2018/05/08/9010872.html
+
 Redo log的存储都是以 **块(block)** 为单位进行存储的，每个块的大小为512字节。同磁盘扇区大小一致，可以保证块的写入是原子操作。
 
-块由三部分所构成，分别是 **日志块头(log block header)**，**日志块尾(log block tailer)**，**日志本身**
+redo log以块为单位进行存储的，每个块占512字节，这称为redo log block
 
-通用的头部格式由一下3部分组成
+每个redo log block由3部分组成：**日志块头、日志块尾和日志主体**。
 
-redo_log_type 重做日志类型
+日志块头包含4部分：
 
-space: 表空间ID
+-  log_block_hdr_no：(4字节)该日志块在redo log buffer中的位置ID。
+-  log_block_hdr_data_len：(2字节)该log block中已记录的log大小。写满该log block时为0x200，表示512字节。
+-  log_block_first_rec_group：(2字节)该log block中第一个log的开始偏移位置。
+-  lock_block_checkpoint_no：(4字节)写入检查点信息的位置。
 
-page_no 页的偏移量
+![img](mysql.assets/733013-20180508182701906-2079813573.png)
 
-之后是redo log body
+关于log block块头的第三部分 log_block_first_rec_group ，因为有时候一个数据页产生的日志量超出了一个日志块，这是需要用多个日志块来记录该页的相关日志。例如，某一数据页产生了552字节的日志量，那么需要占用两个日志块，第一个日志块占用492字节，第二个日志块需要占用60个字节，那么对于第二个日志块来说，它的第一个log的开始位置就是73字节(60+12)。如果该部分的值和 log_block_hdr_data_len 相等，则说明该log block中没有新开始的日志块，即表示该日志块用来延续前一个日志块。
+
+日志尾只有一个部分： log_block_trl_no ，该值和块头的 log_block_hdr_no 相等
+
+其中log block中492字节的部分是log body，该log body的格式分为4部分
+
+- redo_log_type：占用1个字节，表示redo log的日志类型。
+- space：表示表空间的ID，采用压缩的方式后，占用的空间可能小于4字节。
+- page_no：表示页的偏移量，同样是压缩过的。
+- redo_log_body表示每个重做日志的数据部分，恢复时会调用相应的函数进行解析。例如insert语句和delete语句写入redo log的内容是不一样的
+
+#####  日志刷盘规则
+
+刷日志到磁盘有以下几种规则：
+
+**1.发出commit动作时。已经说明过，commit发出后是否刷日志由变量 innodb_flush_log_at_trx_commit 控制。**
+
+**2.每秒刷一次。这个刷日志的频率由变量 innodb_flush_log_at_timeout 值决定，默认是1秒。要注意，这个刷日志频率和commit动作无关。**
+
+**3.当log buffer中已经使用的内存超过一半时。**
+
+**4.当有checkpoint时，checkpoint在一定程度上代表了刷到磁盘时日志所处的LSN位置。**
+
+##### checkpoint
+
+innodb存储引擎中checkpoint分为两种：
+
+- sharp checkpoint：在重用redo log文件(例如切换日志文件)的时候，将所有已记录到redo log中对应的脏数据刷到磁盘。
+- fuzzy checkpoint：一次只刷一小部分的日志到磁盘，而非将所有脏日志刷盘。有以下几种情况会触发该检查点：
+  - master thread checkpoint：由master线程控制，**每秒或每10秒**刷入一定比例的脏页到磁盘。
+  - flush_lru_list checkpoint：从MySQL5.6开始可通过 innodb_page_cleaners 变量指定专门负责脏页刷盘的page cleaner线程的个数，该线程的目的是为了保证lru列表有可用的空闲页。
+  - async/sync flush checkpoint：同步刷盘还是异步刷盘。例如还有非常多的脏页没刷到磁盘(非常多是多少，有比例控制)，这时候会选择同步刷到磁盘，但这很少出现；如果脏页不是很多，可以选择异步刷到磁盘，如果脏页很少，可以暂时不刷脏页到磁盘
+  - dirty page too much checkpoint：脏页太多时强制触发检查点，目的是为了保证缓存有足够的空闲空间。too much的比例由变量 innodb_max_dirty_pages_pct 控制，MySQL 5.6默认的值为75，即当脏页占缓冲池的百分之75后，就强制刷一部分脏页到磁盘。
+
+由于刷脏页需要一定的时间来完成，所以记录检查点的位置是在每次刷盘结束之后才在redo log中标记的
+
+MySQL停止时是否将脏数据和脏日志刷入磁盘，由变量innodb_fast_shutdown={ 0|1|2 }控制，默认值为1，即停止时只做一部分purge，忽略大多数flush操作(但至少会刷日志)，在下次启动的时候再flush剩余的内容，实现fast shutdown
+
+##### LSN
+
+LSN称为日志的逻辑序列号(log sequence number)，在innodb存储引擎中，lsn占用8个字节。LSN的值会随着日志的写入而逐渐增大。
+
+根据LSN，可以获取到几个有用的信息：
+
+1.数据页的版本信息。
+
+2.写入的日志总量，通过LSN开始号码和结束号码可以计算出写入的日志量。
+
+3.可知道检查点的位置。
+
+实际上还可以获得很多隐式的信息。
+
+LSN不仅存在于redo log中，还存在于数据页中，在每个数据页的头部，有一个*fil_page_lsn*记录了当前页最终的LSN值是多少。通过数据页中的LSN值和redo log中的LSN值比较，如果页中的LSN值小于redo log中LSN值，则表示数据丢失了一部分，这时候可以通过redo log的记录来恢复到redo log中记录的LSN值时的状态。
+
+redo log的lsn信息可以通过 show engine innodb status 来查看。MySQL 5.5版本的show结果中只有3条记录，没有pages flushed up to
+
+~~~sql
+mysql> show engine innodb status
+---
+LOG
+---
+Log sequence number 2225502463
+Log flushed up to   2225502463
+Pages flushed up to 2225502463
+Last checkpoint at  2225502463
+0 pending log writes, 0 pending chkp writes
+3201299 log i/o's done, 0.00 log i/o's/second
+log sequence number就是当前的redo log(in buffer)中的lsn；
+log flushed up to是刷到redo log file on disk中的lsn；
+pages flushed up to是已经刷到磁盘数据页上的LSN；
+last checkpoint at是上一次检查点所在位置的LSN。
+~~~
+
+
+
+**redo log一般保存在日志文件ib_logfile0和ib_logfile1这种文件中**
+
+一个事务可以包含多个语句，一个语句中可以包含多个mtr，每一个mtr包含多个redo日志，我们表示一下就是这样：
+
+![](mysql.assets/redo1.png)
+
+#### undo log
+
+##### 基本概念
+
+undo log有两个作用：提供回滚和多个行版本控制(MVCC)。
+
+在数据修改的时候，不仅记录了redo，还记录了相对应的undo，如果因为某些原因导致事务失败或回滚了，可以借助该undo进行回滚。
+
+undo log和redo log记录物理日志不一样，它是逻辑日志。**可以认为当delete一条记录时，undo log中会记录一条对应的insert记录，反之亦然，当update一条记录时，它记录一条对应相反的update记录。**
+
+当执行rollback时，就可以从undo log中的逻辑记录读取到相应的内容并进行回滚。有时候应用到行版本控制的时候，也是通过undo log来实现的：当读取的某一行被其他事务锁定时，它可以从undo log中分析出该行记录以前的数据是什么，从而提供该行版本信息，让用户实现非锁定一致性读取。
+
+**undo log****是采用段(segment)****的方式来记录的，每个undo****操作在记录的时候占用一个undo log segment****。**
+
+另外，**undo log****也会产生redo log**，因为undo log**也要实现**持久性保护**
+
+###### 存储方式
+
+innodb存储引擎对undo的管理采用段的方式。**rollback segment****称为回滚段，每个回滚段中有1024****个undo log segment****。**
+
+在以前老版本，只支持1个rollback segment，这样就只能记录1024个undo log segment。后来MySQL5.5可以支持128个rollback segment，即支持128*1024个undo操作，还可以通过变量 innodb_undo_logs (5.6版本以前该变量是 innodb_rollback_segments )自定义多少个rollback segment，默认值为128。
+
+undo log默认存放在共享表空间中
+
+如果开启了 innodb_file_per_table ，将放在每个表的.ibd文件中
+
+在MySQL5.6中，undo的存放位置还可以通过变量 innodb_undo_directory 来自定义存放目录，默认值为"."表示datadir
+
+默认rollback segment全部写在一个文件中，但可以通过设置变量 innodb_undo_tablespaces 平均分配到多少个文件中。该变量默认值为0，即全部写入一个表空间文件。该变量为静态变量，只能在数据库示例停止状态下修改，如写入配置文件或启动时带上对应参数。但是innodb存储引擎在启动过程中提示，不建议修改为非0的值，如下
+
+~~~properties
+2017-03-31 13:16:00 7f665bfab720 InnoDB: Expected to open 3 undo tablespaces but was able
+2017-03-31 13:16:00 7f665bfab720 InnoDB: to find only 0 undo tablespaces.
+2017-03-31 13:16:00 7f665bfab720 InnoDB: Set the innodb_undo_tablespaces parameter to the
+2017-03-31 13:16:00 7f665bfab720 InnoDB: correct value and retry. Suggested value is 0
+~~~
+
+###### delete/update操作的内部机制
+
+当事务提交的时候，innodb不会立即删除undo log，因为后续还可能会用到undo log，如隔离级别为repeatable read时，事务读取的都是开启事务时的最新提交行版本，只要该事务不结束，该行版本就不能删除，即undo log不能删除。
+
+但是在事务提交的时候，会将该事务对应的undo log放入到删除列表中，未来通过purge来删除。并且提交事务时，还会判断undo log分配的页是否可以重用，如果可以重用，则会分配给后面来的事务，避免为每个独立的事务分配独立的undo log页而浪费存储空间和性能。
+
+通过undo log记录delete和update操作的结果发现：(insert操作无需分析，就是插入行而已)
+
+- delete操作实际上不会直接删除，而是将delete对象打上delete flag，标记为删除，最终的删除操作是purge线程完成的。
+- update分为两种情况：update的列是否是主键列。
+  - 如果不是主键列，在undo log中直接反向记录是如何update的。即update是直接进行的。
+  - 如果是主键列，update分两部执行：先删除该行，再插入一行目标行
 
 
 

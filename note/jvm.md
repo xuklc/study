@@ -478,6 +478,21 @@ jmap -heap PID
 
 获取dump文件
 
+1. JVM启动时增加两个参数:
+
+   ~~~properties
+   #出现 OOME 时生成堆 dump: 
+   -XX:+HeapDumpOnOutOfMemoryError
+   #生成堆文件地址：
+   -XX:HeapDumpPath=/home/liuke/jvmlogs/
+   ~~~
+
+2. 发现程序异常前通过执行指令，直接生成当前JVM的dmp文件
+
+   ~~~shell
+   jmap -dump:format=b,file=/home/admin/logs/heap.hprof 6214
+   ~~~
+
 jmap dump:format=b,file=heap.hprof  PID
 
 **format=b指定为二进制格式文件**
